@@ -21,5 +21,34 @@
 </ul>
 <p>If you have a different device or sensor and would like to submit a file for testing, please get in touch!</p>
 
+<h3>How do I use php-FIT-File-Reader with my PHP-driven website?</h3>
+<p>It's very easy! Just download the latest version and put it somewhere appropriate (e.g. classes/).</p>
+<p>Then include the file on the PHP page where you want to use it and instantiate an object of the class:</p>
+```php
+<?php
+    include('classes/php-FIT-File-Reader.php');
+    $pFFR = new phpFITFileReader('fit_files/my_fit_file.fit');
+?>
+```
+<p>Note two things:</p>
+<ol>
+<li>The PHP class does not have hyphens (they're not allowed at the time this was written).</li>
+<li>The only mandatory parameter required when creating an instance is the path to the FIT file that you want to load.</li>
+</ol>
+<p>There are more <b>Optional Parameters</b> that can be supplied. These are listed below.</p>
+<p>The object will automatically load the FIT file and iterate through its contents. It will store any data it finds in arrays, which are accessible via the getData(...) method, for example:</p>
+```php
+<?php
+    $chartData = $pFFR->getData();
+?>
+```
+<p>See <b>Accessing the Data</b> below for more information.</p>
+
+<h3>Optional Parameters</h3>
+<p>To-do...</p>
+
+<h3>Accessing the Data</h3>
+<p>To-do...</p>
+
 <h3>Acknowledgement</h3>
 <p>This class has been created using information available in a Software Development Kit (SDK) made available by ANT (http://www.thisisant.com/resources/fit), which has its own 'Flexible and Interoperable Data Transfer (FIT) Protocol License Terms and Conditions'.</p>
