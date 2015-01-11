@@ -97,6 +97,7 @@
 </tr>
 </tbody>
 </table>
+<h4>Convert Temperature</h4>
 <table>
 <thead>
 <th>Option</th>
@@ -113,7 +114,6 @@
 </tr>
 </tbody>
 </table>
-<h4>Convert Temperature</h4>
 <p>Default: no fixing.</p>
 
 <h3>Accessing the Data</h3>
