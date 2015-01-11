@@ -93,5 +93,5 @@
 
 <h3>Disclaimer</h3>
 <ul>
-<li>php-FIT-File-Reader and the files associated with it ("the Software") is provided "as-is” and without warranty.<li>
-<li>Use of the Software and reliance on the data it provides is at your own risk. GPS-FIT is not liable for any loss (data, reputation, revenue or otherwise) you may experience.
+<li>php-FIT-File-Reader and the files associated with it ("the Software") is provided "as-is” and without warranty.</li>
+<li>Use of the Software and reliance on the data it provides is at your own risk. GPS-FIT is not liable for any loss (data, reputation, revenue or otherwise) you may experience.</li>
