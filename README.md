@@ -51,14 +51,14 @@
 <h4>Convert Speed, Distance, Altitude</h4>
 <table>
 <thead>
-<th></th>
+<th>Option</th>
 <th>Speed</th>
 <th>Distance</th>
 <th>Altitude</th>
 </thead>
 <tbody>
 <tr>
-<td>Metric<br><em>DEFAULT</em></td>
+<td>Metric<br><em>(DEFAULT)</em></td>
 <td>kilometers per hour</td>
 <td>kilometers</td>
 <td>meters</td>
@@ -78,7 +78,41 @@
 </tbody>
 </table>
 <h4>Convert Latitude and Longitude</h4>
-<p>Default: no fixing.</p>
+<table>
+<thead>
+<th>Option</th>
+<th>Latitude</th>
+<th>Longitude</th>
+</thead>
+<tbody>
+<tr>
+<td>Degrees<br><em>(DEFAULT)</em></td>
+<td>degrees</td>
+<td>degrees</td>
+</tr>
+<tr>
+<td>Raw<br></td>
+<td>semicircles</td>
+<td>semicircles</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<th>Option</th>
+<th>Temperature</th>
+</thead>
+<tbody>
+<tr>
+<td>celsius<br><em>(DEFAULT)</em></td>
+<td>&#8451;</td>
+</tr>
+<tr>
+<td>fahrenheit<br></td>
+<td>&#8457;</td>
+</tr>
+</tbody>
+</table>
 <h4>Convert Temperature</h4>
 <p>Default: no fixing.</p>
 
