@@ -48,7 +48,7 @@
 <p>To-do...</p>
 <h4>"Fix" the Data</h4>
 <p>Default: no fixing.</p>
-<h4>Convert Speed, Distance, Altitude</h4>
+<h4>Convert Speed, Distance and Altitude</h4>
 <table>
 <thead>
 <th>Option</th>
@@ -58,19 +58,19 @@
 </thead>
 <tbody>
 <tr>
-<td>Metric<br><em>(DEFAULT)</em></td>
+<td>metric<br><em>(DEFAULT)</em></td>
 <td>kilometers per hour</td>
 <td>kilometers</td>
 <td>meters</td>
 </tr>
 <tr>
-<td>Statute</td>
+<td>statute</td>
 <td>miles per hour</td>
 <td>miles</td>
 <td>feet</td>
 </tr>
 <tr>
-<td>Raw</td>
+<td>raw</td>
 <td>meters per second</td>
 <td>meters</td>
 <td>meters</td>
@@ -86,12 +86,12 @@
 </thead>
 <tbody>
 <tr>
-<td>Degrees<br><em>(DEFAULT)</em></td>
+<td>degrees<br><em>(DEFAULT)</em></td>
 <td>degrees</td>
 <td>degrees</td>
 </tr>
 <tr>
-<td>Raw<br></td>
+<td>raw<br></td>
 <td>semicircles</td>
 <td>semicircles</td>
 </tr>
