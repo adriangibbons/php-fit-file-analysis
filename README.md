@@ -45,7 +45,6 @@
 <p>See <b>Accessing the Data</b> below for more information.</p>
 
 <h3>Optional Parameters</h3>
-<p>To-do...</p>
 <h4>"Fix" the Data</h4>
 <p>Default: no fixing.</p>
 <h4>Convert Speed, Distance and Altitude</h4>
