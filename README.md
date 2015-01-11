@@ -32,7 +32,7 @@
 ```
 <p>Note two things:</p>
 <ol>
-<li>The PHP class does not have hyphens (they're not allowed at the time this was written).</li>
+<li>The PHP class does not have hyphens (PHP does not allow them at the time this was written).</li>
 <li>The only mandatory parameter required when creating an instance is the path to the FIT file that you want to load.</li>
 </ol>
 <p>There are more <b>Optional Parameters</b> that can be supplied. These are listed below.</p>
@@ -80,6 +80,13 @@
 
 <h3>Accessing the Data</h3>
 <p>To-do...</p>
+
+<h3>Where are My FIT Files?</h3>
+<p>You are likely to find your .fit files in one of two locations:</p>
+<ol>
+<li>On the GPS device in the folder Garmin > Activities (plug it into your computer using a USB cable).</li>
+<li>C:\ drive > Users > Username > Application Data > Garmin > Devices > Device Number > Activities.</li>
+</ol>
 
 <h3>Acknowledgement</h3>
 <p>This class has been created using information available in a Software Development Kit (SDK) made available by ANT (http://www.thisisant.com/resources/fit), which has its own 'Flexible and Interoperable Data Transfer (FIT) Protocol License Terms and Conditions'.</p>
