@@ -56,25 +56,29 @@
 <th>Speed</th>
 <th>Distance</th>
 <th>Altitude</th>
+<th></th>
 </thead>
 <tbody>
 <tr>
-<td>Units</td>
+<td>Metric</td>
 <td>kilometers per hour</td>
 <td>kilometers</td>
 <td>kilometers</td>
+<td><em>DEFAULT</em></td>
 </tr>
 <tr>
-<td>Units</td>
+<td>Statute</td>
 <td>miles per hour</td>
 <td>miles</td>
 <td>feet</td>
+<td></td>
 </tr>
 <tr>
-<td>Units</td>
+<td>Raw</td>
 <td>meters per second</td>
 <td>meters</td>
 <td>meters</td>
+<td></td>
 </tr>
 </tbody>
 </table>
