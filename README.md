@@ -81,8 +81,8 @@
 <h3>Accessing the Data</h3>
 <p>To-do...</p>
 
-<h3>Where are My FIT Files?</h3>
-<p>You are likely to find your .fit files in one of two locations:</p>
+<h3>Where are my FIT files?</h3>
+<p>You are may find your .fit files in one of two locations:</p>
 <ol>
 <li>On the GPS device in the folder Garmin > Activities (plug it into your computer using a USB cable).</li>
 <li>C:\ drive > Users > Username > Application Data > Garmin > Devices > Device Number > Activities.</li>
