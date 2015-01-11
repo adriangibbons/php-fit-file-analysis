@@ -36,16 +36,52 @@
 <li>The only mandatory parameter required when creating an instance is the path to the FIT file that you want to load.</li>
 </ol>
 <p>There are more <b>Optional Parameters</b> that can be supplied. These are listed below.</p>
-<p>The object will automatically load the FIT file and iterate through its contents. It will store any data it finds in arrays, which are accessible via the getData(...) method, for example:</p>
+<p>The object will automatically load the FIT file and iterate through its contents. It will store any data it finds in arrays, which are accessible via the public data variable:</p>
 ```php
 <?php
-    $chartData = $pFFR->getData();
+    $chartData = $pFFR->data;
 ?>
 ```
 <p>See <b>Accessing the Data</b> below for more information.</p>
 
 <h3>Optional Parameters</h3>
 <p>To-do...</p>
+<h4>"Fix" the Data</h4>
+<p>Default: no fixing.</p>
+<h4>Convert Speed, Distance, Altitude</h4>
+<strong>Options</strong>
+<table>
+<thead>
+<th></th>
+<th>Speed</th>
+<th>Distance</th>
+<th>Altitude</th>
+</thead>
+<tbody>
+<tr>
+<td>Units</td>
+<td>kilometers per hour</td>
+<td>kilometers</td>
+<td>kilometers</td>
+</tr>
+<tr>
+<td>Units</td>
+<td>miles per hour</td>
+<td>miles</td>
+<td>feet</td>
+</tr>
+<tr>
+<td>Units</td>
+<td>meters per second</td>
+<td>meters</td>
+<td>meters</td>
+</tr>
+</tbody>
+</table>
+<h4>Convert Latitude and Longitude</h4>
+<p>Default: no fixing.</p>
+<h4>Convert Temperature</h4>
+<p>Default: no fixing.</p>
 
 <h3>Accessing the Data</h3>
 <p>To-do...</p>
