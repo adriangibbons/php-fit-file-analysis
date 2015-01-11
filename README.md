@@ -50,70 +50,33 @@
 <h4>Convert Speed, Distance and Altitude</h4>
 <table>
 <thead>
-<th>Option</th>
-<th>Speed</th>
-<th>Distance</th>
-<th>Altitude</th>
+<th></th>
+<th>metric<br><em>(DEFAULT)</em></th>
+<th>statute</th>
+<th>raw</th>
 </thead>
 <tbody>
 <tr>
-<td>metric<br><em>(DEFAULT)</em></td>
-<td>kilometers per hour</td>
-<td>kilometers</td>
-<td>meters</td>
+<td>speed></td><td>kilometers per hour</td><td>miles per hour</td><td>meters per second</td>
 </tr>
 <tr>
-<td>statute</td>
-<td>miles per hour</td>
-<td>miles</td>
-<td>feet</td>
+<td>distance</td><td>kilometers</td><td>miles</td><td>meters</td>
 </tr>
 <tr>
-<td>raw</td>
-<td>meters per second</td>
-<td>meters</td>
-<td>meters</td>
+<td>altitude</td><td>meters</td><td>feet</td><td>meters</td>
+</tr>
+<tr>
+<td>Latitude</td><td>degrees</td><td>degrees</td><td>semicircles</td>
+</tr>
+<tr>
+<td>Longitude</td><td>degrees</td><td>degrees</td><td>semicircles</td>
+</tr>
+<tr>
+<td>Temperature</td><td>Celsius<br>&#8451;</td><td>Fahrenheit<br>&#8457;</td><td>Celsius<br>&#8451;</td>
 </tr>
 </tbody>
 </table>
-<h4>Convert Latitude and Longitude</h4>
-<table>
-<thead>
-<th>Option</th>
-<th>Latitude</th>
-<th>Longitude</th>
-</thead>
-<tbody>
-<tr>
-<td>degrees<br><em>(DEFAULT)</em></td>
-<td>degrees</td>
-<td>degrees</td>
-</tr>
-<tr>
-<td>raw<br></td>
-<td>semicircles</td>
-<td>semicircles</td>
-</tr>
-</tbody>
-</table>
-<h4>Convert Temperature</h4>
-<table>
-<thead>
-<th>Option</th>
-<th>Temperature</th>
-</thead>
-<tbody>
-<tr>
-<td>celsius<br><em>(DEFAULT)</em></td>
-<td>&#8451;</td>
-</tr>
-<tr>
-<td>fahrenheit<br></td>
-<td>&#8457;</td>
-</tr>
-</tbody>
-</table>
-<p>Default: no fixing.</p>
+
 
 <h3>Accessing the Data</h3>
 <p>To-do...</p>
