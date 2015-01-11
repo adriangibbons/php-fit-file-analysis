@@ -51,19 +51,19 @@
 <table>
 <thead>
 <th></th>
-<th>metric<br><em>(DEFAULT)</em></th>
-<th>statute</th>
-<th>raw</th>
+<th>Metric<br><em>(DEFAULT)</em></th>
+<th>Statute</th>
+<th>Raw</th>
 </thead>
 <tbody>
 <tr>
-<td>speed</td><td>kilometers per hour</td><td>miles per hour</td><td>meters per second</td>
+<td>Speed</td><td>kilometers per hour</td><td>miles per hour</td><td>meters per second</td>
 </tr>
 <tr>
-<td>distance</td><td>kilometers</td><td>miles</td><td>meters</td>
+<td>Distance</td><td>kilometers</td><td>miles</td><td>meters</td>
 </tr>
 <tr>
-<td>altitude</td><td>meters</td><td>feet</td><td>meters</td>
+<td>Altitude</td><td>meters</td><td>feet</td><td>meters</td>
 </tr>
 <tr>
 <td>Latitude</td><td>degrees</td><td>degrees</td><td>semicircles</td>
@@ -72,7 +72,7 @@
 <td>Longitude</td><td>degrees</td><td>degrees</td><td>semicircles</td>
 </tr>
 <tr>
-<td>Temperature</td><td>Celsius (&#8451;)</td><td>Fahrenheit (&#8457;)</td><td>Celsius (&#8451;)</td>
+<td>Temperature</td><td>celsius (&#8451;)</td><td>fahrenheit (&#8457;)</td><td>celsius (&#8451;)</td>
 </tr>
 </tbody>
 </table>
