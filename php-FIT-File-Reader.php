@@ -1000,19 +1000,4 @@ class phpFITFileReader {
 		}
 	}
 }
-
-
-
-
-/*
-have flags to decide if to convert:
-	Speed: m/s to km/h (multiply by 0.0036)
-	Vertical Speed: m/s to km/h (multiply by 0.0036)
-	Temperature: C to F
-	Latitude: semicircles to degress
-	longitude: semicircles to degress
-	
-if set, then perform array_walk at after values have all been read in.
-*/
-
 ?>
