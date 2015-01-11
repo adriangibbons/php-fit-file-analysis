@@ -49,36 +49,31 @@
 <h4>"Fix" the Data</h4>
 <p>Default: no fixing.</p>
 <h4>Convert Speed, Distance, Altitude</h4>
-<strong>Options</strong>
 <table>
 <thead>
 <th></th>
 <th>Speed</th>
 <th>Distance</th>
 <th>Altitude</th>
-<th></th>
 </thead>
 <tbody>
 <tr>
-<td>Metric</td>
+<td>Metric<br><em>DEFAULT</em></td>
 <td>kilometers per hour</td>
 <td>kilometers</td>
-<td>kilometers</td>
-<td><em>DEFAULT</em></td>
+<td>meters</td>
 </tr>
 <tr>
 <td>Statute</td>
 <td>miles per hour</td>
 <td>miles</td>
 <td>feet</td>
-<td></td>
 </tr>
 <tr>
 <td>Raw</td>
 <td>meters per second</td>
 <td>meters</td>
 <td>meters</td>
-<td></td>
 </tr>
 </tbody>
 </table>
