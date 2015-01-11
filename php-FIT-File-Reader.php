@@ -823,28 +823,28 @@ class phpFITFileReader {
 	
 	public function get_manufacturer() {
 		$tmp = $this->get_enum_data("manufacturer", $this->data["device_info"]["manufacturer"]);
-		return is_array($tmp ? $tmp[0] : $tmp);
+		return is_array($tmp) ? $tmp[0] : $tmp;
 	}
 	
 	public function get_product() {
 		$tmp = $this->get_enum_data("product", $this->data["device_info"]["product"]);
-		return is_array($tmp ? $tmp[0] : $tmp);
+		return is_array($tmp) ? $tmp[0] : $tmp;
 	}
 	
 	public function get_sport() {
 		$tmp = $this->get_enum_data("sport", $this->data["session"]["sport"]);
-		return is_array($tmp ? $tmp[0] : $tmp);
+		return is_array($tmp) ? $tmp[0] : $tmp;
 	}
 	
 	public function get_sub_sport() {
 		$tmp = $this->get_enum_data("sub_sport", $this->data["session"]["sub_sport"]);
-		return is_array($tmp ? $tmp[0] : $tmp);
+		return is_array($tmp) ? $tmp[0] : $tmp;
 	}
 	
 	public function get_swim_stroke() {
 		if($this->get_sport() == "swimming") {
 			$tmp = $this->get_enum_data("swim_stroke", $this->data["session"]["swim_stroke"]);
-			return is_array($tmp ? $tmp[0] : $tmp);
+			return is_array($tmp) ? $tmp[0] : $tmp;
 		}
 		else {
 			return "n/a";
