@@ -90,3 +90,8 @@
 
 <h3>Acknowledgement</h3>
 <p>This class has been created using information available in a Software Development Kit (SDK) made available by ANT (http://www.thisisant.com/resources/fit), which has its own 'Flexible and Interoperable Data Transfer (FIT) Protocol License Terms and Conditions'.</p>
+
+<h3>Disclaimer</h3>
+<ul>
+<li>php-FIT-File-Reader and the files associated with it ("the Software") is provided "as-is” and without warranty.<li>
+<li>Use of the Software and reliance on the data it provides is at your own risk. GPS-FIT is not liable for any loss (data, reputation, revenue or otherwise) you may experience.
