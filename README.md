@@ -47,7 +47,7 @@
 <h3>Optional Parameters</h3>
 <h4>"Fix" the Data</h4>
 <p>Default: no fixing.</p>
-<h4>Convert Speed, Distance and Altitude</h4>
+<h4>Set Units</h4>
 <table>
 <thead>
 <th></th>
@@ -57,7 +57,7 @@
 </thead>
 <tbody>
 <tr>
-<td>speed></td><td>kilometers per hour</td><td>miles per hour</td><td>meters per second</td>
+<td>speed</td><td>kilometers per hour</td><td>miles per hour</td><td>meters per second</td>
 </tr>
 <tr>
 <td>distance</td><td>kilometers</td><td>miles</td><td>meters</td>
@@ -72,7 +72,7 @@
 <td>Longitude</td><td>degrees</td><td>degrees</td><td>semicircles</td>
 </tr>
 <tr>
-<td>Temperature</td><td>Celsius<br>&#8451;</td><td>Fahrenheit<br>&#8457;</td><td>Celsius<br>&#8451;</td>
+<td>Temperature</td><td>Celsius (&#8451;)</td><td>Fahrenheit (&#8457;)</td><td>Celsius (&#8451;)</td>
 </tr>
 </tbody>
 </table>
