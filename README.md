@@ -4,7 +4,7 @@
 <p>FIT or Flexible and Interoperable Data Transfer is a file format used for GPS tracks and routes. It is used by newer Garmin fitness GPS devices, including the Edge and Forerunner, that are popular with cyclists and runners.</p>
 <p>The FIT format is similar to Garmin's Training Center XML (.TCX) format, which extends the GPS Exchange Format (.GPX). It enables sensor data (such as heart rate, cadence, and power) to be captured along with the GPS location and time information; as well as providing summary information for activities, sessions, and laps.</p>
 <p>The key difference is that FIT files are much smaller, as they are binary-encoded rather than being bloated XML-like ASCII documents. For example, a FIT file of 250Kb may have an equivalent TCX file of approximately 5Mb. This enables them to be uploaded to websites such as Garmin Connect, Strava, MapMyRide, Runkeeper, etc relatively quickly.</p>
-
+<br>
 <h3>Which Devices and Sensors has it been tested with?</h3>
 <h4>Devices</h4>
 <ul>
@@ -20,7 +20,7 @@
 <li>Stages Power Meter</li>
 </ul>
 <p>If you have a different device or sensor and would like to submit a file for testing, please get in touch!</p>
-
+<br>
 <h3>How do I use php-FIT-File-Reader with my PHP-driven website?</h3>
 <p>It's very easy! Just download the latest version and put it somewhere appropriate (e.g. classes/).</p>
 <p>Then include the file on the PHP page where you want to use it and instantiate an object of the class:</p>
@@ -35,13 +35,54 @@
 <li>The PHP class does not have hyphens (PHP does not allow them at the time this was written).</li>
 <li>The only mandatory parameter required when creating an instance is the path to the FIT file that you want to load.</li>
 </ol>
-<p>There are more <b>Optional Parameters</b> that can be supplied. These are listed below.</p>
+<p>There are more <b>Optional Parameters</b> that can be supplied. These are described in more detail further down this page.</p>
 <p>The object will automatically load the FIT file and iterate through its contents. It will store any data it finds in arrays, which are accessible via the public data variable:</p>
 ```php
 $chartData = $pFFR->data;
 ```
-<p>See <b>Accessing the Data</b> below for more information.</p>
+<p>See below for more information.</p>
+<br>
+<h3>Accessing the Data</h3>
+<p>Data read by the class are stored in associative arrays, which are accessible via the public data variable:</p>
+```php
+$pFFR->data
+```
+<p>The array indexes are the names of the messages and fields that they contain. For example</p>
+```php
+// Contains an array of all heart_rate data read from the file, indexed by timestamp.
+$pFFR->data['record']['heart_rate']
+// Contains an integer identifying the number of laps stored in that session.
+$pFFR->data['session']['num_laps']
+```
+<strong>OK, but how do I know what messages and fields were in my file?</strong>
+<p>You could either iterate through the $pFFR->data array, or take a look at the debug information you can dump to a webpage:</p>
+```php
+// Option 1. Iterate through the $pFFR->data array
+foreach($pFFR->data as $mesg_key => $mesg) {  // Iterate the array and output the messages
+    echo "Found Message: $mesg_key<br>";
+    foreach($mesg as $field_key => $field) {  // Iterate each message and output the fields
+        echo "\tFound Field: $field_key<br>";
+    }
+    echo "<br>";
+}
 
+// Option 2. Show the debug information
+$pFFR->show_debug_info();  // Quite a lot of info...
+```
+<strong>How about some real-world examples?</strong>
+```php
+// Get Max and Avg Speed
+echo "Maximum Speed: ".max($pFFR->data['record']['speed'])."<br>";
+echo "Average Speed: ".( array_sum($pFFR->data['record']['speed']) / count($pFFR->data['record']['speed']) );
+
+// Put HR data into a Javascript array for use in a Chart
+echo "var chartData = [";
+    foreach( $pFFR->data['record']['heart_rate'] as $timestamp => $hr_data ) {
+        echo "[$timestamp,$hr_data],";
+    }
+echo "];";
+```
+<br>
 <h3>Optional Parameters</h3>
 <p>There are two optional parameters that can be passed as an associative array when the phpFITFileReader object is instantiated. These are:</p>
 <ol>
@@ -161,47 +202,6 @@ var_dump( $pFFR->data['record']['distance'] );  // ['100'=>3.62, '101'=>4.01, '1
 $options = ['set_units_options' => ['statute']];
 $options = ['set _ units _options' => ['raw']];
 $options = ['set _ units _options' => ['metric']];  // explicit but not necessary, same as default.
-```
-<br>
-<h3>Accessing the Data</h3>
-<p>Data read by the class are stored in associative arrays, which are accessible via the public data variable:</p>
-```php
-$pFFR->data
-```
-<p>The array indexes are the names of the messages and fields that they contain. For example</p>
-```php
-// Contains an array of all heart_rate data read from the file, indexed by timestamp.
-$pFFR->data['record']['heart_rate']
-// Contains an integer identifying the number of laps stored in that session.
-$pFFR->data['session']['num_laps']
-```
-<strong>OK, but how do I know what messages and fields were in my file?</strong>
-<p>You could either iterate through the $pFFR->data array, or take a look at the debug information you can dump to a webpage:</p>
-```php
-// Option 1. Iterate through the $pFFR->data array
-foreach($pFFR->data as $mesg_key => $mesg) {  // Iterate the array and output the messages
-    echo "Found Message: $mesg_key<br>";
-    foreach($mesg as $field_key => $field) {  // Iterate each message and output the fields
-        echo "\tFound Field: $field_key<br>";
-    }
-    echo "<br>";
-}
-
-// Option 2. Show the debug information
-$pFFR->show_debug_info();  // Quite a lot of info...
-```
-<strong>How about some real-world examples?</strong>
-```php
-// Get Max and Avg Speed
-echo "Maximum Speed: ".max($pFFR->data['record']['speed'])."<br>";
-echo "Average Speed: ".( array_sum($pFFR->data['record']['speed']) / count($pFFR->data['record']['speed']) )."<br>";
-
-// Put HR data into a Javascript array for use in a Chart
-echo "var chartData = [";
-    foreach( $pFFR->data['record']['heart_rate'] as $timestamp => $hr_data ) {
-        echo "[$timestamp,$hr_data],";
-    }
-echo "];";
 ```
 <br>
 <h3>Where are my FIT files?</h3>
