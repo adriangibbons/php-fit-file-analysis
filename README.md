@@ -212,10 +212,11 @@ $options = ['set _ units _options' => ['metric']];  // explicit but not necessar
 </ol>
 <br>
 <h3>Acknowledgement</h3>
-<p>This class has been created using information available in a Software Development Kit (SDK) made available by ANT (http://www.thisisant.com/resources/fit), which has its own 'Flexible and Interoperable Data Transfer (FIT) Protocol License Terms and Conditions'.</p>
+<p>This class has been created using information available in a Software Development Kit (SDK) made available by ANT (http://www.thisisant.com/resources/fit).</p>
 <p>As a minimum, I'd recommend reading the three PDFs included in the SDK:</p>
 <ol>
 <li>FIT File Types Description</li>
 <li>FIT SDK Introductory Guide</li>
 <li>Flexible & Interoperable Data Transfer (FIT) Protocol</li>
 </ol>
+<p>Following these, the 'Profile.xls' spreadsheet and then the Java/C/C++ examples.</p>
