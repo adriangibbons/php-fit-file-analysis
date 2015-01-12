@@ -1,6 +1,6 @@
 # php FIT File Reader
 <p>A PHP class for reading FIT files created by Garmin GPS devices.</p>
-<p>A live demonstration can be found <a href="http://www.adriangibbons.com/php-FIT-File-Reader-demo/" target="new">here</a></p>
+<p>A live demonstration can be found <a href="http://www.adriangibbons.com/php-FIT-File-Reader-demo/" target="new">here</a>.</p>
 <h3>What is a FIT file?</h3>
 <p>FIT or Flexible and Interoperable Data Transfer is a file format used for GPS tracks and routes. It is used by newer Garmin fitness GPS devices, including the Edge and Forerunner, that are popular with cyclists and runners.</p>
 <p>The FIT format is similar to Garmin's Training Center XML (.TCX) format, which extends the GPS Exchange Format (.GPX). It enables sensor data (such as heart rate, cadence, and power) to be captured along with the GPS location and time information; as well as providing summary information for activities, sessions, and laps.</p>
