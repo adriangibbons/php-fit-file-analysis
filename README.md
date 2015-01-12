@@ -1,6 +1,6 @@
 # php FIT File Reader
 <p>A PHP class for reading FIT files created by Garmin GPS devices.</p>
-<p>A live demonstration can be found at: http://www.adriangibbons.com/php-FIT-File-Reader-demo/</p>
+<p>A live demonstration can be found <a href="http://www.adriangibbons.com/php-FIT-File-Reader-demo/" target="new">here</a></p>
 <h3>What is a FIT file?</h3>
 <p>FIT or Flexible and Interoperable Data Transfer is a file format used for GPS tracks and routes. It is used by newer Garmin fitness GPS devices, including the Edge and Forerunner, that are popular with cyclists and runners.</p>
 <p>The FIT format is similar to Garmin's Training Center XML (.TCX) format, which extends the GPS Exchange Format (.GPX). It enables sensor data (such as heart rate, cadence, and power) to be captured along with the GPS location and time information; as well as providing summary information for activities, sessions, and laps.</p>
@@ -213,7 +213,7 @@ $options = ['set _ units _options' => ['metric']];  // explicit but not necessar
 </ol>
 <br>
 <h3>Acknowledgement</h3>
-<p>This class has been created using information available in a Software Development Kit (SDK) made available by ANT (http://www.thisisant.com/resources/fit).</p>
+<p>This class has been created using information available in a Software Development Kit (SDK) made available by ANT (<a href="http://www.thisisant.com/resources/fit" target="new">thisisant.com</a>).</p>
 <p>As a minimum, I'd recommend reading the three PDFs included in the SDK:</p>
 <ol>
 <li>FIT File Types Description</li>
