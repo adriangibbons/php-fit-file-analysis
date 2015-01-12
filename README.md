@@ -130,6 +130,7 @@ var_dump( $pFFR->data['record']['distance'] );  // ['100'=>3.62, '101'=>4.01, '1
 ```
 <br>
 <h4>Set Units</h4>
+<p>By default, <em>metric</em> units (identified in the table below) are assumed.</p>
 <table>
 <thead>
 <th></th>
@@ -158,8 +159,14 @@ var_dump( $pFFR->data['record']['distance'] );  // ['100'=>3.62, '101'=>4.01, '1
 </tr>
 </tbody>
 </table>
-
-
+<p>You can request <em>statute</em> or <em>raw</em> units instead of metric. Raw units are those were used by the device that created the FIT file and are native to the FIT standard (i.e. no transformation of values read from the file will occur).</p>
+<p>To select the units you require, use one of the following:</p>
+```php
+    $options = ['set_units_options' => ['statute']];
+    $options = ['set _ units _options' => ['raw']];
+    $options = ['set _ units _options' => ['metric']];  // explicit but not necessary, same as default.
+```
+<br>
 <h3>Accessing the Data</h3>
 <p>To-do...</p>
 
