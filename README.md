@@ -206,7 +206,7 @@ $options = ['set _ units _options' => ['metric']];  // explicit but not necessar
 ```
 <br>
 <h3>Where are my FIT files?</h3>
-<p>You are may find your .fit files in one of two locations:</p>
+<p>You may find your .fit files in one of two locations:</p>
 <ol>
 <li>On the GPS device in the folder Garmin > Activities (plug it into your computer using a USB cable).</li>
 <li>C:\ drive > Users > Username > Application Data > Garmin > Devices > Device Number > Activities.</li>
