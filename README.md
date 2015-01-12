@@ -189,7 +189,20 @@ foreach($pFFR->data as $mesg_key => $mesg) {  // Iterate the array and output th
 
 // Option 2. Show the debug information
 $pFFR->show_debug_info();  // Quite a lot of info...
-``` 
+```
+<strong>How about some real-world examples?</strong>
+```php
+// Get Max and Avg Speed
+echo "Maximum Speed: ".max($pFFR->data['record']['speed'])."<br>";
+echo "Average Speed: ".( array_sum($pFFR->data['record']['speed']) / count($pFFR->data['record']['speed']) )."<br>";
+
+// Put HR data into a Javascript array for use in a Chart
+echo "var chartData = [";
+    foreach( $pFFR->data['record']['heart_rate'] as $timestamp => $hr_data ) {
+        echo "[$timestamp,$hr_data],";
+    }
+echo "];";
+```
 <br>
 <h3>Where are my FIT files?</h3>
 <p>You are may find your .fit files in one of two locations:</p>
@@ -197,7 +210,7 @@ $pFFR->show_debug_info();  // Quite a lot of info...
 <li>On the GPS device in the folder Garmin > Activities (plug it into your computer using a USB cable).</li>
 <li>C:\ drive > Users > Username > Application Data > Garmin > Devices > Device Number > Activities.</li>
 </ol>
-
+<br>
 <h3>Acknowledgement</h3>
 <p>This class has been created using information available in a Software Development Kit (SDK) made available by ANT (http://www.thisisant.com/resources/fit), which has its own 'Flexible and Interoperable Data Transfer (FIT) Protocol License Terms and Conditions'.</p>
 <p>As a minimum, I'd recommend reading the three PDFs included in the SDK:</p>
