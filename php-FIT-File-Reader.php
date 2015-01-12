@@ -864,7 +864,7 @@ class phpFITFileReader {
 		else {
 			$bCadence = in_array('cadence', $options['fix_data_options']);
 			$bDistance = in_array('distance', $options['fix_data_options']);
-			$bHeartRate = in_array('power', $options['fix_data_options']);
+			$bHeartRate = in_array('heart_rate', $options['fix_data_options']);
 			$bLatitudeLongitude = in_array('lat_lon', $options['fix_data_options']);
 			$bSpeed = in_array('speed', $options['fix_data_options']);
 			$bPower = in_array('power', $options['fix_data_options']);
