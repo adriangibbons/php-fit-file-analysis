@@ -38,9 +38,7 @@
 <p>There are more <b>Optional Parameters</b> that can be supplied. These are listed below.</p>
 <p>The object will automatically load the FIT file and iterate through its contents. It will store any data it finds in arrays, which are accessible via the public data variable:</p>
 ```php
-<?php
-    $chartData = $pFFR->data;
-?>
+$chartData = $pFFR->data;
 ```
 <p>See <b>Accessing the Data</b> below for more information.</p>
 
@@ -52,13 +50,11 @@
 </ol>
 <p>For example:</p>
 ````php
-<?php
-    $options = [
-        'fix_data_options' => ['cadence', 'distance'],
-        'set_units_options' => ['statute']
-    ];
-    $pFFR = new phpFITFileReader('my_fit_file.fit', $options);
-?>
+$options = [
+    'fix_data_options' => ['cadence', 'distance'],
+    'set_units_options' => ['statute']
+];
+$pFFR = new phpFITFileReader('my_fit_file.fit', $options);
 ````
 <p>The two are described in more detail below.</p>
 <h4>"Fix" the Data</h4>
@@ -67,9 +63,9 @@
 <p><strong>Values: </strong>'all', 'cadence', 'distance', 'heart_rate', 'lat_lon', 'power', 'speed'</p>
 <p><strong>Examples: </strong></p>
 ```php
-    $options = ['fix_data_options' => ['all']];  // fix cadence, distance, heart_rate, lat_lon, power, and speed data
-    $options = ['fix_data_options' => ['cadence', 'distance']];  // fix cadence and distance data only
-    $options = ['fix_data_options' => ['power']];  // fix power data only
+$options = ['fix_data_options' => ['all']];  // fix cadence, distance, heart_rate, lat_lon, power, and speed data
+$options = ['fix_data_options' => ['cadence', 'distance']];  // fix cadence and distance data only
+$options = ['fix_data_options' => ['power']];  // fix power data only
 ```
 <p>If the <em>fix_data_options</em> array is not supplied, then no "fixing" of the data is performed.</p>
 <p>A FIT file might contain the following:</p>
@@ -162,9 +158,9 @@ var_dump( $pFFR->data['record']['distance'] );  // ['100'=>3.62, '101'=>4.01, '1
 <p>You can request <em>statute</em> or <em>raw</em> units instead of metric. Raw units are those were used by the device that created the FIT file and are native to the FIT standard (i.e. no transformation of values read from the file will occur).</p>
 <p>To select the units you require, use one of the following:</p>
 ```php
-    $options = ['set_units_options' => ['statute']];
-    $options = ['set _ units _options' => ['raw']];
-    $options = ['set _ units _options' => ['metric']];  // explicit but not necessary, same as default.
+$options = ['set_units_options' => ['statute']];
+$options = ['set _ units _options' => ['raw']];
+$options = ['set _ units _options' => ['metric']];  // explicit but not necessary, same as default.
 ```
 <br>
 <h3>Accessing the Data</h3>
