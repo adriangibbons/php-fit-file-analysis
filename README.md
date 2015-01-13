@@ -83,14 +83,14 @@ echo "];";
 <h3>Optional Parameters</h3>
 <p>There are two optional parameters that can be passed as an associative array when the phpFITFileReader object is instantiated. These are:</p>
 <ol>
-<li>fix_data_options</li>
-<li>set_units_options</li>
+<li>fix_data</li>
+<li>set_units</li>
 </ol>
 <p>For example:</p>
 ````php
 $options = [
-    'fix_data_options' => ['cadence', 'distance'],
-    'set_units_options' => ['statute']
+    'fix_data' => ['cadence', 'distance'],
+    'set_units' => ['statute']
 ];
 $pFFR = new phpFITFileReader('my_fit_file.fit', $options);
 ````
@@ -100,11 +100,11 @@ $pFFR = new phpFITFileReader('my_fit_file.fit', $options);
 <p><strong>Recognised values: </strong>'all', 'cadence', 'distance', 'heart_rate', 'lat_lon', 'power', 'speed'</p>
 <p><strong>Examples: </strong></p>
 ```php
-$options = ['fix_data_options' => ['all']];  // fix cadence, distance, heart_rate, lat_lon, power, and speed data
-$options = ['fix_data_options' => ['cadence', 'distance']];  // fix cadence and distance data only
-$options = ['fix_data_options' => ['lat_lon']];  // fix position data only
+$options = ['fix_data' => ['all']];  // fix cadence, distance, heart_rate, lat_lon, power, and speed data
+$options = ['fix_data' => ['cadence', 'distance']];  // fix cadence and distance data only
+$options = ['fix_data' => ['lat_lon']];  // fix position data only
 ```
-<p>If the <em>fix_data_options</em> array is not supplied, then no "fixing" of the data is performed.</p>
+<p>If the <em>fix_data</em> array is not supplied, then no "fixing" of the data is performed.</p>
 <p>A FIT file might contain the following:</p>
 <table>
 <thead>
@@ -155,7 +155,7 @@ var_dump( $pFFR->data['record']['temperature'] );  // ['100'=>22, '101'=>22, '10
 var_dump( $pFFR->data['record']['distance'] );  // ['100'=>3.62, '101'=>4.01, '104'=>10.88];
 ```
 <p>As you can see from the trivial example above, temperature data have been recorded for each of five timestamps (100, 101, 102, 103, and 104). However, distance information has not been recorded for timestamps 102 and 103.</p>
-<p>If <em>fix_data_options</em> includes 'distance', then the class will attempt to insert data into the distance array with the indexes 102 and 103. Values are determined using a linear interpolation between indexes 101(4.01) and 104(10.88).<p>
+<p>If <em>fix_data</em> includes 'distance', then the class will attempt to insert data into the distance array with the indexes 102 and 103. Values are determined using a linear interpolation between indexes 101(4.01) and 104(10.88).<p>
 <p>The result would be:</p>
 ```php
 var_dump( $pFFR->data['record']['distance'] );  // ['100'=>3.62, '101'=>4.01, '102'=>6.30, '103'=>8.59, '104'=>10.88];
@@ -194,9 +194,9 @@ var_dump( $pFFR->data['record']['distance'] );  // ['100'=>3.62, '101'=>4.01, '1
 <p>You can request <strong>statute</strong> or <strong>raw</strong> units instead of metric. Raw units are those were used by the device that created the FIT file and are native to the FIT standard (i.e. no transformation of values read from the file will occur).</p>
 <p>To select the units you require, use one of the following:</p>
 ```php
-$options = ['set_units_options' => ['statute']];
-$options = ['set_units_options' => ['raw']];
-$options = ['set_units_options' => ['metric']];  // explicit but not necessary, same as default
+$options = ['set_units' => ['statute']];
+$options = ['set_units' => ['raw']];
+$options = ['set_units' => ['metric']];  // explicit but not necessary, same as default
 ```
 <br>
 <h3>Where are my FIT files?</h3>
