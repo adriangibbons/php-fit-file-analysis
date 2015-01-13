@@ -854,19 +854,19 @@ class phpFITFileReader {
 	 * 
 	 */
 	private function fix_data($options) {
-		if(!isset($options['fix_data_options']))
+		if(!isset($options['fix_data']))
 			return;
 		$bCadence = $bDistance = $bHeartRate = $bLatitudeLongitude = $bSpeed = $bPower = false;
-		if(in_array('all', $options['fix_data_options'])) {
+		if(in_array('all', $options['fix_data'])) {
 			$bCadence = $bDistance = $bHeartRate = $bLatitudeLongitude = $bSpeed = $bPower = true;
 		}
 		else {
-			$bCadence = in_array('cadence', $options['fix_data_options']);
-			$bDistance = in_array('distance', $options['fix_data_options']);
-			$bHeartRate = in_array('heart_rate', $options['fix_data_options']);
-			$bLatitudeLongitude = in_array('lat_lon', $options['fix_data_options']);
-			$bSpeed = in_array('speed', $options['fix_data_options']);
-			$bPower = in_array('power', $options['fix_data_options']);
+			$bCadence = in_array('cadence', $options['fix_data']);
+			$bDistance = in_array('distance', $options['fix_data']);
+			$bHeartRate = in_array('heart_rate', $options['fix_data']);
+			$bLatitudeLongitude = in_array('lat_lon', $options['fix_data']);
+			$bSpeed = in_array('speed', $options['fix_data']);
+			$bPower = in_array('power', $options['fix_data']);
 		}
 		$missing_distance_keys = [];
 		$missing_hr_keys = [];
@@ -970,7 +970,7 @@ class phpFITFileReader {
 	}
 	
 	private function set_units($options) {
-		if(!isset($options['set_units_options']) || in_array('metric', $options['set_units_options'])) {
+		if(!isset($options['set_units']) || in_array('metric', $options['set_units'])) {
 			if(isset($this->data['record']['speed']))
 				array_walk($this->data['record']['speed'], function(&$val) { $val = round($val * 3.6, 3); });  // convert  meters per second to kilometers per hour
 			if(isset($this->data['record']['distance']))
@@ -980,7 +980,7 @@ class phpFITFileReader {
 			if(isset($this->data['record']['position_long']))
 				array_walk($this->data['record']['position_long'], function(&$val) { $val = round($val * (180.0 / pow(2,31)), 5); });  // convert from semicircles to degress
 		}
-		else if(in_array('statute', $options['set_units_options'])) {
+		else if(in_array('statute', $options['set_units'])) {
 			if(isset($this->data['record']['speed']))
 				array_walk($this->data['record']['speed'], function(&$val) { $val = round($val * 2.23693629, 3); });  // convert  meters per second to miles per hour
 			if(isset($this->data['record']['distance']))
