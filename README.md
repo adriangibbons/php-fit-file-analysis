@@ -2,7 +2,7 @@
 <p>A PHP class for reading FIT files created by Garmin GPS devices.</p>
 <p>A live demonstration can be found <a href="http://www.adriangibbons.com/php-FIT-File-Reader-demo/" target="new">here</a>.</p>
 <h3>What is a FIT file?</h3>
-<p>FIT or Flexible and Interoperable Data Transfer is a file format used for GPS tracks and routes. It is used by newer Garmin fitness GPS devices, including the Edge and Forerunner, that are popular with cyclists and runners.</p>
+<p>FIT or Flexible and Interoperable Data Transfer is a file format used for GPS tracks and routes. It is used by newer Garmin fitness GPS devices, including the Edge and Forerunner, which are popular with cyclists and runners.</p>
 <p>The FIT format is similar to Garmin's Training Center XML (.TCX) format, which extends the GPS Exchange Format (.GPX). It enables sensor data (such as heart rate, cadence, and power) to be captured along with the GPS location and time information; as well as providing summary information for activities, sessions, and laps.</p>
 <p>The key difference is that FIT files are much smaller, as they are binary-encoded rather than being bloated XML-like ASCII documents. For example, a FIT file of 250Kb may have an equivalent TCX file of approximately 5Mb. This enables them to be uploaded to websites such as Garmin Connect, Strava, MapMyRide, Runkeeper, etc relatively quickly.</p>
 <br>
@@ -76,7 +76,7 @@ $pFFR->show_debug_info();  // Quite a lot of info...
 echo "Maximum Speed: ".max($pFFR->data['record']['speed'])."<br>";
 echo "Average Speed: ".( array_sum($pFFR->data['record']['speed']) / count($pFFR->data['record']['speed']) );
 
-// Put HR data into a Javascript array for use in a Chart
+// Put HR data into a JavasSript array for use in a Chart
 echo "var chartData = [";
     foreach( $pFFR->data['record']['heart_rate'] as $timestamp => $hr_data ) {
         echo "[$timestamp,$hr_data],";
@@ -152,7 +152,7 @@ $options = ['fix_data_options' => ['power']];  // fix power data only
 </table>
 <p>As illustrated above, the types of data most susceptible to missing data points are: position_lat, position_long, altitude, heart_rate, cadence, distance, speed, and power.</p>
 <p>With the exception of cadence information, missing data points are "fixed" by inserting interpolated values.</p>
-<p>For cadence, zeros are inserted as it is thought that it is likely no data has been collected due to a lack of movement at that point in time.</p>
+<p>For cadence, zeroes are inserted as it is thought that it is likely no data has been collected due to a lack of movement at that point in time.</p>
 <p><strong>Example</strong></p>
 
 ```php
