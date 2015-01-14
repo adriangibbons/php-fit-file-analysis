@@ -48,17 +48,17 @@ $pFFR->data
 ```php
 // Contains an array of all heart_rate data read from the file, indexed by timestamp
 $pFFR->data['record']['heart_rate']
-// Contains an integer identifying the number of laps stored in the first recorded session
-$pFFR->data['session'][0]['num_laps']
+// Contains an integer identifying the number of laps
+$pFFR->data['session']['num_laps']
 ```
 <strong>OK, but how do I know what messages and fields are in my file?</strong>
 <p>You could either iterate through the $pFFR->data array, or take a look at the debug information you can dump to a webpage:</p>
 ```php
 // Option 1. Iterate through the $pFFR->data array
 foreach($pFFR->data as $mesg_key => $mesg) {  // Iterate the array and output the messages
-    echo "Found Message: $mesg_key<br>";
+    echo "<strong>Found Message: $mesg_key</strong><br>";
     foreach($mesg as $field_key => $field) {  // Iterate each message and output the fields
-        echo "\tFound Field: $field_key<br>";
+        echo "&nbsp;&nbsp;&nbsp;&nbsp;Found Field: $mesg_key -> $field_key<br>";
     }
     echo "<br>";
 }
@@ -70,7 +70,7 @@ $pFFR->show_debug_info();  // Quite a lot of info...
 ```php
 // Get Max and Avg Speed
 echo "Maximum Speed: ".max($pFFR->data['record']['speed'])."<br>";
-echo "Average Speed: ".( array_sum($pFFR->data['record']['speed']) / count($pFFR->data['record']['speed']) );
+echo "Average Speed: ".( array_sum($pFFR->data['record']['speed']) / count($pFFR->data['record']['speed']) )."<br>";
 
 // Put HR data into a JavaScript array for use in a Chart
 echo "var chartData = [";
