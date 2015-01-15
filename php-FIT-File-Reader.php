@@ -640,7 +640,7 @@ class phpFITFileReader {
 	}
 	
 	private function whats_next($byte) {
-		if(!($byte ^ bindec('11111111')) || $byte === false)
+		if(!($byte ^ 255) || $byte === false)  // bindec('11111111') == 255
 			return FIT_INVALID;
 		else if(($byte >> 6) & 1)
 			return FIT_DEFINITION;
@@ -654,7 +654,7 @@ class phpFITFileReader {
 		while(($record_header = array_pop($this->file_contents)) !== NULL) {
 			$record_header = ord($record_header);
 			
-			$local_mesg_num = $record_header & bindec('1111');
+			$local_mesg_num = $record_header & 15;  // bindec('1111') == 15
 			
 			if(!($record_header >> 7) ^ 1) {  // check if its a normal header
 				throw new Exception('phpFITFileReader->read_file_data(): not a normal record header!');
