@@ -755,7 +755,6 @@ class phpFITFileReader {
 		echo '<thead>';
 		echo '<th>key</th>';
 		echo '<th>PHP unpack() format</th>';
-		echo '<th>bytes</th>';
 		echo '</thead>';
 		echo '<tbody>';
 		foreach( $this->types as $key => $val ) {
