@@ -868,12 +868,14 @@ class phpFITFileReader {
 			$bCadence = $bDistance = $bHeartRate = $bLatitudeLongitude = $bSpeed = $bPower = true;
 		}
 		else {
-			$bCadence = in_array('cadence', $options['fix_data']);
-			$bDistance = in_array('distance', $options['fix_data']);
-			$bHeartRate = in_array('heart_rate', $options['fix_data']);
-			$bLatitudeLongitude = in_array('lat_lon', $options['fix_data']);
-			$bSpeed = in_array('speed', $options['fix_data']);
-			$bPower = in_array('power', $options['fix_data']);
+			$count_timestamp = count($this->data_mesgs['record']['timestamp']);
+			$bCadence = (count($this->data_mesgs['record']['cadence']) === $count_timestamp) ? false : in_array('cadence', $options['fix_data']);
+			$bDistance = (count($this->data_mesgs['record']['distance']) === $count_timestamp) ? false : in_array('distance', $options['fix_data']);
+			$bHeartRate = (count($this->data_mesgs['record']['heart_rate']) === $count_timestamp) ? false : in_array('heart_rate', $options['fix_data']);
+			$bLatitudeLongitude = (count($this->data_mesgs['record']['position_lat']) === $count_timestamp
+				&& count($this->data_mesgs['record']['position_long']) === $count_timestamp) ? false : in_array('lat_lon', $options['fix_data']);
+			$bSpeed = (count($this->data_mesgs['record']['speed']) === $count_timestamp) ? false : in_array('speed', $options['fix_data']);
+			$bPower = (count($this->data_mesgs['record']['power']) === $count_timestamp) ? false : in_array('power', $options['fix_data']);
 		}
 		$missing_distance_keys = [];
 		$missing_hr_keys = [];
