@@ -680,7 +680,12 @@ class phpFITFileReader {
 								else if($this->FITDefnMesgs[$local_mesg_num]['global_mesg_num'] === 20) {
 									// This is called many times over!
 									// Is quicker (~11%) to bring the get_bytes() function inline.
-									$this->data[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][0]][$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][$this->timestamp] = (unpack($this->types[$field_defn['type']], $this->get_bytes($field_defn['size']))['tmp'] / $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
+									$data = '';
+									while($field_defn['size']-- > 0) {
+										$data .= array_pop($this->file_contents);
+									}
+									
+									$this->data[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][0]][$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][$this->timestamp] = (unpack($this->types[$field_defn['type']], $data)['tmp'] / $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
 								}
 								else {
 									$this->data[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][0]][$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][] = (unpack($this->types[$field_defn['type']], $this->get_bytes($field_defn['size']))['tmp'] / $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
