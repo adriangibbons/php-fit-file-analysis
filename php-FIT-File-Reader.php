@@ -640,7 +640,7 @@ class phpFITFileReader {
 	}
 	
 	private function whats_next($byte) {
-		if(!($byte ^ bindec('11111111')) || $byte === false)
+		if(!($byte ^ 255) || $byte === false)  // bindec('11111111') == 255
 			return FIT_INVALID;
 		else if(($byte >> 6) & 1)
 			return FIT_DEFINITION;
@@ -654,7 +654,7 @@ class phpFITFileReader {
 		while(($record_header = array_pop($this->file_contents)) !== NULL) {
 			$record_header = ord($record_header);
 			
-			$local_mesg_num = $record_header & bindec('1111');
+			$local_mesg_num = $record_header & 15;  // bindec('1111') == 15
 			
 			if(!($record_header >> 7) ^ 1) {  // check if its a normal header
 				throw new Exception('phpFITFileReader->read_file_data(): not a normal record header!');
@@ -696,6 +696,8 @@ class phpFITFileReader {
 									$this->timestamp = $this->data[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][0]][$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][] = (unpack($this->types[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][1]][0], $this->get_bytes($this->types[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][1]][1]))['tmp'] / $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
 								}
 								else if($this->FITDefnMesgs[$local_mesg_num]['global_mesg_num'] === 20) {
+									// This is called many times over!
+									// Is quicker (~11%) to bring the get_bytes() function inline.
 									$this->data[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][0]][$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][$this->timestamp] = (unpack($this->types[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][1]][0], $this->get_bytes($this->types[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][1]][1]))['tmp'] / $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
 								}
 								else {
@@ -971,28 +973,58 @@ class phpFITFileReader {
 	
 	private function set_units($options) {
 		if(!isset($options['set_units']) || in_array('metric', $options['set_units'])) {
-			if(isset($this->data['record']['speed']))
-				array_walk($this->data['record']['speed'], function(&$val) { $val = round($val * 3.6, 3); });  // convert  meters per second to kilometers per hour
-			if(isset($this->data['record']['distance']))
-				array_walk($this->data['record']['distance'], function(&$val) { $val = round($val * 0.001, 2); });  // convert from meters to kilometers
-			if(isset($this->data['record']['position_lat']))
-				array_walk($this->data['record']['position_lat'], function(&$val) { $val = round($val * (180.0 / pow(2,31)), 5); });  // convert from semicircles to degress
-			if(isset($this->data['record']['position_long']))
-				array_walk($this->data['record']['position_long'], function(&$val) { $val = round($val * (180.0 / pow(2,31)), 5); });  // convert from semicircles to degress
+			if(isset($this->data['record']['speed'])) {  // convert  meters per second to kilometers per hour
+				foreach($this->data['record']['speed'] as &$value) {
+					$value = round($value * 3.6, 3);
+				}
+			}
+			if(isset($this->data['record']['distance'])) {  // convert from meters to kilometers
+				foreach($this->data['record']['distance'] as &$value) {
+					$value = round($value * 0.001, 2);
+				}
+			}
+			if(isset($this->data['record']['position_lat'])) {  // convert from semicircles to degress
+				foreach($this->data['record']['position_lat'] as &$value) {
+					$value = round($value * (180.0 / pow(2,31)), 5);
+				}
+			}
+			if(isset($this->data['record']['position_long'])) {  // convert from semicircles to degress
+				foreach($this->data['record']['position_long'] as &$value) {
+					$value = round($value * (180.0 / pow(2,31)), 5);
+				}
+			}
 		}
 		else if(in_array('statute', $options['set_units'])) {
-			if(isset($this->data['record']['speed']))
-				array_walk($this->data['record']['speed'], function(&$val) { $val = round($val * 2.23693629, 3); });  // convert  meters per second to miles per hour
-			if(isset($this->data['record']['distance']))
-				array_walk($this->data['record']['distance'], function(&$val) { $val = round($val * 0.000621371192, 2); });  // convert from meters to miles
-			if(isset($this->data['record']['altitude']))
-				array_walk($this->data['record']['altitude'], function(&$val) { $val = round($val * 3.2808399, 1); });  // convert from meters to feet
-			if(isset($this->data['record']['position_lat']))
-				array_walk($this->data['record']['position_lat'], function(&$val) { $val = round($val * (180.0 / pow(2,31)), 5); });  // convert from semicircles to degress
-			if(isset($this->data['record']['position_long']))
-				array_walk($this->data['record']['position_long'], function(&$val) { $val = round($val * (180.0 / pow(2,31)), 5); });  // convert from semicircles to degress
-			if(isset($this->data['record']['temperature']))
-				array_walk($this->data['record']['temperature'], function(&$val) { $tmp = (($val * 9) / 5) + 32; $val = round($tmp, 2); });  // convert from celsius to fahrenheit
+			if(isset($this->data['record']['speed'])) {  // convert  meters per second to miles per hour
+				foreach($this->data['record']['speed'] as &$value) {
+					$value = round($value * 2.23693629, 3);
+				}
+			}
+			if(isset($this->data['record']['distance'])) {  // convert from meters to miles
+				foreach($this->data['record']['distance'] as &$value) {
+					$value = round($value * 0.000621371192, 2);
+				}
+			}
+			if(isset($this->data['record']['altitude'])) {  // convert from meters to feet
+				foreach($this->data['record']['altitude'] as &$value) {
+					$value = round($value * 3.2808399, 1);
+				}
+			}
+			if(isset($this->data['record']['position_lat'])) {  // convert from semicircles to degress
+				foreach($this->data['record']['position_lat'] as &$value) {
+					$value = round($value * (180.0 / pow(2,31)), 5);
+				}
+			}
+			if(isset($this->data['record']['position_long'])) {  // convert from semicircles to degress
+				foreach($this->data['record']['position_long'] as &$value) {
+					$value = round($value * (180.0 / pow(2,31)), 5);
+				}
+			}
+			if(isset($this->data['record']['temperature'])) {  // convert from celsius to fahrenheit
+				foreach($this->data['record']['temperature'] as &$value) {
+					$value = round((($value * 9) / 5) + 32, 2);
+				}
+			}
 		}
 		else {  // raw
 			// Do nothing - leave values as read from file.
