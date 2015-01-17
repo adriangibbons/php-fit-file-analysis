@@ -8,9 +8,8 @@
  * http://www.thisisant.com/resources/fit
  */
  
-define('FIT_INVALID', 0);
-define('FIT_DEFINITION', 1);
-define('FIT_DATA', 2);
+define('DEFINITION_MESSAGE', 1);
+define('DATA_MESSAGE', 0);
 
 class phpFITFileReader {
 	public $data_mesgs = [];  // Used to store the data read from the file in associative arrays.
@@ -576,7 +575,6 @@ class phpFITFileReader {
 	}
 	
 	/*
-	 * Byte Description of FIT File Header
 	 * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
 	 * Table 3-1. Byte Description of File Header
 	 *
@@ -610,10 +608,14 @@ class phpFITFileReader {
 				'v1crc', $this->get_bytes($this->file_header['header_size'] - 1)
 			);
 		
-		$file_type = sprintf('%c%c%c%c', $this->file_header['data_type1'], $this->file_header['data_type2'], $this->file_header['data_type3'], $this->file_header['data_type4']);
+		$file_extension = sprintf('%c%c%c%c', $this->file_header['data_type1'], $this->file_header['data_type2'], $this->file_header['data_type3'], $this->file_header['data_type4']);
 		
-		if($file_type != '.FIT' || $this->file_header['data_size'] <= 0) {
+		if($file_extension != '.FIT' || $this->file_header['data_size'] <= 0) {
 			throw new Exception('phpFITFileReader->read_header(): not a valid FIT file!');
+		}
+		
+		if(count($this->file_contents) !== $this->file_header['data_size']) {
+			throw new Exception('phpFITFileReader->read_header(): file_header[\'data_size\'] does not seem correct!');
 		}
 	}
 	
@@ -625,50 +627,66 @@ class phpFITFileReader {
 		return $data;
 	}
 	
-	private function whats_next($byte) {
-		if(!($byte ^ 255) || $byte === false)  // bindec('11111111') == 255
-			return FIT_INVALID;
-		else if(($byte >> 6) & 1)
-			return FIT_DEFINITION;
-		else
-			return FIT_DATA;
-	}
-	
 	private function read_data_records() {
-		$record_header = NULL;
-		$local_mesg_num = NULL;
+		$record_header_byte = NULL;
+		$local_mesg_type = NULL;
 		$get_bytes_data = NULL;
+		$message_type = NULL;
 		
-		while(($record_header = array_pop($this->file_contents)) !== NULL) {
-			$record_header = ord($record_header);
+		while(($record_header_byte = array_pop($this->file_contents)) !== NULL) {
+			$record_header_byte = ord($record_header_byte);
 			
-			$local_mesg_num = $record_header & 15;  // bindec('1111') == 15
-			
-			if(!($record_header >> 7) ^ 1) {  // check if its a normal header
-				throw new Exception('phpFITFileReader->read_data_records(): not a normal record header!');
+			/*
+			 * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
+			 * Table 4-1. Normal Header Bit Field Description
+			 *
+			 *  Bit | Value  | Description
+			 * ------+-------+------------------------------------------------
+			 *   7  | 0      | Normal Header
+			 *   6  | 0 or 1 | Message Type (1: Defn Message; 0 Data Message)
+			 *   5  | 0      | Reserved
+			 *   4  | 0      | Reserved
+			 *  0-3 | 0 - 15 | Local Message Type
+			 */
+			if(($record_header_byte >> 7) & 1) {  // Check that it's a normal header
+				throw new Exception('phpFITFileReader->read_data_records(): this class can only hand normal headers!');
 			}
+			$message_type = ($record_header_byte >> 6) & 1;  // 1: DEFINITION_MESSAGE; 0: DATA_MESSAGE
+			$local_mesg_type = $record_header_byte & 15;  // bindec('1111') == 15
 			
-			switch($this->whats_next($record_header)) {
-				case FIT_DEFINITION:
-					// don't really care about these two so not going to do anything with them
-					array_pop($this->file_contents);  // reserved
-					array_pop($this->file_contents);  // architecture
+			switch($message_type) {
+				case DEFINITION_MESSAGE:
+					/*
+					 * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
+					 * Table 4-1. Normal Header Bit Field Description
+					 *
+					 *  Byte | Description           | Length            | Value
+					 * ------+-----------------------+-------------------+-----------------------------------------------------------
+					 *   0   | Reserved              | 1 Byte            | 0
+					 *   1   | Architecture          | 1 Byte            | 0: Messages are Little Endian; 1: Messages are Big Endian
+					 *  2-3  | Global Message Number | 2 Bytes           | 0:65535 – Unique to each message
+					 *   4   | Fields                | 1 Byte            | Number of fields in the Data Message
+					 * 5-end | Field Definition      | 3 Bytes per field | Field Definition Number, Size, Base Type
+					 */
 					
-					$global_mesg_num = unpack('v1global_mesg_num', $this->get_bytes(2))['global_mesg_num'];
+					array_pop($this->file_contents);  // Reserved - IGNORED
+					array_pop($this->file_contents);  // Architecture - IGNORED
+					
+					$global_mesg_num = unpack('v1tmp', $this->get_bytes(2))['tmp'];
 					$num_fields = ord(array_pop($this->file_contents));
 					
 					$field_definitions = [];
 					$total_size = 0;
-					for($i=0; $i<$num_fields; ++$i) {
-						$defn = ord(array_pop($this->file_contents));
+					while($num_fields-- > 0) {
+						$field_definition_number = ord(array_pop($this->file_contents));
 						$size = ord(array_pop($this->file_contents));
-						$type = ord(array_pop($this->file_contents));
+						$base_type = ord(array_pop($this->file_contents));
 						
-						$field_definitions[$i] = ['defn' => $defn, 'size' => $size, 'type' => $type];
+						$field_definitions[] = ['field_definition_number' => $field_definition_number, 'size' => $size, 'base_type' => $base_type];
 						$total_size += $size;
 					}
 					
-					$this->defn_mesgs[$local_mesg_num] = [
+					$this->defn_mesgs[$local_mesg_type] = [
 							'global_mesg_num' => $global_mesg_num,
 							'num_fields' => $num_fields,
 							'field_defns' => $field_definitions,
@@ -676,25 +694,29 @@ class phpFITFileReader {
 						];
 					break;
 				
-				case FIT_DATA:
-					if(array_key_exists($this->defn_mesgs[$local_mesg_num]['global_mesg_num'], $this->data_mesg_info)) {
-						foreach($this->defn_mesgs[$local_mesg_num]['field_defns'] as $field_defn) {
-							if(array_key_exists($field_defn['defn'], $this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1])) {
-								if($this->defn_mesgs[$local_mesg_num]['global_mesg_num'] === 20 && $field_defn['defn'] === 253) {
-									$this->timestamp = $this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][0]][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][] = (unpack($this->types[$field_defn['type']], $this->get_bytes($field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
+				case DATA_MESSAGE:
+					// Check that we have information on the Data Message.
+					if(array_key_exists($this->defn_mesgs[$local_mesg_type]['global_mesg_num'], $this->data_mesg_info)) {
+						foreach($this->defn_mesgs[$local_mesg_type]['field_defns'] as $field_defn) {
+							// Check that we have information on the Field Definition.
+							if(array_key_exists($field_defn['field_definition_number'], $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1])) {
+								
+								// If it's a Record data message and it's a Timestamp field, store the timestamp...
+								if($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20 && $field_defn['field_definition_number'] === 253) {
+									$this->timestamp = $this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][0]][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][0]][] = (unpack($this->types[$field_defn['base_type']], $this->get_bytes($field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][2]) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][3];
 								}
-								else if($this->defn_mesgs[$local_mesg_num]['global_mesg_num'] === 20) {
-									// This is called many times over!
-									// Is quicker (~11%) to bring the get_bytes() function inline.
-									$get_bytes_data = '';
+								
+								// Else, if it's another field in a Record data message, use the Timestamp as the index.
+								else if($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20) {
+									$get_bytes_data = '';  // Brought the get_bytes() function inline as it is quicker (~11%).
 									while($field_defn['size']-- > 0) {
 										$get_bytes_data .= array_pop($this->file_contents);
 									}
-									
-									$this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][0]][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][$this->timestamp] = (unpack($this->types[$field_defn['type']], $get_bytes_data)['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
+									$this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][0]][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][0]][$this->timestamp] = (unpack($this->types[$field_defn['base_type']], $get_bytes_data)['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][2]) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][3];
 								}
+								
 								else {
-									$this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][0]][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][] = (unpack($this->types[$field_defn['type']], $this->get_bytes($field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
+									$this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][0]][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][0]][] = (unpack($this->types[$field_defn['base_type']], $this->get_bytes($field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][2]) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][3];
 								}
 							}
 							else {
@@ -709,7 +731,7 @@ class phpFITFileReader {
 					else {
 						// drop the bytes - unset() is quicker than array_pop()
 						$last_element = count($this->file_contents) - 1;
-						$offset = $this->defn_mesgs[$local_mesg_num]['total_size'];
+						$offset = $this->defn_mesgs[$local_mesg_type]['total_size'];
 						while($offset-- > 0) {
 							unset($this->file_contents[$last_element - $offset]);
 						}
@@ -793,7 +815,7 @@ class phpFITFileReader {
 			echo  '<tr><td>'.$val['global_mesg_num'].'</td><td>'.$val['num_fields'].'</td><td>';
 			
 			foreach($val['field_defns'] as $defn) {
-				echo  'defn: '.$defn['defn'].'; size: '.$defn['size'].'; type: '.$defn['type'].'<br>';
+				echo  'defn: '.$defn['field_definition_number'].'; size: '.$defn['size'].'; type: '.$defn['base_type'].'<br>';
 			}
 			echo  '</td><td>'.$val['total_size'].'</td></tr>';
 		}
