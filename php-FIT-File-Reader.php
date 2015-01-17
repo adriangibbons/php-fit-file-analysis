@@ -332,38 +332,20 @@ class phpFITFileReader {
 	];
 	
 	private $types = array(
-		'activity'			=> ['C1tmp', 1],  // enum
-		'battery_status'	=> ['C1tmp', 1],  // uint8
-		'date_time'			=> ['V1tmp', 4],  // uint32
-		'device_index'		=> ['C1tmp', 1],  // uint8
-		'display_measure'	=> ['C1tmp', 1],  // enum
-		'event'				=> ['C1tmp', 1],  // enum
-		'event_type'		=> ['C1tmp', 1],  // enum
-		'file'				=> ['C1tmp', 1],  // enum
-		'intensity'			=> ['C1tmp', 1],  // enum
-		'left_right_balance_100'	=> ['v1tmp', 2],  // uint16
-		'length_type'		=> ['C1tmp', 1],  // enum
-		'local_date_time'	=> ['V1tmp', 4],  // uint32
-		'manufacturer'		=> ['v1tmp', 2],  // uint16
-		'message_index'		=> ['v1tmp', 2],  // uint16
-		'sport'				=> ['C1tmp', 1],  // enum
-		'sub_sport'			=> ['C1tmp', 1],  // enum
-		'session_trigger'	=> ['C1tmp', 1],  // enum
-		'swim_stroke'		=> ['C1tmp', 1],  // enum
-		'enum'		=> ['C1tmp', 1],
-		'sint8'		=> ['c1tmp', 1],
-		'uint8'		=> ['C1tmp', 1],
-		'sint16'	=> ['S1tmp', 2],
-		'uint16'	=> ['v1tmp', 2],
-		'sint32'	=> ['l1tmp', 4],
-		'uint32'	=> ['V1tmp', 4],
-	//	'string'	=> ['', 1], don't need these yet so haven't worked-out how to use PHP unpack()
-	//	'float32'	=> ['', 4],
-	//	'float64'	=> ['', 8],
-	//	'uint8z'	=> ['', 1],
-	//	'uint16z'	=> ['', 2],
-		'uint32z'	=> ['V1tmp', 4],
-	//	'byte'		=> ['', 1]
+		0	=> 'C1tmp',	// enum
+		1	=> 'c1tmp',	// sint8
+		2	=> 'C1tmp',	// uint8
+		131	=> 'S1tmp',	// sint16
+		132	=> 'v1tmp',	// uint16
+		133	=> 'l1tmp',	// sint32
+		134	=> 'V1tmp',	// uint32
+		7	=> 'C1tmp',	// string
+		136	=> 'f1tmp',	// float32
+		137	=> 'd1tmp',	// float64
+		10	=> 'C1tmp',	// uint8z
+		139	=> 'v1tmp',	// uint16z
+		140	=> 'V1tmp',	// uint32z
+		13	=> 'C1tmp',	// byte
 	);
 	
 	/*
@@ -693,15 +675,15 @@ class phpFITFileReader {
 						foreach($this->FITDefnMesgs[$local_mesg_num]['field_defns'] as $field_defn) {
 							if(array_key_exists($field_defn['defn'], $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1])) {
 								if($this->FITDefnMesgs[$local_mesg_num]['global_mesg_num'] === 20 && $field_defn['defn'] === 253) {
-									$this->timestamp = $this->data[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][0]][$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][] = (unpack($this->types[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][1]][0], $this->get_bytes($this->types[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][1]][1]))['tmp'] / $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
+									$this->timestamp = $this->data[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][0]][$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][] = (unpack($this->types[$field_defn['type']], $this->get_bytes($field_defn['size']))['tmp'] / $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
 								}
 								else if($this->FITDefnMesgs[$local_mesg_num]['global_mesg_num'] === 20) {
 									// This is called many times over!
 									// Is quicker (~11%) to bring the get_bytes() function inline.
-									$this->data[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][0]][$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][$this->timestamp] = (unpack($this->types[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][1]][0], $this->get_bytes($this->types[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][1]][1]))['tmp'] / $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
+									$this->data[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][0]][$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][$this->timestamp] = (unpack($this->types[$field_defn['type']], $this->get_bytes($field_defn['size']))['tmp'] / $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
 								}
 								else {
-									$this->data[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][0]][$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][] = (unpack($this->types[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][1]][0], $this->get_bytes($this->types[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][1]][1]))['tmp'] / $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
+									$this->data[$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][0]][$this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][] = (unpack($this->types[$field_defn['type']], $this->get_bytes($field_defn['size']))['tmp'] / $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->messages[$this->FITDefnMesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
 								}
 							}
 							else {
