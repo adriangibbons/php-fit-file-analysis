@@ -81,7 +81,7 @@ echo "];";
 ```
 <strong>Enumerated Data</strong>
 ```php
-// Access data stored within the private class member $enum_data
+// Access data stored within the private class variable $enum_data
 // $pFFR->get_enum_data($type, $value)
 // e.g.
 echo $pFFR->get_enum_data('sport', 2);  // cycling
