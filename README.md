@@ -42,20 +42,20 @@
 <h3>Accessing the Data</h3>
 <p>Data read by the class are stored in associative arrays, which are accessible via the public data variable:</p>
 ```php
-$pFFR->data
+$pFFR->data_mesgs
 ```
 <p>The array indexes are the names of the messages and fields that they contain. For example:</p>
 ```php
 // Contains an array of all heart_rate data read from the file, indexed by timestamp
-$pFFR->data['record']['heart_rate']
+$pFFR->data_mesgs['record']['heart_rate']
 // Contains an integer identifying the number of laps
-$pFFR->data['session']['num_laps']
+$pFFR->data_mesgs['session']['num_laps']
 ```
 <strong>OK, but how do I know what messages and fields are in my file?</strong>
-<p>You could either iterate through the $pFFR->data array, or take a look at the debug information you can dump to a webpage:</p>
+<p>You could either iterate through the $pFFR->data_mesgs array, or take a look at the debug information you can dump to a webpage:</p>
 ```php
-// Option 1. Iterate through the $pFFR->data array
-foreach($pFFR->data as $mesg_key => $mesg) {  // Iterate the array and output the messages
+// Option 1. Iterate through the $pFFR->data_mesgs array
+foreach($pFFR->data_mesgs as $mesg_key => $mesg) {  // Iterate the array and output the messages
     echo "<strong>Found Message: $mesg_key</strong><br>";
     foreach($mesg as $field_key => $field) {  // Iterate each message and output the fields
         echo "&nbsp;&nbsp;&nbsp;&nbsp;Found Field: $mesg_key -> $field_key<br>";
@@ -69,12 +69,12 @@ $pFFR->show_debug_info();  // Quite a lot of info...
 <strong>How about some real-world examples?</strong>
 ```php
 // Get Max and Avg Speed
-echo "Maximum Speed: ".max($pFFR->data['record']['speed'])."<br>";
-echo "Average Speed: ".( array_sum($pFFR->data['record']['speed']) / count($pFFR->data['record']['speed']) )."<br>";
+echo "Maximum Speed: ".max($pFFR->data_mesgs['record']['speed'])."<br>";
+echo "Average Speed: ".( array_sum($pFFR->data_mesgs['record']['speed']) / count($pFFR->data_mesgs['record']['speed']) )."<br>";
 
 // Put HR data into a JavaScript array for use in a Chart
 echo "var chartData = [";
-    foreach( $pFFR->data['record']['heart_rate'] as $timestamp => $hr_value ) {
+    foreach( $pFFR->data_mesgs['record']['heart_rate'] as $timestamp => $hr_value ) {
         echo "[$timestamp,$hr_value],";
     }
 echo "];";
@@ -151,14 +151,14 @@ $options = ['fix_data' => ['lat_lon']];  // fix position data only
 <p><strong>Interpolation of missing data points</strong></p>
 ```php
 // Do not use code, just for demonstration purposes
-var_dump( $pFFR->data['record']['temperature'] );  // ['100'=>22, '101'=>22, '102'=>23, '103'=>23, '104'=>23];
-var_dump( $pFFR->data['record']['distance'] );  // ['100'=>3.62, '101'=>4.01, '104'=>10.88];
+var_dump( $pFFR->data_mesgs['record']['temperature'] );  // ['100'=>22, '101'=>22, '102'=>23, '103'=>23, '104'=>23];
+var_dump( $pFFR->data_mesgs['record']['distance'] );  // ['100'=>3.62, '101'=>4.01, '104'=>10.88];
 ```
 <p>As you can see from the trivial example above, temperature data have been recorded for each of five timestamps (100, 101, 102, 103, and 104). However, distance information has not been recorded for timestamps 102 and 103.</p>
 <p>If <em>fix_data</em> includes 'distance', then the class will attempt to insert data into the distance array with the indexes 102 and 103. Values are determined using a linear interpolation between indexes 101(4.01) and 104(10.88).<p>
 <p>The result would be:</p>
 ```php
-var_dump( $pFFR->data['record']['distance'] );  // ['100'=>3.62, '101'=>4.01, '102'=>6.30, '103'=>8.59, '104'=>10.88];
+var_dump( $pFFR->data_mesgs['record']['distance'] );  // ['100'=>3.62, '101'=>4.01, '102'=>6.30, '103'=>8.59, '104'=>10.88];
 ```
 <br>
 <h4>Set Units</h4>
