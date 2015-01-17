@@ -360,186 +360,186 @@ class phpFITFileReader {
 	 */
 	private $data_mesg_info = [
 		0 => [
-			'file_id', [
-				0 => ['type', 'file', 1, 0, ''],
-				1 => ['manufacturer', 'manufacturer', 1, 0, ''],
-				2 => ['product', 'uint16', 1, 0, ''],
-				3 => ['serial_number', 'uint32z', 1, 0, ''],
-				4 => ['time_created', 'date_time', 1, 0, ''],
-				5 => ['number', 'uint16', 1, 0, '']
+			'mesg_name' => 'file_id', 'field_defns' => [
+				0 => ['field_name' => 'type',			'scale' => 1, 'offset' => 0, 'units' => ''],
+				1 => ['field_name' => 'manufacturer',	'scale' => 1, 'offset' => 0, 'units' => ''],
+				2 => ['field_name' => 'product',		'scale' => 1, 'offset' => 0, 'units' => ''],
+				3 => ['field_name' => 'serial_number',	'scale' => 1, 'offset' => 0, 'units' => ''],
+				4 => ['field_name' => 'time_created',	'scale' => 1, 'offset' => 0, 'units' => ''],
+				5 => ['field_name' => 'number',			'scale' => 1, 'offset' => 0, 'units' => ''],
 			]
 		],
 		
 		18 => [
-			'session', [
-				0 => ['event', 'event', 1, 0, ''],
-				1 => ['event_type', 'event_type', 1, 0, ''],
-				2 => ['start_time', 'date_time', 1, 0, ''],
-				3 => ['start_position_lat', 'sint32', 1, 0, 'semicircles'],
-				4 => ['start_position_long', 'sint32', 1, 0, 'semicircles'],
-				5 => ['sport', 'sport', 1, 0, ''],
-				6 => ['sub_sport', 'sub_sport', 1, 0, ''],
-				7 => ['total_elapsed_time', 'uint32', 1000, 0, 's'],
-				8 => ['total_timer_time', 'uint32', 1000, 0, 's'],
-				9 => ['total_distance', 'uint32', 100, 0, 'm'],
-				10 => ['total_cycles', 'uint32', 1, 0, 'cycles'],
-				11 => ['total_calories', 'uint16', 1, 0, 'kcal'],
-				13 => ['total_fat_calories', 'uint16', 1, 0, 'kcal'],
-				14 => ['avg_speed', 'uint16', 1000, 0, 'm/s'],
-				15 => ['max_speed', 'uint16', 1000, 0, 'm/s'],
-				16 => ['avg_heart_rate', 'uint8', 1, 0, 'bpm'],
-				17 => ['max_heart_rate', 'uint8', 1, 0, 'bpm'],
-				18 => ['avg_cadence', 'uint8', 1, 0, 'rpm'],
-				19 => ['max_cadence', 'uint8', 1, 0, 'rpm'],
-				20 => ['avg_power', 'uint16', 1, 0, 'watts'],
-				21 => ['max_power', 'uint16', 1, 0, 'watts'],
-				22 => ['total_ascent', 'uint16', 1, 0, 'm'],
-				23 => ['total_descent', 'uint16', 1, 0, 'm'],
-				24 => ['total_training_effect', 'uint8', 10, 0, ''],
-				25 => ['first_lap_index', 'uint16', 1, 0, ''],
-				26 => ['num_laps', 'uint16', 1, 0, ''],
-				27 => ['event_group', 'uint8', 1, 0, ''],
-				28 => ['trigger', 'session_trigger', 1, 0, ''],
-				29 => ['nec_lat', 'sint32', 1, 0, 'semicircles'],
-				30 => ['nec_long', 'sint32', 1, 0, 'semicircles'],
-				31 => ['swc_lat', 'sint32', 1, 0, 'semicircles'],
-				32 => ['swc_long', 'sint32', 1, 0, 'semicircles'],
-				34 => ['normalized_power', 'uint16', 1, 0, 'watts'],
-				35 => ['training_stress_score', 'uint16', 10, 0, 'tss'],
-				36 => ['intensity_factor', 'uint16', 1000, 0, 'if'],
-				37 => ['left_right_balance', 'left_right_balance_100', 1, 0, ''],
-				41 => ['avg_stroke_count', 'uint32', 10, 0, 'strokes/lap'],
-				42 => ['avg_stroke_distance', 'uint16', 100, 0, 'm'],
-				43 => ['swim_stroke', 'swim_stroke', 1, 0, 'swim_stroke'],
-				44 => ['pool_length', 'uint16', 100, 0, 'm'],
-				46 => ['pool_length_unit', 'display_measure', 1, 0, ''],
-				47 => ['num_active_lengths', 'uint16', 1, 0, 'lengths'],
-				48 => ['total_work', 'uint32', 1, 0, 'J'],
-				68 => ['time_in_power_zone', 'uint32', 1000, 0, 's'],
-				253 => ['timestamp', 'date_time', 1, 0, 's'],
-				254 => ['message_index', 'message_index', 1, 0, '']
+			'mesg_name' => 'session', 'field_defns' => [
+				0 => ['field_name' => 'event',					'scale' => 1, 'offset' => 0, 'units' => ''],
+				1 => ['field_name' => 'event_type',				'scale' => 1, 'offset' => 0, 'units' => ''],
+				2 => ['field_name' => 'start_time',				'scale' => 1, 'offset' => 0, 'units' => ''],
+				3 => ['field_name' => 'start_position_lat', 	'scale' => 1, 'offset' => 0, 'units' => 'semicircles'],
+				4 => ['field_name' => 'start_position_long',	'scale' => 1, 'offset' => 0, 'units' => 'semicircles'],
+				5 => ['field_name' => 'sport',					'scale' => 1, 'offset' => 0, 'units' => 'semicircles'],
+				6 => ['field_name' => 'sub_sport',				'scale' => 1, 'offset' => 0, 'units' => ''],
+				7 => ['field_name' => 'total_elapsed_time',		'scale' => 1000, 'offset' => 0, 'units' => 's'],
+				8 => ['field_name' => 'total_timer_time',		'scale' => 1000, 'offset' => 0, 'units' => 's'],
+				9 => ['field_name' => 'total_distance',			'scale' => 100, 'offset' => 0, 'units' => 'm'],
+				10 => ['field_name' => 'total_cycles',			'scale' => 1, 'offset' => 0, 'units' => 'cycles'],
+				11 => ['field_name' => 'total_calories',		'scale' => 1, 'offset' => 0, 'units' => 'kcal'],
+				13 => ['field_name' => 'total_fat_calories',	'scale' => 1, 'offset' => 0, 'units' => 'kcal'],
+				14 => ['field_name' => 'avg_speed',				'scale' => 1000, 'offset' => 0, 'units' => 'm/s'],
+				15 => ['field_name' => 'max_speed',				'scale' => 1000, 'offset' => 0, 'units' => 'm/s'],
+				16 => ['field_name' => 'avg_heart_rate',		'scale' => 1, 'offset' => 0, 'units' => 'bpm'],
+				17 => ['field_name' => 'max_heart_rate',		'scale' => 1, 'offset' => 0, 'units' => 'bpm'],
+				18 => ['field_name' => 'avg_cadence',			'scale' => 1, 'offset' => 0, 'units' => 'rpm'],
+				19 => ['field_name' => 'max_cadence',			'scale' => 1, 'offset' => 0, 'units' => 'rpm'],
+				20 => ['field_name' => 'avg_power',				'scale' => 1, 'offset' => 0, 'units' => 'watts'],
+				21 => ['field_name' => 'max_power',				'scale' => 1, 'offset' => 0, 'units' => 'watts'],
+				22 => ['field_name' => 'total_ascent',			'scale' => 1, 'offset' => 0, 'units' => 'm'],
+				23 => ['field_name' => 'total_descent',			'scale' => 1, 'offset' => 0, 'units' => 'm'],
+				24 => ['field_name' => 'total_training_effect',	'scale' => 10, 'offset' => 0, 'units' => ''],
+				25 => ['field_name' => 'first_lap_index',		'scale' => 1, 'offset' => 0, 'units' => ''],
+				26 => ['field_name' => 'num_laps',				'scale' => 1, 'offset' => 0, 'units' => ''],
+				27 => ['field_name' => 'event_group',			'scale' => 1, 'offset' => 0, 'units' => ''],
+				28 => ['field_name' => 'trigger',				'scale' => 1, 'offset' => 0, 'units' => ''],
+				29 => ['field_name' => 'nec_lat',				'scale' => 1, 'offset' => 0, 'units' => 'semicircles'],
+				30 => ['field_name' => 'nec_long',				'scale' => 1, 'offset' => 0, 'units' => 'semicircles'],
+				31 => ['field_name' => 'swc_lat',				'scale' => 1, 'offset' => 0, 'units' => 'semicircles'],
+				32 => ['field_name' => 'swc_long',				'scale' => 1, 'offset' => 0, 'units' => 'semicircles'],
+				34 => ['field_name' => 'normalized_power',		'scale' => 1, 'offset' => 0, 'units' => 'watts'],
+				35 => ['field_name' => 'training_stress_score',	'scale' => 10, 'offset' => 0, 'units' => 'tss'],
+				36 => ['field_name' => 'intensity_factor',		'scale' => 1000, 'offset' => 0, 'units' => 'if'],
+				37 => ['field_name' => 'left_right_balance',	'scale' => 1, 'offset' => 0, 'units' => ''],
+				41 => ['field_name' => 'avg_stroke_count',		'scale' => 10, 'offset' => 0, 'units' => 'strokes/lap'],
+				42 => ['field_name' => 'avg_stroke_distance',	'scale' => 100, 'offset' => 0, 'units' => 'm'],
+				43 => ['field_name' => 'swim_stroke',			'scale' => 1, 'offset' => 0, 'units' => 'swim_stroke'],
+				44 => ['field_name' => 'pool_length',			'scale' => 100, 'offset' => 0, 'units' => 'm'],
+				46 => ['field_name' => 'pool_length_unit',		'scale' => 1, 'offset' => 0, 'units' => ''],
+				47 => ['field_name' => 'num_active_lengths',	'scale' => 1, 'offset' => 0, 'units' => 'lengths'],
+				48 => ['field_name' => 'total_work',			'scale' => 1, 'offset' => 0, 'units' => 'J'],
+				68 => ['field_name' => 'time_in_power_zone',	'scale' => 1000, 'offset' => 0, 'units' => 's'],
+				253 => ['field_name' => 'timestamp',			'scale' => 1, 'offset' => 0, 'units' => 's'],
+				254 => ['field_name' => 'message_index',		'scale' => 1, 'offset' => 0, 'units' => ''],
 			]
 		],
 		
 		19 => [
-			'lap', [
-				0 => ['event', 'event', 1, 0, ''],
-				1 => ['event_type', 'event_type', 1, 0, ''],
-				2 => ['start_time', 'date_time', 1, 0, ''],
-				3 => ['start_position_lat', 'sint32', 1, 0, 'semicircles'],
-				4 => ['start_position_long', 'sint32', 1, 0, 'semicircles'],
-				5 => ['end_position_lat', 'sint32', 1, 0, 'semicircles'],
-				6 => ['end_position_long', 'sint32', 1, 0, 'semicircles'],
-				7 => ['total_elapsed_time', 'uint32', 1000, 0, 's'],
-				8 => ['total_timer_time', 'uint32', 1000, 0, 's'],
-				9 => ['total_distance', 'uint32', 100, 0, 'm'],
-				10 => ['total_cycles', 'uint32', 1, 0, 'cycles'],
-				11 => ['total_calories', 'uint16', 1, 0, 'kcal'],
-				12 => ['total_fat_calories', 'uint16', 1, 0, 'kcal'],
-				13 => ['avg_speed', 'uint16', 1000, 0, 'm/s'],
-				14 => ['max_speed', 'uint16', 1000, 0, 'm/s'],
-				15 => ['avg_heart_rate', 'uint8', 1, 0, 'bpm'],
-				16 => ['max_heart_rate', 'uint8', 1, 0, 'bpm'],
-				17 => ['avg_cadence', 'uint8', 1, 0, 'rpm'],
-				18 => ['max_cadence', 'uint8', 1, 0, 'rpm'],
-				19 => ['avg_power', 'uint16', 1, 0, 'watts'],
-				20 => ['max_power', 'uint16', 1, 0, 'watts'],
-				21 => ['total_ascent', 'uint16', 1, 0, 'm'],
-				22 => ['total_descent', 'uint16', 1, 0, 'm'],
-				23 => ['intensity', 'intensity', 1, 0, ''],
-				25 => ['sport', 'sport', 1, 0, ''],
-				26 => ['event_group', 'uint8', 1, 0, ''],
-				32 => ['num_lengths', 'uint16', 1, 0, 'lengths'],
-				33 => ['normalized_power', 'uint16', 1, 0, 'watts'],
-				34 => ['left_right_balance', 'left_right_balance_100', 1, 0, ''],
-				35 => ['first_length_index', 'uint16', 1, 0, ''],
-				37 => ['avg_stroke_distance', 'uint16', 100, 0, 'm'],
-				38 => ['swim_stroke', 'swim_stroke', 1, 0, ''],
-				40 => ['num_active_lengths', 'uint16', 1, 0, 'lengths'],
-				41 => ['total_work', 'uint32', 1, 0, 'J'],
-				60 => ['time_in_power_zone', 'uint32', 1000, 0, 's'],
-				253 => ['timestamp', 'date_time', 1, 0, 's'],
-				254 => ['message_index', 'message_index', 1, 0, '']
+			'mesg_name' => 'lap', 'field_defns' => [
+				0 => ['field_name' => 'event',					'scale' => 1,		'offset' => 0, 'units' => ''],
+				1 => ['field_name' => 'event_type',				'scale' => 1,		'offset' => 0, 'units' => ''],
+				2 => ['field_name' => 'start_time',				'scale' => 1,		'offset' => 0, 'units' => ''],
+				3 => ['field_name' => 'start_position_lat',		'scale' => 1,		'offset' => 0, 'units' => 'semicircles'],
+				4 => ['field_name' => 'start_position_long',	'scale' => 1,		'offset' => 0, 'units' => 'semicircles'],
+				5 => ['field_name' => 'end_position_lat',		'scale' => 1,		'offset' => 0, 'units' => 'semicircles'],
+				6 => ['field_name' => 'end_position_long',		'scale' => 1,		'offset' => 0, 'units' => 'semicircles'],
+				7 => ['field_name' => 'total_elapsed_time',		'scale' => 1000,	'offset' => 0, 'units' => 's'],
+				8 => ['field_name' => 'total_timer_time',		'scale' => 1000,	'offset' => 0, 'units' => 's'],
+				9 => ['field_name' => 'total_distance',			'scale' => 100,		'offset' => 0, 'units' => 'm'],
+				10 => ['field_name' => 'total_cycles',			'scale' => 1,		'offset' => 0, 'units' => 'cycles'],
+				11 => ['field_name' => 'total_calories',		'scale' => 1,		'offset' => 0, 'units' => 'kcal'],
+				12 => ['field_name' => 'total_fat_calories',	'scale' => 1,		'offset' => 0, 'units' => 'kcal'],
+				13 => ['field_name' => 'avg_speed',				'scale' => 1000,	'offset' => 0, 'units' => 'm/s'],
+				14 => ['field_name' => 'max_speed',				'scale' => 1000,	'offset' => 0, 'units' => 'm/s'],
+				15 => ['field_name' => 'avg_heart_rate',		'scale' => 1,		'offset' => 0, 'units' => 'bpm'],
+				16 => ['field_name' => 'max_heart_rate',		'scale' => 1,		'offset' => 0, 'units' => 'bpm'],
+				17 => ['field_name' => 'avg_cadence',			'scale' => 1,		'offset' => 0, 'units' => 'rpm'],
+				18 => ['field_name' => 'max_cadence',			'scale' => 1,		'offset' => 0, 'units' => 'rpm'],
+				19 => ['field_name' => 'avg_power',				'scale' => 1,		'offset' => 0, 'units' => 'watts'],
+				20 => ['field_name' => 'max_power',				'scale' => 1,		'offset' => 0, 'units' => 'watts'],
+				21 => ['field_name' => 'total_ascent',			'scale' => 1,		'offset' => 0, 'units' => 'm'],
+				22 => ['field_name' => 'total_descent',			'scale' => 1,		'offset' => 0, 'units' => 'm'],
+				23 => ['field_name' => 'intensity',				'scale' => 1,		'offset' => 0, 'units' => ''],
+				25 => ['field_name' => 'sport',					'scale' => 1,		'offset' => 0, 'units' => ''],
+				26 => ['field_name' => 'event_group',			'scale' => 1,		'offset' => 0, 'units' => ''],
+				32 => ['field_name' => 'num_lengths',			'scale' => 1,		'offset' => 0, 'units' => 'lengths'],
+				33 => ['field_name' => 'normalized_power',		'scale' => 1,		'offset' => 0, 'units' => 'watts'],
+				34 => ['field_name' => 'left_right_balance',	'scale' => 1,		'offset' => 0, 'units' => ''],
+				35 => ['field_name' => 'first_length_index',	'scale' => 1,		'offset' => 0, 'units' => ''],
+				37 => ['field_name' => 'avg_stroke_distance',	'scale' => 100,		'offset' => 0, 'units' => 'm'],
+				38 => ['field_name' => 'swim_stroke',			'scale' => 1,		'offset' => 0, 'units' => ''],
+				40 => ['field_name' => 'num_active_lengths',	'scale' => 1,		'offset' => 0, 'units' => 'lengths'],
+				41 => ['field_name' => 'total_work',			'scale' => 1,		'offset' => 0, 'units' => 'J'],
+				60 => ['field_name' => 'time_in_power_zone',	'scale' => 1000,	'offset' => 0, 'units' => 's'],
+				253 => ['field_name' => 'timestamp',			'scale' => 1,		'offset' => 0, 'units' => 's'],
+				254 => ['field_name' => 'message_index',		'scale' => 1,		'offset' => 0, 'units' => '']
 			]
 		],
 		
 		20 => [
-			'record', [
-				0 => ['position_lat', 'sint32', 1, 0, 'semicircles'],
-				1 => ['position_long', 'sint32', 1, 0, 'semicircles'],
-				2 => ['altitude', 'uint16', 5, 500, 'm'],
-				3 => ['heart_rate', 'uint8', 1, 0, 'bpm'],
-				4 => ['cadence', 'uint8', 1, 0, 'rpm'],
-				5 => ['distance', 'uint32', 100, 0, 'm'],
-				6 => ['speed', 'uint16', 1000, 0, 'm/s'],
-				7 => ['power', 'uint16', 1, 0, 'watts'],
-				13 => ['temperature', 'sint8', 1, 0, 'C'],
-				253 => ['timestamp', 'date_time', 1, 0, 's']
+			'mesg_name' => 'record', 'field_defns' => [
+				0 => ['field_name' => 'position_lat',	'scale' => 1,		'offset' => 0,		'units' => 'semicircles'],
+				1 => ['field_name' => 'position_long',	'scale' => 1,		'offset' => 0,		'units' => 'semicircles'],
+				2 => ['field_name' => 'altitude',		'scale' => 5,		'offset' => 500,	'units' => 'm'],
+				3 => ['field_name' => 'heart_rate',		'scale' => 1,		'offset' => 0,		'units' => 'bpm'],
+				4 => ['field_name' => 'cadence',		'scale' => 1,		'offset' => 0,		'units' => 'rpm'],
+				5 => ['field_name' => 'distance',		'scale' => 100,		'offset' => 0,		'units' => 'm'],
+				6 => ['field_name' => 'speed',			'scale' => 1000,	'offset' => 0,		'units' => 'm/s'],
+				7 => ['field_name' => 'power',			'scale' => 1,		'offset' => 0,		'units' => 'watts'],
+				13 => ['field_name' => 'temperature',	'scale' => 1,		'offset' => 0,		'units' => 'C'],
+				253 => ['field_name' => 'timestamp',	'scale' => 1,		'offset' => 0,		'units' => 's']
 			]
 		],
 		
 		21 => [
-			'event', [
-				0 => ['event', 'event', 1, 0, ''],
-				1 => ['event_type', 'event_type', 1, 0, ''],
-				3 => ['data', 'uint32', 1, 0, ''],
-				4 => ['event_group', 'uint8', 1, 0, ''],
-				253 => ['timestamp', 'date_time', 1, 0, 's']
+			'mesg_name' => 'event', 'field_defns' => [
+				0 => ['field_name' => 'event',			'scale' => 1, 'offset' => 0, 'units' => ''],
+				1 => ['field_name' => 'event_type',		'scale' => 1, 'offset' => 0, 'units' => ''],
+				3 => ['field_name' => 'data',			'scale' => 1, 'offset' => 0, 'units' => ''],
+				4 => ['field_name' => 'event_group',	'scale' => 1, 'offset' => 0, 'units' => ''],
+				253 => ['field_name' => 'timestamp',	'scale' => 1, 'offset' => 0, 'units' => 's']
 			]
 		],
 		
 		23 => [
-			'device_info', [
-				0 => ['device_index', 'device_index', 1, 0, ''],
-				1 => ['device_type', 'uint8', 1, 0, ''],
-				2 => ['manufacturer', 'manufacturer', 1, 0, ''],
-				3 => ['serial_number', 'uint32z', 1, 0, ''],
-				4 => ['product', 'uint16', 1, 0, ''],
-				5 => ['software_version', 'uint16', 1, 0, ''],
-				6 => ['hardware_version', 'uint8', 1, 0, ''],
-				7 => ['cum_operating_time', 'uint32', 1, 0, ''],
-				10 => ['battery_voltage', 'uint16', 1, 0, ''],
-				11 => ['battery_status', 'battery_status', 1, 0, ''],
-				253 => ['timestamp', 'date_time', 1, 0, 's']
+			'mesg_name' => 'device_info', 'field_defns' => [
+				0 => ['field_name' => 'device_index',		'scale' => 1, 'offset' => 0, 'units' => ''],
+				1 => ['field_name' => 'device_type',		'scale' => 1, 'offset' => 0, 'units' => ''],
+				2 => ['field_name' => 'manufacturer',		'scale' => 1, 'offset' => 0, 'units' => ''],
+				3 => ['field_name' => 'serial_number',		'scale' => 1, 'offset' => 0, 'units' => ''],
+				4 => ['field_name' => 'product',			'scale' => 1, 'offset' => 0, 'units' => ''],
+				5 => ['field_name' => 'software_version',	'scale' => 1, 'offset' => 0, 'units' => ''],
+				6 => ['field_name' => 'hardware_version',	'scale' => 1, 'offset' => 0, 'units' => ''],
+				7 => ['field_name' => 'cum_operating_time',	'scale' => 1, 'offset' => 0, 'units' => ''],
+				10 => ['field_name' => 'battery_voltage',	'scale' => 1, 'offset' => 0, 'units' => ''],
+				11 => ['field_name' => 'battery_status',	'scale' => 1, 'offset' => 0, 'units' => ''],
+				253 => ['field_name' => 'timestamp',		'scale' => 1, 'offset' => 0, 'units' => 's']
 			]
 		],
 		
 		34 => [
-			'activity', [
-				0 => ['total_timer_time', 'uint32', 1000, 0, 's'],
-				1 => ['num_sessions', 'uint16', 1, 0, ''],
-				2 => ['type', 'activity', 1, 0, ''],
-				3 => ['event', 'event', 1, 0, ''],
-				4 => ['event_type', 'event_type', 1, 0, ''],
-				5 => ['local_timestamp', 'local_date_time', 1, 0, ''],
-				6 => ['event_group', 'uint8', 1, 0, ''],
-				253 => ['timestamp', 'date_time', 1, 0, 's']
+			'mesg_name' => 'activity', 'field_defns' => [
+				0 => ['field_name' => 'total_timer_time',	'scale' => 1000, 'offset' => 0, 'units' => 's'],
+				1 => ['field_name' => 'num_sessions',		'scale' => 1, 'offset' => 0, 'units' => ''],
+				2 => ['field_name' => 'type',				'scale' => 1, 'offset' => 0, 'units' => ''],
+				3 => ['field_name' => 'event',				'scale' => 1, 'offset' => 0, 'units' => ''],
+				4 => ['field_name' => 'event_type',			'scale' => 1, 'offset' => 0, 'units' => ''],
+				5 => ['field_name' => 'local_timestamp',	'scale' => 1, 'offset' => 0, 'units' => ''],
+				6 => ['field_name' => 'event_group',		'scale' => 1, 'offset' => 0, 'units' => ''],
+				253 => ['field_name' => 'timestamp',		'scale' => 1, 'offset' => 0, 'units' => 's']
 			]
 		],
 		
 		49 => [
-			'file_creator', [
-				0 => ['software_version', 'uint16', 1, 0, ''],
-				1 => ['hardware_version', 'uint8', 1, 0, '']
+			'mesg_name' => 'file_creator', 'field_defns' => [
+				0 => ['field_name' => 'software_version', 'scale' => 1, 'offset' => 0, 'units' => ''],
+				1 => ['field_name' => 'hardware_version', 'scale' => 1, 'offset' => 0, 'units' => '']
 			]
 		],
 		
 		101 => [
-			'length', [
-				0 => ['event', 'event', 1, 0, ''],
-				1 => ['event_type', 'event_type', 1, 0, ''],
-				2 => ['start_time', 'date_time', 1, 0, ''],
-				3 => ['total_elapsed_time', 'uint32', 1000, 0, 's'],
-				4 => ['total_timer_time', 'uint32', 1000, 0, 's'],
-				5 => ['total_strokes', 'uint16', 1, 0, 'strokes'],
-				6 => ['avg_speed', 'uint16', 1000, 0, 'm/s'],
-				7 => ['swim_stroke', 'swim_stroke', 1, 0, 'swim_stroke'],
-				9 => ['avg_swimming_cadence', 'uint8', 1, 0, 'strokes/min'],
-				10 => ['event_group', 'uint8', 1, 0, ''],
-				11 => ['total_calories', 'uint16', 1, 0, 'kcal'],
-				12 => ['length_type', 'length_type', 1, 0, ''],
-				253 => ['timestamp', 'date_time', 1, 0, 's'],
-				254 => ['message_index', 'message_index', 1, 0, '']
+			'mesg_name' => 'length', 'field_defns' => [
+				0 => ['field_name' => 'event',					'scale' => 1,		'offset' => 0, 'units' => ''],
+				1 => ['field_name' => 'event_type',				'scale' => 1,		'offset' => 0, 'units' => ''],
+				2 => ['field_name' => 'start_time',				'scale' => 1,		'offset' => 0, 'units' => ''],
+				3 => ['field_name' => 'total_elapsed_time',		'scale' => 1000,	'offset' => 0, 'units' => 's'],
+				4 => ['field_name' => 'total_timer_time',		'scale' => 1000,	'offset' => 0, 'units' => 's'],
+				5 => ['field_name' => 'total_strokes',			'scale' => 1,		'offset' => 0, 'units' => 'strokes'],
+				6 => ['field_name' => 'avg_speed',				'scale' => 1000,	'offset' => 0, 'units' => 'm/s'],
+				7 => ['field_name' => 'swim_stroke',			'scale' => 1,		'offset' => 0, 'units' => 'swim_stroke'],
+				9 => ['field_name' => 'avg_swimming_cadence',	'scale' => 1,		'offset' => 0, 'units' => 'strokes/min'],
+				10 => ['field_name' => 'event_group',			'scale' => 1,		'offset' => 0, 'units' => ''],
+				11 => ['field_name' => 'total_calories',		'scale' => 1,		'offset' => 0, 'units' => 'kcal'],
+				12 => ['field_name' => 'length_type',			'scale' => 1, 		'offset' => 0, 'units' => ''],
+				253 => ['field_name' => 'timestamp',			'scale' => 1,		'offset' => 0, 'units' => 's'],
+				254 => ['field_name' => 'message_index',		'scale' => 1,		'offset' => 0, 'units' => '']
 			]
 		]
 	];
@@ -699,11 +699,11 @@ class phpFITFileReader {
 					if(array_key_exists($this->defn_mesgs[$local_mesg_type]['global_mesg_num'], $this->data_mesg_info)) {
 						foreach($this->defn_mesgs[$local_mesg_type]['field_defns'] as $field_defn) {
 							// Check that we have information on the Field Definition.
-							if(array_key_exists($field_defn['field_definition_number'], $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1])) {
+							if(array_key_exists($field_defn['field_definition_number'], $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'])) {
 								
 								// If it's a Record data message and it's a Timestamp field, store the timestamp...
 								if($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20 && $field_defn['field_definition_number'] === 253) {
-									$this->timestamp = $this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][0]][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][0]][] = (unpack($this->types[$field_defn['base_type']], $this->get_bytes($field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][2]) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][3];
+									$this->timestamp = $this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][] = (unpack($this->types[$field_defn['base_type']], $this->get_bytes($field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale']) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
 								}
 								
 								// Else, if it's another field in a Record data message, use the Timestamp as the index.
@@ -712,11 +712,11 @@ class phpFITFileReader {
 									while($field_defn['size']-- > 0) {
 										$get_bytes_data .= array_pop($this->file_contents);
 									}
-									$this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][0]][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][0]][$this->timestamp] = (unpack($this->types[$field_defn['base_type']], $get_bytes_data)['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][2]) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][3];
+									$this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][$this->timestamp] = (unpack($this->types[$field_defn['base_type']], $get_bytes_data)['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale']) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
 								}
 								
 								else {
-									$this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][0]][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][0]][] = (unpack($this->types[$field_defn['base_type']], $this->get_bytes($field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][2]) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']][1][$field_defn['field_definition_number']][3];
+									$this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][] = (unpack($this->types[$field_defn['base_type']], $this->get_bytes($field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale']) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
 								}
 							}
 							else {
@@ -791,11 +791,11 @@ class phpFITFileReader {
 		
 		echo '<h3>Messages and Fields being listened for</h3>';
 		foreach( $this->data_mesg_info as $key => $val ) {
-		echo '<h4>'.$val[0].' ('.$key.')</h4>';
+		echo '<h4>'.$val['mesg_name'].' ('.$key.')</h4>';
 			echo '<table class=\'table table-condensed table-striped\'>';
 			echo '<thead><th>ID</th><th>Name</th><th>Type</th><th>Scale</th><th>Offset</th><th>Units</th></thead><tbody>';
-			foreach( $val[1] as $key2 => $val2 ) {
-				echo '<tr><td>'.$key2.'</td><td>'.$val2[0].'</td><td>'.$val2[1].'</td><td>'.$val2[2].'</td><td>'.$val2[3].'</td><td>'.$val2[4].'</td></tr>';
+			foreach( $val['field_defns'] as $key2 => $val2 ) {
+				echo '<tr><td>'.$key2.'</td><td>'.$val2['field_name'].'</td><td>'.$val2['scale'].'</td><td>'.$val2['offset'].'</td><td>'.$val2['units'].'</td></tr>';
 			}
 			echo '</tbody></table><br><br>';
 		}
