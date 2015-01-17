@@ -759,11 +759,10 @@ class phpFITFileReader {
 		echo '</thead>';
 		echo '<tbody>';
 		foreach( $this->types as $key => $val ) {
-			echo '<tr><td>'.$key.'</td><td>'.$val[0].'</td><td>'.$val[1].'</td></tr>';
+			echo '<tr><td>'.$key.'</td><td>'.$val[0].'</td></tr>';
 		}
 		echo '</tbody>';
 		echo '</table>';
-		echo ' * note: the \'tmp\' suffix to the format is required to make unpack() work as required.';
 		
 		echo '<br><hr><br>';
 		
