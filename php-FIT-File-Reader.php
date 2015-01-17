@@ -352,8 +352,6 @@ class phpFITFileReader {
 	);
 	
 	/*
-	 * Field Def # => [Field Name, Field Type, Scale, Offset, Units]
-	 *
 	 * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
 	 * 4.4 Scale/Offset
 	 * When specified, the binary quantity is divided by the scale factor and then the offset is subtracted, yielding a floating point quantity.
@@ -760,14 +758,8 @@ class phpFITFileReader {
 		foreach($this->data_mesgs as $mesg_key => $mesg) {
 			foreach($mesg as $field_key => $field) {
 				if(count($field) === 1) {
-// GETTING "Notice: Undefined offset: 0" FOR SWIM FILES
-// FIRST ELEMENT IN ARRAY IS -1 AND NOT 0
-//					if(array_key_exists(-1, $field)) {
-//						echo '*** '.$mesg_key.' '.$field_key.' ***<br>';
-//						var_dump($field);
-//						echo '<br><br>';
-//					}
-					$this->data_mesgs[$mesg_key][$field_key] = $field[0];
+					$first_key = key($field);
+					$this->data_mesgs[$mesg_key][$field_key] = $field[$first_key];
 				}
 			}
 		}
@@ -987,55 +979,105 @@ class phpFITFileReader {
 	private function set_units($options) {
 		if(!isset($options['set_units']) || in_array('metric', $options['set_units'])) {
 			if(isset($this->data_mesgs['record']['speed'])) {  // convert  meters per second to kilometers per hour
-				foreach($this->data_mesgs['record']['speed'] as &$value) {
-					$value = round($value * 3.6, 3);
+				if(is_array($this->data_mesgs['record']['speed'])) {
+					foreach($this->data_mesgs['record']['speed'] as &$value) {
+						$value = round($value * 3.6, 3);
+					}
+				}
+				else {
+					$this->data_mesgs['record']['speed'] = round($this->data_mesgs['record']['speed'] * 3.6, 3);
 				}
 			}
 			if(isset($this->data_mesgs['record']['distance'])) {  // convert from meters to kilometers
-				foreach($this->data_mesgs['record']['distance'] as &$value) {
-					$value = round($value * 0.001, 2);
+				if(is_array($this->data_mesgs['record']['distance'])) {
+					foreach($this->data_mesgs['record']['distance'] as &$value) {
+						$value = round($value * 0.001, 2);
+					}
+				}
+				else {
+					$this->data_mesgs['record']['distance'] = round($this->data_mesgs['record']['distance'] * 0.001, 2);
 				}
 			}
 			if(isset($this->data_mesgs['record']['position_lat'])) {  // convert from semicircles to degress
-				foreach($this->data_mesgs['record']['position_lat'] as &$value) {
-					$value = round($value * (180.0 / pow(2,31)), 5);
+				if(is_array($this->data_mesgs['record']['position_lat'])) {
+					foreach($this->data_mesgs['record']['position_lat'] as &$value) {
+						$value = round($value * (180.0 / pow(2,31)), 5);
+					}
+				}
+				else {
+					$this->data_mesgs['record']['position_lat'] = round($this->data_mesgs['record']['position_lat'] * (180.0 / pow(2,31)), 5);
 				}
 			}
 			if(isset($this->data_mesgs['record']['position_long'])) {  // convert from semicircles to degress
-				foreach($this->data_mesgs['record']['position_long'] as &$value) {
-					$value = round($value * (180.0 / pow(2,31)), 5);
+				if(is_array($this->data_mesgs['record']['position_long'])) {
+					foreach($this->data_mesgs['record']['position_long'] as &$value) {
+						$value = round($value * (180.0 / pow(2,31)), 5);
+					}
+				}
+				else {
+					$this->data_mesgs['record']['position_long'] = round($this->data_mesgs['record']['position_long'] * (180.0 / pow(2,31)), 5);
 				}
 			}
 		}
 		else if(in_array('statute', $options['set_units'])) {
 			if(isset($this->data_mesgs['record']['speed'])) {  // convert  meters per second to miles per hour
-				foreach($this->data_mesgs['record']['speed'] as &$value) {
-					$value = round($value * 2.23693629, 3);
+				if(is_array($this->data_mesgs['record']['speed'])) {
+					foreach($this->data_mesgs['record']['speed'] as &$value) {
+						$value = round($value * 2.23693629, 3);
+					}
+				}
+				else {
+					$this->data_mesgs['record']['speed'] = round($this->data_mesgs['record']['speed'] * 2.23693629, 3);
 				}
 			}
 			if(isset($this->data_mesgs['record']['distance'])) {  // convert from meters to miles
-				foreach($this->data_mesgs['record']['distance'] as &$value) {
-					$value = round($value * 0.000621371192, 2);
+				if(is_array($this->data_mesgs['record']['distance'])) {
+					foreach($this->data_mesgs['record']['distance'] as &$value) {
+						$value = round($value * 0.000621371192, 2);
+					}
+				}
+				else {
+					$this->data_mesgs['record']['distance'] = round($this->data_mesgs['record']['distance'] * 0.000621371192, 2);
 				}
 			}
 			if(isset($this->data_mesgs['record']['altitude'])) {  // convert from meters to feet
-				foreach($this->data_mesgs['record']['altitude'] as &$value) {
-					$value = round($value * 3.2808399, 1);
+				if(is_array($this->data_mesgs['record']['altitude'])) {
+					foreach($this->data_mesgs['record']['altitude'] as &$value) {
+						$value = round($value * 3.2808399, 1);
+					}
+				}
+				else {
+					$this->data_mesgs['record']['altitude'] = round($this->data_mesgs['record']['altitude'] * 3.2808399, 1);
 				}
 			}
 			if(isset($this->data_mesgs['record']['position_lat'])) {  // convert from semicircles to degress
-				foreach($this->data_mesgs['record']['position_lat'] as &$value) {
-					$value = round($value * (180.0 / pow(2,31)), 5);
+				if(is_array($this->data_mesgs['record']['position_lat'])) {
+					foreach($this->data_mesgs['record']['position_lat'] as &$value) {
+						$value = round($value * (180.0 / pow(2,31)), 5);
+					}
+				}
+				else {
+					$this->data_mesgs['record']['position_lat'] = round($this->data_mesgs['record']['position_lat'] * (180.0 / pow(2,31)), 5);
 				}
 			}
 			if(isset($this->data_mesgs['record']['position_long'])) {  // convert from semicircles to degress
-				foreach($this->data_mesgs['record']['position_long'] as &$value) {
-					$value = round($value * (180.0 / pow(2,31)), 5);
+				if(is_array($this->data_mesgs['record']['position_long'])) {
+					foreach($this->data_mesgs['record']['position_long'] as &$value) {
+						$value = round($value * (180.0 / pow(2,31)), 5);
+					}
+				}
+				else {
+					$this->data_mesgs['record']['position_long'] = round($this->data_mesgs['record']['position_long'] * (180.0 / pow(2,31)), 5);
 				}
 			}
 			if(isset($this->data_mesgs['record']['temperature'])) {  // convert from celsius to fahrenheit
-				foreach($this->data_mesgs['record']['temperature'] as &$value) {
-					$value = round((($value * 9) / 5) + 32, 2);
+				if(is_array($this->data_mesgs['record']['temperature'])) {
+					foreach($this->data_mesgs['record']['temperature'] as &$value) {
+						$value = round((($value * 9) / 5) + 32, 2);
+					}
+				}
+				else {
+					$this->data_mesgs['record']['temperature'] = round((($this->data_mesgs['record']['temperature'] * 9) / 5) + 32, 2);
 				}
 			}
 		}
