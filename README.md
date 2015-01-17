@@ -80,7 +80,12 @@ echo "var chartData = [";
 echo "];";
 ```
 <strong>Enumerated Data</strong>
-```php $pFFR->get_enum_data($type, $value)```
+```php
+// Access data stored within the private class member $enum_data
+// $pFFR->get_enum_data($type, $value)
+// e.g.
+echo $pFFR->get_enum_data('sport', 2);  // cycling
+```
 <ul>
 <li>get_manufacturer()</li>
 <li>get_product()</li>
