@@ -13,17 +13,15 @@ define('FIT_DEFINITION', 1);
 define('FIT_DATA', 2);
 
 class phpFITFileReader {
-	public $data = [];  // used to store the data read from the file in associative arrays.
+	public $data_mesgs = [];  // Used to store the data read from the file in associative arrays.
 	
-	private $file_contents;
-	private $FITDefnMesgs = [];
-	private $file_header = [];
-	private $timestamp = 0;
+	private $file_contents;		// FIT file is read-in to memory as a string, split into an array, and reversed. See __construct().
+	private $defn_mesgs = [];	// Array of FIT 'Definition Messages', which describe the architecture, format, and fields of 'Data Messages'.
+	private $file_header = [];	// Contains information about the FIT file such as the Protocol version, Profile version, and Data Size.
+	private $timestamp = 0;		// Timestamps are used as the indexes for Record data (e.g. Speed, Heart Rate, etc).
 	
-	private $record_header;
-	private $local_mesg_num;
-	private $get_bytes_data;
-	
+	// Enumerated data looked up by get_enum_data().
+	// Values from 'Profile.xls' contained within the FIT SDK.
 	private $enum_data = [
 		'activity' => [0 => 'manual', 1 => 'auto_multi_sport'],
 		'battery_status' => [1 => 'new', 2 => 'good', 3 => 'ok', 4 => 'low', 5 => 'critical'],
@@ -335,21 +333,23 @@ class phpFITFileReader {
 		'swim_stroke' => [0 => 'freestyle', 1 => 'backstroke', 2 => 'breaststroke', 3 => 'butterfly', 4 => 'drill', 5 => 'mixed', 6 => 'im']
 	];
 	
+	// Format string used by the PHP unpack() function to convert to an array from binary data.
+	// 'tmp' is the name of the array created.
 	private $types = array(
-		0	=> 'C1tmp',	// enum
-		1	=> 'c1tmp',	// sint8
-		2	=> 'C1tmp',	// uint8
-		131	=> 'S1tmp',	// sint16
-		132	=> 'v1tmp',	// uint16
-		133	=> 'l1tmp',	// sint32
-		134	=> 'V1tmp',	// uint32
-		7	=> 'C1tmp',	// string
-		136	=> 'f1tmp',	// float32
-		137	=> 'd1tmp',	// float64
-		10	=> 'C1tmp',	// uint8z
-		139	=> 'v1tmp',	// uint16z
-		140	=> 'V1tmp',	// uint32z
-		13	=> 'C1tmp',	// byte
+		0	=> 'Ctmp',	// enum
+		1	=> 'ctmp',	// sint8
+		2	=> 'Ctmp',	// uint8
+		131	=> 'Stmp',	// sint16
+		132	=> 'vtmp',	// uint16
+		133	=> 'ltmp',	// sint32
+		134	=> 'Vtmp',	// uint32
+		7	=> 'Ctmp',	// string
+		136	=> 'ftmp',	// float32
+		137	=> 'dtmp',	// float64
+		10	=> 'Ctmp',	// uint8z
+		139	=> 'vtmp',	// uint16z
+		140	=> 'Vtmp',	// uint32z
+		13	=> 'Ctmp',	// byte
 	);
 	
 	/*
@@ -359,7 +359,7 @@ class phpFITFileReader {
 	 * 4.4 Scale/Offset
 	 * When specified, the binary quantity is divided by the scale factor and then the offset is subtracted, yielding a floating point quantity.
 	 */
-	private $messages = [
+	private $data_mesg_info = [
 		0 => [
 			'file_id', [
 				0 => ['type', 'file', 1, 0, ''],
@@ -545,6 +545,7 @@ class phpFITFileReader {
 		]
 	];
 	
+	// PHP Constructor - called when an object of the class is instantiated.
 	function __construct($file_path, $options=NULL) {
 		if(empty($file_path)) {
 			throw new Exception('phpFITFileReader->__construct(): file_path is empty!');
@@ -554,23 +555,22 @@ class phpFITFileReader {
 		}
 		
 		/*
-		 * 1. Read entire file using file_get_contents()
-		 * 2. Split the string into bytes using str_split()
-		 * 3. Reverse the array so we can use array_pop()
+		 * 1. file_get_contents — Reads entire file into a string.
+		 * 2. str_split — Convert a string to an array.
+		 * 3. array_reverse — Return an array with elements in reverse order. This is so we can use array_pop() instead of the much slower array_shift().
 		 */
 		$this->file_contents = array_reverse(str_split(file_get_contents($file_path)));
 		
 		// Get rid of the first two array elements. These are the CRC bytes and unused by this class.
-		array_shift($this->file_contents);
+		array_shift($this->file_contents);  // array_shift() from the front of the array as CRC bytes were at end of file before it was reversed.
 		array_shift($this->file_contents);
 		
-		$this->read_file_header();
-		$this->read_file_data();
+		// Process the file contents.
+		$this->read_header();
+		$this->read_data_records();
 		$this->one_element_arrays();
 		
-		/*
-		 * Handle options
-		 */
+		// Handle options.
 		$this->fix_data($options);
 		$this->set_units($options);
 	}
@@ -585,23 +585,23 @@ class phpFITFileReader {
 	 *   0   | Header Size         | C unsigned char
 	 *   1   | Protocol Version    | C unsigned char
 	 *   2   | Profile Version LSB | v unsigned short (always 16 bit, little endian byte order)
-	 *   3   | Profile Version MSB |
+	 *   3   | Profile Version MSB | v unsigned short
 	 *   4   | Data Size LSB       | V unsigned long (always 32 bit, little endian byte order)
-	 *   5   | Data Size           |
-	 *   6   | Data Size           |
-	 *   7   | Data Size MSB       |
+	 *   5   | Data Size           | V unsigned long
+	 *   6   | Data Size           | V unsigned long
+	 *   7   | Data Size MSB       | V unsigned long
 	 *   8   | Data Type Byte[0]   | C unsigned char
 	 *   9   | Data Type Byte[1]   | C unsigned char
 	 *   10  | Data Type Byte[2]   | C unsigned char
 	 *   11  | Data Type Byte[3]   | C unsigned char
-	 *   12  | CRC LSB             | v unsigned short (always 16 bit, little endian byte order)
-	 *   13  | CRC MSB             |
+	 *   12  | CRC LSB             | *** Removed by array_shift() in __construct() ***
+	 *   13  | CRC MSB             | *** Removed by array_shift() in __construct() ***
 	 */
-	private function read_file_header() {
+	private function read_header() {
 		$this->file_header['header_size'] = unpack('C1tmp', array_pop($this->file_contents))['tmp'];
 		
 		if($this->file_header['header_size'] != 12 && $this->file_header['header_size'] != 14) {
-			throw new Exception('phpFITFileReader->read_file_header(): not a valid header size!');
+			throw new Exception('phpFITFileReader->read_header(): not a valid header size!');
 		}
 		$this->file_header = unpack('C1protocol_version/'.
 				'v1profile_version/'.
@@ -613,7 +613,7 @@ class phpFITFileReader {
 		$file_type = sprintf('%c%c%c%c', $this->file_header['data_type1'], $this->file_header['data_type2'], $this->file_header['data_type3'], $this->file_header['data_type4']);
 		
 		if($file_type != '.FIT' || $this->file_header['data_size'] <= 0) {
-			throw new Exception('phpFITFileReader->read_file_header(): not a valid FIT file!');
+			throw new Exception('phpFITFileReader->read_header(): not a valid FIT file!');
 		}
 	}
 	
@@ -634,19 +634,21 @@ class phpFITFileReader {
 			return FIT_DATA;
 	}
 	
-	private function read_file_data() {
-		$this->record_header = NULL;
+	private function read_data_records() {
+		$record_header = NULL;
+		$local_mesg_num = NULL;
+		$get_bytes_data = NULL;
 		
-		while(($this->record_header = array_pop($this->file_contents)) !== NULL) {
-			$this->record_header = ord($this->record_header);
+		while(($record_header = array_pop($this->file_contents)) !== NULL) {
+			$record_header = ord($record_header);
 			
-			$this->local_mesg_num = $this->record_header & 15;  // bindec('1111') == 15
+			$local_mesg_num = $record_header & 15;  // bindec('1111') == 15
 			
-			if(!($this->record_header >> 7) ^ 1) {  // check if its a normal header
-				throw new Exception('phpFITFileReader->read_file_data(): not a normal record header!');
+			if(!($record_header >> 7) ^ 1) {  // check if its a normal header
+				throw new Exception('phpFITFileReader->read_data_records(): not a normal record header!');
 			}
 			
-			switch($this->whats_next($this->record_header)) {
+			switch($this->whats_next($record_header)) {
 				case FIT_DEFINITION:
 					// don't really care about these two so not going to do anything with them
 					array_pop($this->file_contents);  // reserved
@@ -666,7 +668,7 @@ class phpFITFileReader {
 						$total_size += $size;
 					}
 					
-					$this->FITDefnMesgs[$this->local_mesg_num] = [
+					$this->defn_mesgs[$local_mesg_num] = [
 							'global_mesg_num' => $global_mesg_num,
 							'num_fields' => $num_fields,
 							'field_defns' => $field_definitions,
@@ -675,24 +677,24 @@ class phpFITFileReader {
 					break;
 				
 				case FIT_DATA:
-					if(array_key_exists($this->FITDefnMesgs[$this->local_mesg_num]['global_mesg_num'], $this->messages)) {
-						foreach($this->FITDefnMesgs[$this->local_mesg_num]['field_defns'] as $field_defn) {
-							if(array_key_exists($field_defn['defn'], $this->messages[$this->FITDefnMesgs[$this->local_mesg_num]['global_mesg_num']][1])) {
-								if($this->FITDefnMesgs[$this->local_mesg_num]['global_mesg_num'] === 20 && $field_defn['defn'] === 253) {
-									$this->timestamp = $this->data[$this->messages[$this->FITDefnMesgs[$this->local_mesg_num]['global_mesg_num']][0]][$this->messages[$this->FITDefnMesgs[$this->local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][] = (unpack($this->types[$field_defn['type']], $this->get_bytes($field_defn['size']))['tmp'] / $this->messages[$this->FITDefnMesgs[$this->local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->messages[$this->FITDefnMesgs[$this->local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
+					if(array_key_exists($this->defn_mesgs[$local_mesg_num]['global_mesg_num'], $this->data_mesg_info)) {
+						foreach($this->defn_mesgs[$local_mesg_num]['field_defns'] as $field_defn) {
+							if(array_key_exists($field_defn['defn'], $this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1])) {
+								if($this->defn_mesgs[$local_mesg_num]['global_mesg_num'] === 20 && $field_defn['defn'] === 253) {
+									$this->timestamp = $this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][0]][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][] = (unpack($this->types[$field_defn['type']], $this->get_bytes($field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
 								}
-								else if($this->FITDefnMesgs[$this->local_mesg_num]['global_mesg_num'] === 20) {
+								else if($this->defn_mesgs[$local_mesg_num]['global_mesg_num'] === 20) {
 									// This is called many times over!
 									// Is quicker (~11%) to bring the get_bytes() function inline.
-									$this->get_bytes_data = '';
+									$get_bytes_data = '';
 									while($field_defn['size']-- > 0) {
-										$this->get_bytes_data .= array_pop($this->file_contents);
+										$get_bytes_data .= array_pop($this->file_contents);
 									}
 									
-									$this->data[$this->messages[$this->FITDefnMesgs[$this->local_mesg_num]['global_mesg_num']][0]][$this->messages[$this->FITDefnMesgs[$this->local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][$this->timestamp] = (unpack($this->types[$field_defn['type']], $this->get_bytes_data)['tmp'] / $this->messages[$this->FITDefnMesgs[$this->local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->messages[$this->FITDefnMesgs[$this->local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
+									$this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][0]][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][$this->timestamp] = (unpack($this->types[$field_defn['type']], $get_bytes_data)['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
 								}
 								else {
-									$this->data[$this->messages[$this->FITDefnMesgs[$this->local_mesg_num]['global_mesg_num']][0]][$this->messages[$this->FITDefnMesgs[$this->local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][] = (unpack($this->types[$field_defn['type']], $this->get_bytes($field_defn['size']))['tmp'] / $this->messages[$this->FITDefnMesgs[$this->local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->messages[$this->FITDefnMesgs[$this->local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
+									$this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][0]][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][0]][] = (unpack($this->types[$field_defn['type']], $this->get_bytes($field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][2]) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_num]['global_mesg_num']][1][$field_defn['defn']][3];
 								}
 							}
 							else {
@@ -707,7 +709,7 @@ class phpFITFileReader {
 					else {
 						// drop the bytes - unset() is quicker than array_pop()
 						$last_element = count($this->file_contents) - 1;
-						$offset = $this->FITDefnMesgs[$this->local_mesg_num]['total_size'];
+						$offset = $this->defn_mesgs[$local_mesg_num]['total_size'];
 						while($offset-- > 0) {
 							unset($this->file_contents[$last_element - $offset]);
 						}
@@ -733,7 +735,7 @@ class phpFITFileReader {
 	}
 	
 	private function one_element_arrays() {
-		foreach($this->data as $mesg_key => $mesg) {
+		foreach($this->data_mesgs as $mesg_key => $mesg) {
 			foreach($mesg as $field_key => $field) {
 				if(count($field) === 1) {
 // GETTING "Notice: Undefined offset: 0" FOR SWIM FILES
@@ -743,7 +745,7 @@ class phpFITFileReader {
 //						var_dump($field);
 //						echo '<br><br>';
 //					}
-					$this->data[$mesg_key][$field_key] = $field[0];
+					$this->data_mesgs[$mesg_key][$field_key] = $field[0];
 				}
 			}
 		}
@@ -766,7 +768,7 @@ class phpFITFileReader {
 		echo '<br><hr><br>';
 		
 		echo '<h3>Messages and Fields being listened for</h3>';
-		foreach( $this->messages as $key => $val ) {
+		foreach( $this->data_mesg_info as $key => $val ) {
 		echo '<h4>'.$val[0].' ('.$key.')</h4>';
 			echo '<table class=\'table table-condensed table-striped\'>';
 			echo '<thead><th>ID</th><th>Name</th><th>Type</th><th>Scale</th><th>Offset</th><th>Units</th></thead><tbody>';
@@ -787,7 +789,7 @@ class phpFITFileReader {
 		echo '<th>total_size</th>';
 		echo '</thead>';
 		echo '<tbody>';
-		foreach( $this->FITDefnMesgs as $key => $val ) {
+		foreach( $this->defn_mesgs as $key => $val ) {
 			echo  '<tr><td>'.$val['global_mesg_num'].'</td><td>'.$val['num_fields'].'</td><td>';
 			
 			foreach($val['field_defns'] as $defn) {
@@ -801,7 +803,7 @@ class phpFITFileReader {
 		echo '<br><hr><br>';
 		
 		echo '<h3>Messages found in file</h3>';
-		foreach($this->data as $mesg_key => $mesg) {
+		foreach($this->data_mesgs as $mesg_key => $mesg) {
 			echo '<table class=\'table table-condensed table-striped\'>';
 			echo '<thead><th>'.$mesg_key.'</th><th>count()</th></thead><tbody>';
 			foreach($mesg as $field_key => $field) {
@@ -812,28 +814,28 @@ class phpFITFileReader {
 	}
 	
 	public function get_manufacturer() {
-		$tmp = $this->get_enum_data('manufacturer', $this->data['device_info']['manufacturer']);
+		$tmp = $this->get_enum_data('manufacturer', $this->data_mesgs['device_info']['manufacturer']);
 		return is_array($tmp) ? $tmp[0] : $tmp;
 	}
 	
 	public function get_product() {
-		$tmp = $this->get_enum_data('product', $this->data['device_info']['product']);
+		$tmp = $this->get_enum_data('product', $this->data_mesgs['device_info']['product']);
 		return is_array($tmp) ? $tmp[0] : $tmp;
 	}
 	
 	public function get_sport() {
-		$tmp = $this->get_enum_data('sport', $this->data['session']['sport']);
+		$tmp = $this->get_enum_data('sport', $this->data_mesgs['session']['sport']);
 		return is_array($tmp) ? $tmp[0] : $tmp;
 	}
 	
 	public function get_sub_sport() {
-		$tmp = $this->get_enum_data('sub_sport', $this->data['session']['sub_sport']);
+		$tmp = $this->get_enum_data('sub_sport', $this->data_mesgs['session']['sub_sport']);
 		return is_array($tmp) ? $tmp[0] : $tmp;
 	}
 	
 	public function get_swim_stroke() {
 		if($this->get_sport() == 'swimming') {
-			$tmp = $this->get_enum_data('swim_stroke', $this->data['session']['swim_stroke']);
+			$tmp = $this->get_enum_data('swim_stroke', $this->data_mesgs['session']['swim_stroke']);
 			return is_array($tmp) ? $tmp[0] : $tmp;
 		}
 		else {
@@ -866,61 +868,61 @@ class phpFITFileReader {
 		$missing_speed_keys = [];
 		$missing_power_keys = [];
 		
-		foreach($this->data['record']['timestamp'] as $timestamp) {
+		foreach($this->data_mesgs['record']['timestamp'] as $timestamp) {
 			if($bCadence) {  // Assumes all missing cadence values are zeros
-				if(!isset($this->data['record']['cadence'][$timestamp])) {
-					$this->data['record']['cadence'][$timestamp] = 0;
+				if(!isset($this->data_mesgs['record']['cadence'][$timestamp])) {
+					$this->data_mesgs['record']['cadence'][$timestamp] = 0;
 				}
 			}
 			if($bDistance) {
-				if(!isset($this->data['record']['distance'][$timestamp])) {
+				if(!isset($this->data_mesgs['record']['distance'][$timestamp])) {
 					$missing_distance_keys[] = $timestamp;
 				}
 			}
 			if($bHeartRate) {
-				if(!isset($this->data['record']['heart_rate'][$timestamp])) {
+				if(!isset($this->data_mesgs['record']['heart_rate'][$timestamp])) {
 					$missing_hr_keys[] = $timestamp;
 				}
 			}
 			if($bLatitudeLongitude) {
-				if(!isset($this->data['record']['position_lat'][$timestamp])) {
+				if(!isset($this->data_mesgs['record']['position_lat'][$timestamp])) {
 					$missing_lat_keys[] = $timestamp;
 				}
-				if(!isset($this->data['record']['position_long'][$timestamp])) {
+				if(!isset($this->data_mesgs['record']['position_long'][$timestamp])) {
 					$missing_lon_keys[] = $timestamp;
 				}
 			}
 			if($bSpeed) {
-				if(!isset($this->data['record']['speed'][$timestamp])) {
+				if(!isset($this->data_mesgs['record']['speed'][$timestamp])) {
 					$missing_speed_keys[] = $timestamp;
 				}
 			}
 			if($bPower) {
-				if(!isset($this->data['record']['power'][$timestamp])) {
+				if(!isset($this->data_mesgs['record']['power'][$timestamp])) {
 					$missing_power_keys[] = $timestamp;
 				}
 			}
 		}
 		
 		
-		if($bCadence && isset($this->data['record']['cadence'])) {
-			ksort($this->data['record']['cadence']);  // no interpolation; zeros added earlier
+		if($bCadence && isset($this->data_mesgs['record']['cadence'])) {
+			ksort($this->data_mesgs['record']['cadence']);  // no interpolation; zeros added earlier
 		}
-		if($bDistance && isset($this->data['record']['distance'])) {
-			$this->interpolate_missing_data($missing_distance_keys, $this->data['record']['distance']);
+		if($bDistance && isset($this->data_mesgs['record']['distance'])) {
+			$this->interpolate_missing_data($missing_distance_keys, $this->data_mesgs['record']['distance']);
 		}
-		if($bHeartRate && isset($this->data['record']['heart_rate'])) {
-			$this->interpolate_missing_data($missing_hr_keys, $this->data['record']['heart_rate']);
+		if($bHeartRate && isset($this->data_mesgs['record']['heart_rate'])) {
+			$this->interpolate_missing_data($missing_hr_keys, $this->data_mesgs['record']['heart_rate']);
 		}
-		if($bLatitudeLongitude && isset($this->data['record']['position_lat']) && isset($this->data['record']['position_long'])) {
-			$this->interpolate_missing_data($missing_lat_keys, $this->data['record']['position_lat']);
-			$this->interpolate_missing_data($missing_lon_keys, $this->data['record']['position_long']);
+		if($bLatitudeLongitude && isset($this->data_mesgs['record']['position_lat']) && isset($this->data_mesgs['record']['position_long'])) {
+			$this->interpolate_missing_data($missing_lat_keys, $this->data_mesgs['record']['position_lat']);
+			$this->interpolate_missing_data($missing_lon_keys, $this->data_mesgs['record']['position_long']);
 		}
-		if($bSpeed && isset($this->data['record']['speed'])) {
-			$this->interpolate_missing_data($missing_speed_keys, $this->data['record']['speed']);
+		if($bSpeed && isset($this->data_mesgs['record']['speed'])) {
+			$this->interpolate_missing_data($missing_speed_keys, $this->data_mesgs['record']['speed']);
 		}
-		if($bPower && isset($this->data['record']['power'])) {
-			$this->interpolate_missing_data($missing_power_keys, $this->data['record']['power']);
+		if($bPower && isset($this->data_mesgs['record']['power'])) {
+			$this->interpolate_missing_data($missing_power_keys, $this->data_mesgs['record']['power']);
 		}
 	}
 	
@@ -962,55 +964,55 @@ class phpFITFileReader {
 	
 	private function set_units($options) {
 		if(!isset($options['set_units']) || in_array('metric', $options['set_units'])) {
-			if(isset($this->data['record']['speed'])) {  // convert  meters per second to kilometers per hour
-				foreach($this->data['record']['speed'] as &$value) {
+			if(isset($this->data_mesgs['record']['speed'])) {  // convert  meters per second to kilometers per hour
+				foreach($this->data_mesgs['record']['speed'] as &$value) {
 					$value = round($value * 3.6, 3);
 				}
 			}
-			if(isset($this->data['record']['distance'])) {  // convert from meters to kilometers
-				foreach($this->data['record']['distance'] as &$value) {
+			if(isset($this->data_mesgs['record']['distance'])) {  // convert from meters to kilometers
+				foreach($this->data_mesgs['record']['distance'] as &$value) {
 					$value = round($value * 0.001, 2);
 				}
 			}
-			if(isset($this->data['record']['position_lat'])) {  // convert from semicircles to degress
-				foreach($this->data['record']['position_lat'] as &$value) {
+			if(isset($this->data_mesgs['record']['position_lat'])) {  // convert from semicircles to degress
+				foreach($this->data_mesgs['record']['position_lat'] as &$value) {
 					$value = round($value * (180.0 / pow(2,31)), 5);
 				}
 			}
-			if(isset($this->data['record']['position_long'])) {  // convert from semicircles to degress
-				foreach($this->data['record']['position_long'] as &$value) {
+			if(isset($this->data_mesgs['record']['position_long'])) {  // convert from semicircles to degress
+				foreach($this->data_mesgs['record']['position_long'] as &$value) {
 					$value = round($value * (180.0 / pow(2,31)), 5);
 				}
 			}
 		}
 		else if(in_array('statute', $options['set_units'])) {
-			if(isset($this->data['record']['speed'])) {  // convert  meters per second to miles per hour
-				foreach($this->data['record']['speed'] as &$value) {
+			if(isset($this->data_mesgs['record']['speed'])) {  // convert  meters per second to miles per hour
+				foreach($this->data_mesgs['record']['speed'] as &$value) {
 					$value = round($value * 2.23693629, 3);
 				}
 			}
-			if(isset($this->data['record']['distance'])) {  // convert from meters to miles
-				foreach($this->data['record']['distance'] as &$value) {
+			if(isset($this->data_mesgs['record']['distance'])) {  // convert from meters to miles
+				foreach($this->data_mesgs['record']['distance'] as &$value) {
 					$value = round($value * 0.000621371192, 2);
 				}
 			}
-			if(isset($this->data['record']['altitude'])) {  // convert from meters to feet
-				foreach($this->data['record']['altitude'] as &$value) {
+			if(isset($this->data_mesgs['record']['altitude'])) {  // convert from meters to feet
+				foreach($this->data_mesgs['record']['altitude'] as &$value) {
 					$value = round($value * 3.2808399, 1);
 				}
 			}
-			if(isset($this->data['record']['position_lat'])) {  // convert from semicircles to degress
-				foreach($this->data['record']['position_lat'] as &$value) {
+			if(isset($this->data_mesgs['record']['position_lat'])) {  // convert from semicircles to degress
+				foreach($this->data_mesgs['record']['position_lat'] as &$value) {
 					$value = round($value * (180.0 / pow(2,31)), 5);
 				}
 			}
-			if(isset($this->data['record']['position_long'])) {  // convert from semicircles to degress
-				foreach($this->data['record']['position_long'] as &$value) {
+			if(isset($this->data_mesgs['record']['position_long'])) {  // convert from semicircles to degress
+				foreach($this->data_mesgs['record']['position_long'] as &$value) {
 					$value = round($value * (180.0 / pow(2,31)), 5);
 				}
 			}
-			if(isset($this->data['record']['temperature'])) {  // convert from celsius to fahrenheit
-				foreach($this->data['record']['temperature'] as &$value) {
+			if(isset($this->data_mesgs['record']['temperature'])) {  // convert from celsius to fahrenheit
+				foreach($this->data_mesgs['record']['temperature'] as &$value) {
 					$value = round((($value * 9) / 5) + 32, 2);
 				}
 			}
