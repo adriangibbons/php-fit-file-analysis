@@ -738,10 +738,10 @@ class phpFITFileReader {
 		}
 	}
 	
-	public function get_enum_data($type, $val) {
-		if(is_array($val)) {
+	public function get_enum_data($type, $value) {
+		if(is_array($value)) {
 			$tmp = [];
-			foreach($val as $element) {
+			foreach($value as $element) {
 				if(isset($this->enum_data[$type][$element]))
 					$tmp[] = $this->enum_data[$type][$element];
 				else
@@ -750,7 +750,7 @@ class phpFITFileReader {
 			return $tmp;
 		}
 		else {
-			return isset($this->enum_data[$type][$val]) ? $this->enum_data[$type][$val] : 'unknown';
+			return isset($this->enum_data[$type][$value]) ? $this->enum_data[$type][$value] : 'unknown';
 		}
 	}
 	

@@ -79,6 +79,15 @@ echo "var chartData = [";
     }
 echo "];";
 ```
+<strong>Enumerated Data</strong>
+```php $pFFR->get_enum_data($type, $value)```
+<ul>
+<li>get_manufacturer()</li>
+<li>get_product()</li>
+<li>get_sport()</li>
+<li>get_sub_sport()</li>
+<li>get_swim_stroke()</li>
+</ul>
 <br>
 <h3>Optional Parameters</h3>
 <p>There are two optional parameters that can be passed as an associative array when the phpFITFileReader object is instantiated. These are:</p>
