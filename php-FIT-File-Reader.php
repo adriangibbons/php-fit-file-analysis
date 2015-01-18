@@ -95,7 +95,7 @@ class phpFITFileReader {
 		'intensity' => [0 => 'active', 1 => 'rest', 2 => 'warmup', 3 => 'cooldown'],
 		'length_type' => [0 => 'idle', 1 => 'active'],
 		'manufacturer' => [
-			1 => 'garmin',
+			1 => 'Garmin',  // 'garmin',
 			2 => 'garmin_fr405_antfs',
 			3 => 'zephyr',
 			4 => 'dayton',
@@ -191,7 +191,7 @@ class phpFITFileReader {
 			259 => 'scribe_labs',
 			5759 => 'actigraphcorp'
 		],
-		'product' => [
+		'product' => [  // Have formatted for devices known to use FIT format. (Original text commented-out).
 			1 => 'hrm1',
 			2 => 'axh01',
 			3 => 'axb01',
@@ -211,58 +211,58 @@ class phpFITFileReader {
 			987 => 'fr405_japan',
 			988 => 'fr60',
 			1011 => 'dsi_alf01',
-			1018 => 'fr310xt',
-			1036 => 'edge500',
+			1018 => 'Forerunner 310XT',  // 'fr310xt',
+			1036 => 'Edge 500',  // 'edge500',
 			1124 => 'fr110',
-			1169 => 'edge800',
-			1199 => 'edge500_taiwan',
-			1213 => 'edge500_japan',
+			1169 => 'Edge 800',  // 'edge800',
+			1199 => 'Edge 500',  // 'edge500_taiwan',
+			1213 => 'Edge 500',  // 'edge500_japan',
 			1253 => 'chirp',
 			1274 => 'fr110_japan',
 			1325 => 'edge200',
-			1328 => 'fr910xt',
-			1333 => 'edge800_taiwan',
-			1334 => 'edge800_japan',
+			1328 => 'Forerunner 910XT',  // 'fr910xt',
+			1333 => 'Edge 800',  // 'edge800_taiwan',
+			1334 => 'Edge 800',  // 'edge800_japan',
 			1341 => 'alf04',
 			1345 => 'fr610',
 			1360 => 'fr210_japan',
 			1380 => 'vector_ss',
 			1381 => 'vector_cp',
-			1386 => 'edge800_china',
-			1387 => 'edge500_china',
+			1386 => 'Edge 800',  // 'edge800_china',
+			1387 => 'Edge 500',  // 'edge500_china',
 			1410 => 'fr610_japan',
-			1422 => 'edge500_korea',
+			1422 => 'Edge 500',  // 'edge500_korea',
 			1436 => 'fr70',
-			1446 => 'fr310xt_4t',
+			1446 => 'Forerunner 310XT',  // 'fr310xt_4t',
 			1461 => 'amx',
 			1482 => 'fr10',
-			1497 => 'edge800_korea',
+			1497 => 'Edge 800',  // 'edge800_korea',
 			1499 => 'swim',
-			1537 => 'fr910xt_china',
+			1537 => 'Forerunner 910XT',  // 'fr910xt_china',
 			1551 => 'fenix',
 			1555 => 'edge200_taiwan',
-			1561 => 'edge510',
-			1567 => 'edge810',
+			1561 => 'Edge 510',  // 'edge510',
+			1567 => 'Edge 810',  // 'edge810',
 			1570 => 'tempe',
-			1600 => 'fr910xt_japan',
+			1600 => 'Forerunner 910XT',  // 'fr910xt_japan',
 			1623 => 'fr620',
 			1632 => 'fr220',
-			1664 => 'fr910xt_korea',
+			1664 => 'Forerunner 910XT',  // 'fr910xt_korea',
 			1688 => 'fr10_japan',
-			1721 => 'edge810_japan',
+			1721 => 'Edge 810',  // 'edge810_japan',
 			1735 => 'virb_elite',
 			1736 => 'edge_touring',
-			1742 => 'edge510_japan',
+			1742 => 'Edge 510',  // 'edge510_japan',
 			1752 => 'hrm_run',
-			1821 => 'edge510_asia',
-			1822 => 'edge810_china',
-			1823 => 'edge810_taiwan',
-			1836 => 'edge1000',
+			1821 => 'Edge 510',  // 'edge510_asia',
+			1822 => 'Edge 810',  // 'edge810_china',
+			1823 => 'Edge 810',  // 'edge810_taiwan',
+			1836 => 'Edge 1000',  // 'edge1000',
 			1837 => 'vivo_fit',
 			1853 => 'virb_remote',
 			1885 => 'vivo_ki',
 			1903 => 'fr15',
-			1918 => 'edge510_korea',
+			1918 => 'Edge 510',  // 'edge510_korea',
 			1928 => 'fr620_japan',
 			1929 => 'fr620_china',
 			1930 => 'fr220_japan',
@@ -274,62 +274,62 @@ class phpFITFileReader {
 			65532 => 'android_antplus_plugin',
 			65534 => 'connect'
 		],
-		'sport' => [
-			0 => 'generic',
-			1 => 'running',
-			2 => 'cycling',
-			3 => 'transition',
-			4 => 'fitness_equipment',
-			5 => 'swimming',
-			6 => 'basketball',
-			7 => 'soccer',
-			8 => 'tennis',
-			9 => 'american_football',
-			10 => 'training',
-			11 => 'walking',
-			12 => 'cross_country_skiing',
-			13 => 'alpine_skiing',
-			14 => 'snowboarding',
-			15 => 'rowing',
-			16 => 'mountaineering',
-			17 => 'hiking',
-			18 => 'multisport',
-			19 => 'paddling',
-			254 => 'all'
+		'sport' => [  // Have capitalised and replaced underscores with spaces.
+			0 => 'Generic',
+			1 => 'Running',
+			2 => 'Cycling',
+			3 => 'Transition',
+			4 => 'Fitness equipment',
+			5 => 'Swimming',
+			6 => 'Basketball',
+			7 => 'Soccer',
+			8 => 'Tennis',
+			9 => 'American football',
+			10 => 'Training',
+			11 => 'Walking',
+			12 => 'Cross country skiing',
+			13 => 'Alpine skiing',
+			14 => 'Snowboarding',
+			15 => 'Rowing',
+			16 => 'Mountaineering',
+			17 => 'Hiking',
+			18 => 'Multisport',
+			19 => 'Paddling',
+			254 => 'All'
 		],
-		'sub_sport' => [
-			0 => 'generic',
-			1 => 'treadmill',
-			2 => 'street',
-			3 => 'trail',
-			4 => 'track',
-			5 => 'spin',
-			6 => 'indoor_cycling',
-			7 => 'road',
-			8 => 'mountain',
-			9 => 'downhill',
-			10 => 'recumbent',
-			11 => 'cyclocross',
-			12 => 'hand_cycling',
-			13 => 'track_cycling',
-			14 => 'indoor_rowing',
-			15 => 'elliptical',
-			16 => 'stair_climbing',
-			17 => 'lap_swimming',
-			18 => 'open_water',
-			19 => 'flexibility_training',
-			20 => 'strength_training',
-			21 => 'warm_up',
-			22 => 'match',
-			23 => 'exercise',
-			24 => 'challenge',
-			25 => 'indoor_skiing',
-			26 => 'cardio_training',
-			27 => 'indoor_walking',
-			254 => 'all'
+		'sub_sport' => [  // Have capitalised and replaced underscores with spaces.
+			0 => 'Generic',
+			1 => 'Treadmill',
+			2 => 'Street',
+			3 => 'Trail',
+			4 => 'Track',
+			5 => 'Spin',
+			6 => 'Indoor cycling',
+			7 => 'Road',
+			8 => 'Mountain',
+			9 => 'Downhill',
+			10 => 'Recumbent',
+			11 => 'Cyclocross',
+			12 => 'Hand cycling',
+			13 => 'Track cycling',
+			14 => 'Indoor rowing',
+			15 => 'Elliptical',
+			16 => 'Stair climbing',
+			17 => 'Lap swimming',
+			18 => 'Open water',
+			19 => 'Flexibility training',
+			20 => 'Strength training',
+			21 => 'Warm up',
+			22 => 'Match',
+			23 => 'Exercise',
+			24 => 'Challenge',
+			25 => 'Indoor skiing',
+			26 => 'Cardio training',
+			27 => 'Indoor walking',
+			254 => 'All'
 		],
 		'session_trigger' => [0 => 'activity_end', 1 => 'manual', 2 => 'auto_multi_sport', 3 => 'fitness_equipment'],
-		'swim_stroke' => [0 => 'freestyle', 1 => 'backstroke', 2 => 'breaststroke', 3 => 'butterfly', 4 => 'drill', 5 => 'mixed', 6 => 'im']
+		'swim_stroke' => [0 => 'Freestyle', 1 => 'Backstroke', 2 => 'Breaststroke', 3 => 'Butterfly', 4 => 'Drill', 5 => 'Mixed', 6 => 'IM']  // Have capitalised.
 	];
 	
 	/*
@@ -755,21 +755,28 @@ class phpFITFileReader {
 	private function fix_data($options) {
 		if(!isset($options['fix_data']))
 			return;
-		array_walk($options['fix_data'], function(&$value) { $value = strtolower($value); } );
+		array_walk($options['fix_data'], function(&$value) { $value = strtolower($value); } );  // Make all lower-case.
 		$bCadence = $bDistance = $bHeartRate = $bLatitudeLongitude = $bSpeed = $bPower = false;
 		if(in_array('all', $options['fix_data'])) {
 			$bCadence = $bDistance = $bHeartRate = $bLatitudeLongitude = $bSpeed = $bPower = true;
 		}
 		else {
-			// No point try to insert missing values if we know there aren't any.
-			$count_timestamp = count($this->data_mesgs['record']['timestamp']);
-			$bCadence = (count($this->data_mesgs['record']['cadence']) === $count_timestamp) ? false : in_array('cadence', $options['fix_data']);
-			$bDistance = (count($this->data_mesgs['record']['distance']) === $count_timestamp) ? false : in_array('distance', $options['fix_data']);
-			$bHeartRate = (count($this->data_mesgs['record']['heart_rate']) === $count_timestamp) ? false : in_array('heart_rate', $options['fix_data']);
-			$bLatitudeLongitude = (count($this->data_mesgs['record']['position_lat']) === $count_timestamp
-				&& count($this->data_mesgs['record']['position_long']) === $count_timestamp) ? false : in_array('lat_lon', $options['fix_data']);
-			$bSpeed = (count($this->data_mesgs['record']['speed']) === $count_timestamp) ? false : in_array('speed', $options['fix_data']);
-			$bPower = (count($this->data_mesgs['record']['power']) === $count_timestamp) ? false : in_array('power', $options['fix_data']);
+			if(isset($this->data_mesgs['record']['timestamp'])) {
+				$count_timestamp = count($this->data_mesgs['record']['timestamp']);  // No point try to insert missing values if we know there aren't any.
+				if(isset($this->data_mesgs['record']['cadence']))
+					$bCadence = (count($this->data_mesgs['record']['cadence']) === $count_timestamp) ? false : in_array('cadence', $options['fix_data']);
+				if(isset($this->data_mesgs['record']['distance']))
+					$bDistance = (count($this->data_mesgs['record']['distance']) === $count_timestamp) ? false : in_array('distance', $options['fix_data']);
+				if(isset($this->data_mesgs['record']['heart_rate']))
+					$bHeartRate = (count($this->data_mesgs['record']['heart_rate']) === $count_timestamp) ? false : in_array('heart_rate', $options['fix_data']);
+				if(isset($this->data_mesgs['record']['position_lat']) && isset($this->data_mesgs['record']['position_long']))
+					$bLatitudeLongitude = (count($this->data_mesgs['record']['position_lat']) === $count_timestamp
+						&& count($this->data_mesgs['record']['position_long']) === $count_timestamp) ? false : in_array('lat_lon', $options['fix_data']);
+				if(isset($this->data_mesgs['record']['speed']))
+					$bSpeed = (count($this->data_mesgs['record']['speed']) === $count_timestamp) ? false : in_array('speed', $options['fix_data']);
+				if(isset($this->data_mesgs['record']['power']))
+					$bPower = (count($this->data_mesgs['record']['power']) === $count_timestamp) ? false : in_array('power', $options['fix_data']);
+			}
 		}
 		$missing_distance_keys = [];
 		$missing_hr_keys = [];
@@ -814,24 +821,23 @@ class phpFITFileReader {
 			}
 		}
 		
-		
-		if($bCadence && isset($this->data_mesgs['record']['cadence'])) {
+		if($bCadence) {
 			ksort($this->data_mesgs['record']['cadence']);  // no interpolation; zeros added earlier
 		}
-		if($bDistance && isset($this->data_mesgs['record']['distance'])) {
+		if($bDistance) {
 			$this->interpolate_missing_data($missing_distance_keys, $this->data_mesgs['record']['distance']);
 		}
-		if($bHeartRate && isset($this->data_mesgs['record']['heart_rate'])) {
+		if($bHeartRate) {
 			$this->interpolate_missing_data($missing_hr_keys, $this->data_mesgs['record']['heart_rate']);
 		}
-		if($bLatitudeLongitude && isset($this->data_mesgs['record']['position_lat']) && isset($this->data_mesgs['record']['position_long'])) {
+		if($bLatitudeLongitude) {
 			$this->interpolate_missing_data($missing_lat_keys, $this->data_mesgs['record']['position_lat']);
 			$this->interpolate_missing_data($missing_lon_keys, $this->data_mesgs['record']['position_long']);
 		}
-		if($bSpeed && isset($this->data_mesgs['record']['speed'])) {
+		if($bSpeed) {
 			$this->interpolate_missing_data($missing_speed_keys, $this->data_mesgs['record']['speed']);
 		}
-		if($bPower && isset($this->data_mesgs['record']['power'])) {
+		if($bPower) {
 			$this->interpolate_missing_data($missing_power_keys, $this->data_mesgs['record']['power']);
 		}
 	}
@@ -928,12 +934,12 @@ class phpFITFileReader {
 		return is_array($tmp) ? $tmp[0] : $tmp;
 	}
 	public function get_swim_stroke() {
-		if($this->get_sport() == 'swimming') {
+		if($this->get_sport() == 'Swimming') {
 			$tmp = $this->get_enum_data('swim_stroke', $this->data_mesgs['session']['swim_stroke']);
 			return is_array($tmp) ? $tmp[0] : $tmp;
 		}
 		else {
-			return 'n/a';
+			return 'N/A';
 		}
 	}
 	
