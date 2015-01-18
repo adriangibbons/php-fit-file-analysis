@@ -10,6 +10,7 @@
 <h4>Devices</h4>
 <ul>
 <li>Garmin Edge 500</li>
+<li>Garmin Forerunner 110</li>
 <li>Garmin Forerunner 310XT</li>
 <li>Garmin Forerunner 910XT</li>
 </ul>
