@@ -81,12 +81,17 @@ echo "var chartData = [";
 echo "];";
 ```
 <strong>Enumerated Data</strong>
+<p>The FIT protocol makes use of enumerated data types. Where these values have been identified in the FIT SDK, they have been included in the class as a private variable: $enum_data.</p>
+<p>A public function is available, which will return the enumerated value for a given message type. For example:</p>
 ```php
 // Access data stored within the private class variable $enum_data
 // $pFFR->get_enum_data($type, $value)
 // e.g.
-echo $pFFR->get_enum_data('sport', 2);  // cycling
+echo $pFFR->get_enum_data('sport', 2));  // returns 'cycling'
+echo $pFFR->get_enum_data('manufacturer', $this->data_mesgs['device_info']['manufacturer']);  // returns 'Garmin';
+echo $pFFR->get_manufacturer();  // Short-hand for above
 ```
+<p>In addition, public functions provide a short-hand way to access commonly used enumerated data:</p>
 <ul>
 <li>get_manufacturer()</li>
 <li>get_product()</li>
