@@ -717,7 +717,7 @@ class phpFITFileReader {
 	}
 	
 	/*
-	 * 
+	 * If the user has requested for the data to be fixed, identify the missing keys for that data.
 	 */
 	private function fix_data($options) {
 		if(!isset($options['fix_data']))
@@ -810,7 +810,7 @@ class phpFITFileReader {
 	}
 	
 	/*
-	 * 
+	 * For the missing keys in the data, interpolate using values either side and insert as necessary.
 	 */
 	private function interpolate_missing_data(&$missing_keys, &$array){
 		$num_points = 2;
@@ -849,7 +849,7 @@ class phpFITFileReader {
 	}
 	
 	/*
-	 * This changes arrays that only contain one element into non-arrays so you can use $variable rather than $variable[0] to access.
+	 * Change arrays that contain only one element into non-arrays so you can use $variable rather than $variable[0] to access.
 	 */
 	private function one_element_arrays() {
 		foreach($this->data_mesgs as $mesg_key => $mesg) {
@@ -863,7 +863,9 @@ class phpFITFileReader {
 	}
 	
 	/*
-	 * 
+	 * The FIT protocol makes use of enumerated data types.
+	 * Where these values have been identified in the FIT SDK, they have been included in $this->enum_data
+	 * This function returns the enumerated value for a given message type.
 	 */
 	public function get_enum_data($type, $value) {
 		if(is_array($value)) {
@@ -882,7 +884,7 @@ class phpFITFileReader {
 	}
 	
 	/*
-	 * 
+	 * Short-hand access to commonly used enumerated data.
 	 */
 	public function get_manufacturer() {
 		$tmp = $this->get_enum_data('manufacturer', $this->data_mesgs['device_info']['manufacturer']);
@@ -910,11 +912,16 @@ class phpFITFileReader {
 		}
 	}
 	
+	/*
+	 * Transform the values read from the FIT file into the units requested by the user.
+	 */
 	private function set_units($options) {
 		$set_units = '';
 		
-		if(isset($options['set_units']))
+		if(isset($options['set_units'])) {
+			// Handle $options['set_units'] not being passed as array and/or not in lowercase.
 			$set_units = strtolower((is_array($options['set_units'])) ? $options['set_units'][0] : $options['set_units']);
+		}
 		
 		switch($set_units) {
 			case 'statute':
@@ -1027,9 +1034,12 @@ class phpFITFileReader {
 		}
 	}
 	
+	/*
+	 * Outputs tables of information being listened for and found within the processed FIT file.
+	 */
 	public function show_debug_info() {
 		echo '<h3>Types</h3>';
-		echo '<table class=\'table table-condensed table-striped\'>';
+		echo '<table class=\'table table-condensed table-striped\'>';  // Bootstrap classes
 		echo '<thead>';
 		echo '<th>key</th>';
 		echo '<th>PHP unpack() format</th>';
