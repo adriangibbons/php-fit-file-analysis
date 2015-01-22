@@ -580,23 +580,6 @@ class phpFITFileReader {
 	/*
 	 * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
 	 * Table 3-1. Byte Description of File Header
-	 *
-	 *  byte | parameter           | php format code for unpack()
-	 * ------+---------------------+-------------------------------------------------------------
-	 *   0   | Header Size         | C unsigned char
-	 *   1   | Protocol Version    | C unsigned char
-	 *   2   | Profile Version LSB | v unsigned short (always 16 bit, little endian byte order)
-	 *   3   | Profile Version MSB | v unsigned short
-	 *   4   | Data Size LSB       | V unsigned long (always 32 bit, little endian byte order)
-	 *   5   | Data Size           | V unsigned long
-	 *   6   | Data Size           | V unsigned long
-	 *   7   | Data Size MSB       | V unsigned long
-	 *   8   | Data Type Byte[0]   | C unsigned char
-	 *   9   | Data Type Byte[1]   | C unsigned char
-	 *   10  | Data Type Byte[2]   | C unsigned char
-	 *   11  | Data Type Byte[3]   | C unsigned char
-	 *   12  | CRC LSB             | *** Removed by array_shift() in __construct() ***
-	 *   13  | CRC MSB             | *** Removed by array_shift() in __construct() ***
 	 */
 	private function read_header() {
 		$this->file_header['header_size'] = unpack('C1tmp', array_pop($this->file_contents))['tmp'];
@@ -648,14 +631,6 @@ class phpFITFileReader {
 			/*
 			 * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
 			 * Table 4-1. Normal Header Bit Field Description
-			 *
-			 *  Bit | Value  | Description
-			 * ------+-------+------------------------------------------------
-			 *   7  | 0      | Normal Header
-			 *   6  | 0 or 1 | Message Type (1: Defn Message; 0 Data Message)
-			 *   5  | 0      | Reserved
-			 *   4  | 0      | Reserved
-			 *  0-3 | 0 - 15 | Local Message Type
 			 */
 			if(($record_header_byte >> 7) & 1) {  // Check that it's a normal header
 				throw new Exception('phpFITFileReader->read_data_records(): this class can only hand normal headers!');
@@ -668,14 +643,6 @@ class phpFITFileReader {
 					/*
 					 * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
 					 * Table 4-1. Normal Header Bit Field Description
-					 *
-					 *  Byte | Description           | Length            | Value
-					 * ------+-----------------------+-------------------+-----------------------------------------------------------
-					 *   0   | Reserved              | 1 Byte            | 0
-					 *   1   | Architecture          | 1 Byte            | 0: Messages are Little Endian; 1: Messages are Big Endian
-					 *  2-3  | Global Message Number | 2 Bytes           | 0:65535 – Unique to each message
-					 *   4   | Fields                | 1 Byte            | Number of fields in the Data Message
-					 * 5-end | Field Definition      | 3 Bytes per field | Field Definition Number, Size, Base Type
 					 */
 					
 					array_pop($this->file_contents);  // Reserved - IGNORED
