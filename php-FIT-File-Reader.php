@@ -923,16 +923,38 @@ class phpFITFileReader {
 			$set_units = strtolower((is_array($options['set_units'])) ? $options['set_units'][0] : $options['set_units']);
 		}
 		
+		//  Handle $options['pace'] being pass as array and/or boolean vs string and/or lowercase.
+		$bPace = false;
+		if(isset($options['pace'])) {
+			$pace = is_array($options['pace']) ? $options['pace'][0] : $options['pace'];
+			if(is_bool($options['pace'])) {
+				$bPace = $pace;
+			}
+			else if(is_string($options['pace'])) {
+				$bPace = (strtolower($pace) === 'true') ? true : false;
+			}
+		}
+		
 		switch($set_units) {
 			case 'statute':
 				if(isset($this->data_mesgs['record']['speed'])) {  // convert  meters per second to miles per hour
 					if(is_array($this->data_mesgs['record']['speed'])) {
 						foreach($this->data_mesgs['record']['speed'] as &$value) {
-							$value = round($value * 2.23693629, 3);
+							if($bPace) {
+								$value = round(60 / 2.23693629 / $value, 3);
+							}
+							else {
+								$value = round($value * 2.23693629, 3);
+							}
 						}
 					}
 					else {
-						$this->data_mesgs['record']['speed'] = round($this->data_mesgs['record']['speed'] * 2.23693629, 3);
+						if($bPace) {
+							$this->data_mesgs['record']['speed'] = round(60 / 2.23693629 / $this->data_mesgs['record']['speed'], 3);
+						}
+						else {
+							$this->data_mesgs['record']['speed'] = round($this->data_mesgs['record']['speed'] * 2.23693629, 3);
+						}
 					}
 				}
 				if(isset($this->data_mesgs['record']['distance'])) {  // convert from meters to miles
@@ -993,11 +1015,21 @@ class phpFITFileReader {
 				if(isset($this->data_mesgs['record']['speed'])) {  // convert  meters per second to kilometers per hour
 					if(is_array($this->data_mesgs['record']['speed'])) {
 						foreach($this->data_mesgs['record']['speed'] as &$value) {
-							$value = round($value * 3.6, 3);
+							if($bPace) {
+								$value = round(60 / 3.6 / $value, 3);
+							}
+							else {
+								$value = round($value * 3.6, 3);
+							}
 						}
 					}
 					else {
-						$this->data_mesgs['record']['speed'] = round($this->data_mesgs['record']['speed'] * 3.6, 3);
+						if($bPace) {
+							$this->data_mesgs['record']['speed'] = round(60 / 3.6 / $this->data_mesgs['record']['speed'], 3);
+						}
+						else {
+							$this->data_mesgs['record']['speed'] = round($this->data_mesgs['record']['speed'] * 3.6, 3);
+						}
 					}
 				}
 				if(isset($this->data_mesgs['record']['distance'])) {  // convert from meters to kilometers
