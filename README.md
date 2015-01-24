@@ -101,20 +101,22 @@ echo $pFFR->get_manufacturer();  // Short-hand for above
 </ul>
 <br>
 <h3>Optional Parameters</h3>
-<p>There are two optional parameters that can be passed as an associative array when the phpFITFileReader object is instantiated. These are:</p>
+<p>There are three optional parameters that can be passed as an associative array when the phpFITFileReader object is instantiated. These are:</p>
 <ol>
 <li>fix_data</li>
 <li>set_units</li>
+<li>pace</li>
 </ol>
 <p>For example:</p>
 ````php
 $options = [
-    'fix_data' => ['cadence', 'distance'],
-    'set_units' => ['statute']
+    'fix_data'  => ['cadence', 'distance'],
+    'set_units' => 'statute',
+    'pace'      => true
 ];
 $pFFR = new phpFITFileReader('my_fit_file.fit', $options);
 ````
-<p>The two are described in more detail below.</p>
+<p>The optional parameters are described in more detail below.</p>
 <h4>"Fix" the Data</h4>
 <p>FIT files have been observed where some data points are missing for one sensor (e.g. cadence/foot pod), where information has been collected for other sensors (e.g. heart rate) at the same instant. The cause is unknown and typically only a relatively small number of data points are missing. Fixing the issue is probably unnecessary, as each datum is indexed using a timestamp. However, it may be important for your project to have the exact same number of data points for each type of data.</p>
 <p><strong>Recognised values: </strong>'all', 'cadence', 'distance', 'heart_rate', 'lat_lon', 'power', 'speed'</p>
@@ -214,10 +216,26 @@ var_dump( $pFFR->data_mesgs['record']['distance'] );  // ['100'=>3.62, '101'=>4.
 <p>You can request <strong>statute</strong> or <strong>raw</strong> units instead of metric. Raw units are those were used by the device that created the FIT file and are native to the FIT standard (i.e. no transformation of values read from the file will occur).</p>
 <p>To select the units you require, use one of the following:</p>
 ```php
-$options = ['set_units' => ['statute']];
-$options = ['set_units' => ['raw']];
-$options = ['set_units' => ['metric']];  // explicit but not necessary, same as default
+$options = ['set_units' => 'statute'];
+$options = ['set_units' => 'raw'];
+$options = ['set_units' => 'metric'];  // explicit but not necessary, same as default
 ```
+<br>
+<h4>Pace</h4>
+<p>If required by the user, pace can be provided instead of speed. Depending on the units requested, pace will either be in minutes per kilometre (min/km) for metric units; or minutes per mile (min/mi) for statute.</p>
+<p>To select pace, use the following option:</p>
+```php
+$options = ['pace' => true];
+```
+<p>Pace values will be decimal minutes. To get the seconds, you may wish to do something like:</p>
+```php
+foreach($pFFR->data_mesgs['record']['speed'] as $key => $value) {
+    $min = floor($value);
+    $sec = round(60 * ($value - $min));
+    echo "pace: $min min $sec sec<br>";
+}
+```
+Note that if 'raw' units are requested then this parameter has no effect on the speed data, as it is left untouched from what was read-in from the file.
 <br>
 <h3>Where are my FIT files?</h3>
 <p>You may find your FIT files in one of two locations:</p>
