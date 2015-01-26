@@ -81,6 +81,7 @@ echo $pFFR->get_manufacturer();  // Short-hand for above
 <li>get_sub_sport()</li>
 <li>get_swim_stroke()</li>
 </ul>
+<br>
 <h3>Optional Parameters</h3>
 <p>There are three optional parameters that can be passed as an associative array when the phpFITFileReader object is instantiated. These are:</p>
 <ol>
@@ -201,6 +202,7 @@ $options = ['set_units' => 'statute'];
 $options = ['set_units' => 'raw'];
 $options = ['set_units' => 'metric'];  // explicit but not necessary, same as default
 ```
+<br>
 <h4>Pace</h4>
 <p>If required by the user, pace can be provided instead of speed. Depending on the units requested, pace will either be in minutes per kilometre (min/km) for metric units; or minutes per mile (min/mi) for statute.</p>
 <p>To select pace, use the following option:</p>
