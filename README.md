@@ -6,23 +6,6 @@
 <p>The FIT format is similar to Garmin's Training Center XML (.TCX) file format, which extends the GPS Exchange Format (.GPX). It enables sensor data (such as heart rate, cadence, and power) to be captured along with GPS location and time information; as well as providing summary information for an activity and its related sessions and laps.</p>
 <p>FIT files are binary-encoded rather than being bloated XML-like ASCII documents. This means that they have a much smaller file size, but are not human-readable with a text editor such as Notepad. For example, a FIT file of 250Kb may have an equivalent TCX file of approximately 5Mb. This enables them to be uploaded to websites such as Garmin Connect, Strava, MapMyRide, Runkeeper, etc relatively quickly.</p>
 <br>
-<h3>Which Devices and Sensors has php-FIT-File-Reader been tested with?</h3>
-<h4>Devices</h4>
-<ul>
-<li>Garmin Edge 500</li>
-<li>Garmin Forerunner 110</li>
-<li>Garmin Forerunner 310XT</li>
-<li>Garmin Forerunner 910XT</li>
-</ul>
-<h4>Sensors</h4>
-<ul>
-<li>Garmin Cadence and Speed</li>
-<li>Garmin Foot Pod (cadence)</li>
-<li>Garmin Heart Rate Strap (soft material version)</li>
-<li>Stages Power Meter</li>
-</ul>
-<p>If you have a different device or sensor and would like to submit a file for testing, please get in touch or create an issue on the GitHub project page!</p>
-<br>
 <h3>How do I use php-FIT-File-Reader with my PHP-driven website?</h3>
 <p>Download the class from GitHub and put it somewhere appropriate (e.g. classes/). A conscious effort has been made to keep everything in a single file.</p>
 <p>Then include the file on the PHP page where you want to use it and instantiate an object of the class:</p>
@@ -236,13 +219,6 @@ foreach($pFFR->data_mesgs['record']['speed'] as $key => $value) {
 }
 ```
 Note that if 'raw' units are requested then this parameter has no effect on the speed data, as it is left untouched from what was read-in from the file.
-<br>
-<h3>Where are my FIT files?</h3>
-<p>You may find your FIT files in one of two locations:</p>
-<ol>
-<li>On the GPS device in the folder Garmin > Activities (plug it into your computer using a USB cable).</li>
-<li>C:\ drive > Users > Username > Application Data > Garmin > Devices > Device Number > Activities.</li>
-</ol>
 <br>
 <h3>Acknowledgement</h3>
 <p>This class has been created using information available in a Software Development Kit (SDK) made available by ANT (<a href="http://www.thisisant.com/resources/fit" target="new">thisisant.com</a>).</p>
