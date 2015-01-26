@@ -3,8 +3,7 @@
 <p>A live demonstration can be found <a href="http://www.adriangibbons.com/php-FIT-File-Reader-demo/" target="new">here</a>.</p>
 <h3>What is a FIT file?</h3>
 <p>FIT or Flexible and Interoperable Data Transfer is a file format used for GPS tracks and routes. It is used by newer Garmin fitness GPS devices, including the Edge and Forerunner series, which are popular with cyclists and runners.</p>
-<p>The FIT format is similar to Garmin's Training Center XML (.TCX) file format, which extends the GPS Exchange Format (.GPX). It enables sensor data (such as heart rate, cadence, and power) to be captured along with GPS location and time information; as well as providing summary information for an activity and its related sessions and laps.</p>
-<p>FIT files are binary-encoded rather than being bloated XML-like ASCII documents. This means that they have a much smaller file size, but are not human-readable with a text editor such as Notepad. For example, a FIT file of 250Kb may have an equivalent TCX file of approximately 5Mb. This enables them to be uploaded to websites such as Garmin Connect, Strava, MapMyRide, Runkeeper, etc relatively quickly.</p>
+<p>Visit the FAQ page within the Wiki for more information.</p>
 <br>
 <h3>How do I use php-FIT-File-Reader with my PHP-driven website?</h3>
 <p>Download the class from GitHub and put it somewhere appropriate (e.g. classes/). A conscious effort has been made to keep everything in a single file.</p>
@@ -22,7 +21,7 @@
 </ol>
 <p>There are more <b>Optional Parameters</b> that can be supplied. These are described in more detail further down this page.</p>
 <p>The object will automatically load the FIT file and iterate through its contents. It will store any data it finds in arrays, which are accessible via the public data variable.
-<br>
+<br><br>
 <h3>Accessing the Data</h3>
 <p>Data read by the class are stored in associative arrays, which are accessible via the public data variable:</p>
 ```php
@@ -82,7 +81,6 @@ echo $pFFR->get_manufacturer();  // Short-hand for above
 <li>get_sub_sport()</li>
 <li>get_swim_stroke()</li>
 </ul>
-<br>
 <h3>Optional Parameters</h3>
 <p>There are three optional parameters that can be passed as an associative array when the phpFITFileReader object is instantiated. These are:</p>
 <ol>
@@ -203,7 +201,6 @@ $options = ['set_units' => 'statute'];
 $options = ['set_units' => 'raw'];
 $options = ['set_units' => 'metric'];  // explicit but not necessary, same as default
 ```
-<br>
 <h4>Pace</h4>
 <p>If required by the user, pace can be provided instead of speed. Depending on the units requested, pace will either be in minutes per kilometre (min/km) for metric units; or minutes per mile (min/mi) for statute.</p>
 <p>To select pace, use the following option:</p>
@@ -219,7 +216,7 @@ foreach($pFFR->data_mesgs['record']['speed'] as $key => $value) {
 }
 ```
 Note that if 'raw' units are requested then this parameter has no effect on the speed data, as it is left untouched from what was read-in from the file.
-<br>
+<br><br>
 <h3>Acknowledgement</h3>
 <p>This class has been created using information available in a Software Development Kit (SDK) made available by ANT (<a href="http://www.thisisant.com/resources/fit" target="new">thisisant.com</a>).</p>
 <p>As a minimum, I'd recommend reading the three PDFs included in the SDK:</p>
