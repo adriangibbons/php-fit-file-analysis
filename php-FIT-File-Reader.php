@@ -4,7 +4,9 @@
  * ===================
  * A PHP class for reading FIT files created by Garmin GPS devices.
  * Adrian Gibbons, 2015
+ * Adrian.GitHub@gmail.com
  * 
+ * https://github.com/adriangibbons/php-FIT-File-Reader
  * http://www.thisisant.com/resources/fit
  */
  
