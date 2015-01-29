@@ -60,7 +60,7 @@
           <dt>Device: </dt>
           <dd><?php echo $pFFR->get_manufacturer() . ' ' . $pFFR->get_product(); ?></dd>
           <dt>Sport: </dt>
-          <dd><?php echo $pFFR->get_sport(); ?></dd>
+          <dd><?php echo $pFFR->get_sport().' ('.$pFFR->get_sub_sport().')'; ?></dd>
           <dt>Pool length: </dt>
           <dd><?php echo $pool_length.' '.$units; ?></dd>
           <dt>Duration: </dt>
