@@ -674,10 +674,10 @@ class phpFITFileReader {
 				
 				case DATA_MESSAGE:
 					// Check that we have information on the Data Message.
-					if(array_key_exists($this->defn_mesgs[$local_mesg_type]['global_mesg_num'], $this->data_mesg_info)) {
+					if(isset($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num'])) {
 						foreach($this->defn_mesgs[$local_mesg_type]['field_defns'] as $field_defn) {
 							// Check that we have information on the Field Definition.
-							if(array_key_exists($field_defn['field_definition_number'], $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'])) {
+							if(isset($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']])) {
 								
 								// If it's a Record data message and it's a Timestamp field, store the timestamp...
 								if($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20 && $field_defn['field_definition_number'] === 253) {
