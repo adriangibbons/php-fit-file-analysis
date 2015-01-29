@@ -331,7 +331,8 @@ class phpFITFileReader {
 			254 => 'All'
 		],
 		'session_trigger' => [0 => 'activity_end', 1 => 'manual', 2 => 'auto_multi_sport', 3 => 'fitness_equipment'],
-		'swim_stroke' => [0 => 'Freestyle', 1 => 'Backstroke', 2 => 'Breaststroke', 3 => 'Butterfly', 4 => 'Drill', 5 => 'Mixed', 6 => 'IM']  // Have capitalised.
+		'swim_stroke' => [0 => 'Freestyle', 1 => 'Backstroke', 2 => 'Breaststroke', 3 => 'Butterfly', 4 => 'Drill', 5 => 'Mixed', 6 => 'IM'],  // Have capitalised.
+		'display_measure' => [0 => 'metric', 1 => 'statute']
 	];
 	
 	/*
