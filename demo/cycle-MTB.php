@@ -11,7 +11,7 @@
 	require('libraries/PolylineEncoder.php');		// https://github.com/dyaaj/polyline-encoder
 	require('libraries/Line_DouglasPeucker.php');	// https://github.com/gregallensworth/PHP-Geometry
 	try {
-		$file = 'fit_files/GitHub_demo.FIT';
+		$file = 'fit_files/GitHub_cycle-MTB_demo.FIT';
 		
 		$options = [
 	// Just using the defaults so no need to provide
