@@ -131,8 +131,8 @@
       xaxis: {
         show: false
       },
-	  yaxes: [ { min: 15, max: 35, tickFormatter: function(label, series) { return label + ' s'; } },
-	           { min: 6, max: 14, alignTicksWithAxis: 1, position: "right", } ],
+	  yaxes: [ { transform: function (v) { return -v; }, inverseTransform: function (v) { return -v; }, tickFormatter: function(label, series) { return label + ' s'; } },
+	           { alignTicksWithAxis: 1, position: "right", } ],
       grid: {
         borderWidth: {
           top: 0,
