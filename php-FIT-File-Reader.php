@@ -900,11 +900,11 @@ class phpFITFileReader {
 	 * Transform the values read from the FIT file into the units requested by the user.
 	 */
 	private function set_units($options) {
-		$set_units = '';
+		$units = '';
 		
-		if(isset($options['set_units'])) {
-			// Handle $options['set_units'] not being passed as array and/or not in lowercase.
-			$set_units = strtolower((is_array($options['set_units'])) ? $options['set_units'][0] : $options['set_units']);
+		if(isset($options['units'])) {
+			// Handle $options['units'] not being passed as array and/or not in lowercase.
+			$units = strtolower((is_array($options['units'])) ? $options['units'][0] : $options['units']);
 		}
 		
 		//  Handle $options['pace'] being pass as array and/or boolean vs string and/or lowercase.
@@ -919,7 +919,7 @@ class phpFITFileReader {
 			}
 		}
 		
-		switch($set_units) {
+		switch($units) {
 			case 'statute':
 				if(isset($this->data_mesgs['record']['speed'])) {  // convert  meters per second to miles per hour
 					if(is_array($this->data_mesgs['record']['speed'])) {

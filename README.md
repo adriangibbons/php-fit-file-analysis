@@ -87,14 +87,14 @@ echo $pFFR->get_manufacturer();  // Short-hand for above
 <p>There are three optional parameters that can be passed as an associative array when the phpFITFileReader object is instantiated. These are:</p>
 <ol>
 <li>fix_data</li>
-<li>set_units</li>
+<li>units</li>
 <li>pace</li>
 </ol>
 <p>For example:</p>
 ````php
 $options = [
     'fix_data'  => ['cadence', 'distance'],
-    'set_units' => 'statute',
+    'units' => 'statute',
     'pace'      => true
 ];
 $pFFR = new phpFITFileReader('my_fit_file.fit', $options);
@@ -199,9 +199,9 @@ var_dump( $pFFR->data_mesgs['record']['distance'] );  // ['100'=>3.62, '101'=>4.
 <p>You can request <strong>statute</strong> or <strong>raw</strong> units instead of metric. Raw units are those were used by the device that created the FIT file and are native to the FIT standard (i.e. no transformation of values read from the file will occur).</p>
 <p>To select the units you require, use one of the following:</p>
 ```php
-$options = ['set_units' => 'statute'];
-$options = ['set_units' => 'raw'];
-$options = ['set_units' => 'metric'];  // explicit but not necessary, same as default
+$options = ['units' => 'statute'];
+$options = ['units' => 'raw'];
+$options = ['units' => 'metric'];  // explicit but not necessary, same as default
 ```
 <br>
 <h4>Pace</h4>
