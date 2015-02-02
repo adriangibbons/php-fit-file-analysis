@@ -16,7 +16,7 @@ define('DATA_MESSAGE', 0);
 class phpFITFileReader {
 	public $data_mesgs = [];  // Used to store the data read from the file in associative arrays.
 	
-	private $file_contents;		// FIT file is read-in to memory as a string, split into an array, and reversed. See __construct().
+	private $file_contents = '';	// FIT file is read-in to memory as a string, split into an array, and reversed. See __construct().
 	private $file_pointer = 0;	// Points to the location in the file that shall be read next.
 	private $defn_mesgs = [];	// Array of FIT 'Definition Messages', which describe the architecture, format, and fields of 'Data Messages'.
 	private $file_header = [];	// Contains information about the FIT file such as the Protocol version, Profile version, and Data Size.
