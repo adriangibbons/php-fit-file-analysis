@@ -27,7 +27,7 @@ class phpFITFileReader {
 	private $enum_data = [
 		'activity' => [0 => 'manual', 1 => 'auto_multi_sport'],
 		'battery_status' => [1 => 'new', 2 => 'good', 3 => 'ok', 4 => 'low', 5 => 'critical'],
-		'display_measure' => [],  /****** NOT IN THE PROFILE.XLS DOCUMENT!!! ******/
+		'display_measure' => [0 => 'metric', 1 => 'statute'],
 		'event' => [
 			0 => 'timer',
 			3 => 'workout',
@@ -332,8 +332,7 @@ class phpFITFileReader {
 			254 => 'All'
 		],
 		'session_trigger' => [0 => 'activity_end', 1 => 'manual', 2 => 'auto_multi_sport', 3 => 'fitness_equipment'],
-		'swim_stroke' => [0 => 'Freestyle', 1 => 'Backstroke', 2 => 'Breaststroke', 3 => 'Butterfly', 4 => 'Drill', 5 => 'Mixed', 6 => 'IM'],  // Have capitalised.
-		'display_measure' => [0 => 'metric', 1 => 'statute']
+		'swim_stroke' => [0 => 'Freestyle', 1 => 'Backstroke', 2 => 'Breaststroke', 3 => 'Butterfly', 4 => 'Drill', 5 => 'Mixed', 6 => 'IM']  // Have capitalised.
 	];
 	
 	/*
