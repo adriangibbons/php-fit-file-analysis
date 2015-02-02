@@ -17,10 +17,10 @@ class phpFITFileReader {
 	public $data_mesgs = [];  // Used to store the data read from the file in associative arrays.
 	
 	private $file_contents = '';	// FIT file is read-in to memory as a string, split into an array, and reversed. See __construct().
-	private $file_pointer = 0;	// Points to the location in the file that shall be read next.
-	private $defn_mesgs = [];	// Array of FIT 'Definition Messages', which describe the architecture, format, and fields of 'Data Messages'.
-	private $file_header = [];	// Contains information about the FIT file such as the Protocol version, Profile version, and Data Size.
-	private $timestamp = 0;		// Timestamps are used as the indexes for Record data (e.g. Speed, Heart Rate, etc).
+	private $file_pointer = 0;		// Points to the location in the file that shall be read next.
+	private $defn_mesgs = [];		// Array of FIT 'Definition Messages', which describe the architecture, format, and fields of 'Data Messages'.
+	private $file_header = [];		// Contains information about the FIT file such as the Protocol version, Profile version, and Data Size.
+	private $timestamp = 0;			// Timestamps are used as the indexes for Record data (e.g. Speed, Heart Rate, etc).
 	
 	// Enumerated data looked up by get_enum_data().
 	// Values from 'Profile.xls' contained within the FIT SDK.
@@ -559,22 +559,21 @@ class phpFITFileReader {
 			throw new Exception('phpFITFileReader->__construct(): file \''.$file_path.'\' does not exist!');
 		}
 		
-		// Read the entire file into a string
-		$this->file_contents = file_get_contents($file_path);
-		
 		/*
 	 	 * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
 	 	 * 3.3 FIT File Structure
+		 * Header . Data Records . CRC
 	 	 */
+		$this->file_contents = file_get_contents($file_path);  // Read the entire file into a string
 		
 		// Process the file contents.
 		$this->read_header();
-//		$this->read_data_records();
-//		$this->one_element_arrays();
+		$this->read_data_records();
+		$this->one_element_arrays();
 		
 		// Handle options.
-//		$this->fix_data($options);
-//		$this->set_units($options);
+		$this->fix_data($options);
+		$this->set_units($options);
 	}
 	
 	/*
@@ -582,30 +581,32 @@ class phpFITFileReader {
 	 * Table 3-1. Byte Description of File Header
 	 */
 	private function read_header() {
-		$this->file_header['header_size'] = unpack('C1tmp', substr($this->file_contents, $this->file_pointer, 1))['tmp'];
+		$header_size = unpack('C1header_size', substr($this->file_contents, $this->file_pointer, 1))['header_size'];
 		$this->file_pointer++;
 		
-		if($this->file_header['header_size'] != 12 && $this->file_header['header_size'] != 14) {
-//			throw new Exception('phpFITFileReader->read_header(): not a valid header size!');
+		if($header_size != 12 && $header_size != 14) {
+			throw new Exception('phpFITFileReader->read_header(): not a valid header size!');
 		}
-		$this->file_header = unpack('C1protocol_version/'.
-				'v1profile_version/'.
-				'V1data_size/'.
-				'C4data_type/'.
-				'v1crc', substr($this->file_contents, $this->file_pointer, $this->file_header['header_size'] - 1)
-			);
+		$this->file_header = unpack(
+			'C1protocol_version/'.
+			'v1profile_version/'.
+			'V1data_size/'.
+			'C4data_type/'.
+			'v1crc', substr($this->file_contents, $this->file_pointer, $header_size - 1)
+		);
+		$this->file_header['header_size'] = $header_size;
+			
 		$this->file_pointer += $this->file_header['header_size'] - 1;
 		
 		$file_extension = sprintf('%c%c%c%c', $this->file_header['data_type1'], $this->file_header['data_type2'], $this->file_header['data_type3'], $this->file_header['data_type4']);
 		
 		if($file_extension != '.FIT' || $this->file_header['data_size'] <= 0) {
-//			throw new Exception('phpFITFileReader->read_header(): not a valid FIT file!');
+			throw new Exception('phpFITFileReader->read_header(): not a valid FIT file!');
 		}
 		
-		if(count($this->file_contents) !== $this->file_header['data_size']) {
-//			throw new Exception('phpFITFileReader->read_header(): file_header[\'data_size\'] does not seem correct!');
+		if(strlen($this->file_contents) - $header_size - 2 !== $this->file_header['data_size']) {
+			throw new Exception('phpFITFileReader->read_header(): file_header[\'data_size\'] does not seem correct!');
 		}
-		var_dump($this->file_header);
 	}
 	
 	/*
@@ -637,21 +638,24 @@ class phpFITFileReader {
 					 * Table 4-1. Normal Header Bit Field Description
 					 */
 					
-					array_pop($this->file_contents);  // Reserved - IGNORED
-					array_pop($this->file_contents);  // Architecture - IGNORED
+					$this->file_pointer++;  // Reserved - IGNORED
+					$this->file_pointer++;  // Architecture - IGNORED
 					
 					$global_mesg_num = unpack('v1tmp', substr($this->file_contents, $this->file_pointer, 2))['tmp'];
 					$this->file_pointer += 2;
 					
-					$num_fields = ord(substr($this->file_contents, $this->file_pointer, 1);
+					$num_fields = ord(substr($this->file_contents, $this->file_pointer, 1));
 					$this->file_pointer++;
 					
 					$field_definitions = [];
 					$total_size = 0;
 					while($num_fields-- > 0) {
-						$field_definition_number = ord(array_pop($this->file_contents));
-						$size = ord(array_pop($this->file_contents));
-						$base_type = ord(array_pop($this->file_contents));
+						$field_definition_number = ord(substr($this->file_contents, $this->file_pointer, 1));
+						$this->file_pointer++;
+						$size = ord(substr($this->file_contents, $this->file_pointer, 1));
+						$this->file_pointer++;
+						$base_type = ord(substr($this->file_contents, $this->file_pointer, 1));
+						$this->file_pointer++;
 						
 						$field_definitions[] = ['field_definition_number' => $field_definition_number, 'size' => $size, 'base_type' => $base_type];
 						$total_size += $size;
