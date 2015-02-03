@@ -94,7 +94,7 @@ echo $pFFR->get_manufacturer();  // Short-hand for above
 ````php
 $options = [
     'fix_data'  => ['cadence', 'distance'],
-    'units' => 'statute',
+    'units'     => 'statute',
     'pace'      => true
 ];
 $pFFR = new phpFITFileReader('my_fit_file.fit', $options);
