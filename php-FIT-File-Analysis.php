@@ -1,19 +1,19 @@
 <?php
 /*
- * php-FIT-File-Reader
- * ===================
- * A PHP class for reading FIT files created by Garmin GPS devices.
+ * php-FIT-File-Analysis
+ * =====================
+ * A PHP class for Analysing FIT files created by Garmin GPS devices.
  * Adrian Gibbons, 2015
  * Adrian.GitHub@gmail.com
  * 
- * https://github.com/adriangibbons/php-FIT-File-Reader
+ * https://github.com/adriangibbons/php-FIT-File-Analysis
  * http://www.thisisant.com/resources/fit
  */
  
 define('DEFINITION_MESSAGE', 1);
 define('DATA_MESSAGE', 0);
 
-class phpFITFileReader {
+class phpFITFileAnalysis {
 	public $data_mesgs = [];  // Used to store the data read from the file in associative arrays.
 	
 	private $file_contents = '';	// FIT file is read-in to memory as a string, split into an array, and reversed. See __construct().
@@ -553,10 +553,10 @@ class phpFITFileReader {
 	// PHP Constructor - called when an object of the class is instantiated.
 	function __construct($file_path, $options=NULL) {
 		if(empty($file_path)) {
-			throw new Exception('phpFITFileReader->__construct(): file_path is empty!');
+			throw new Exception('phpFITFileAnalysis->__construct(): file_path is empty!');
 		}
 		if(!file_exists($file_path)) {
-			throw new Exception('phpFITFileReader->__construct(): file \''.$file_path.'\' does not exist!');
+			throw new Exception('phpFITFileAnalysis->__construct(): file \''.$file_path.'\' does not exist!');
 		}
 		
 		/*
@@ -585,7 +585,7 @@ class phpFITFileReader {
 		$this->file_pointer++;
 		
 		if($header_size != 12 && $header_size != 14) {
-			throw new Exception('phpFITFileReader->read_header(): not a valid header size!');
+			throw new Exception('phpFITFileAnalysis->read_header(): not a valid header size!');
 		}
 		$this->file_header = unpack(
 			'C1protocol_version/'.
@@ -601,11 +601,11 @@ class phpFITFileReader {
 		$file_extension = sprintf('%c%c%c%c', $this->file_header['data_type1'], $this->file_header['data_type2'], $this->file_header['data_type3'], $this->file_header['data_type4']);
 		
 		if($file_extension != '.FIT' || $this->file_header['data_size'] <= 0) {
-			throw new Exception('phpFITFileReader->read_header(): not a valid FIT file!');
+			throw new Exception('phpFITFileAnalysis->read_header(): not a valid FIT file!');
 		}
 		
 		if(strlen($this->file_contents) - $header_size - 2 !== $this->file_header['data_size']) {
-			throw new Exception('phpFITFileReader->read_header(): file_header[\'data_size\'] does not seem correct!');
+			throw new Exception('phpFITFileAnalysis->read_header(): file_header[\'data_size\'] does not seem correct!');
 		}
 	}
 	
@@ -626,7 +626,7 @@ class phpFITFileReader {
 			 * Table 4-1. Normal Header Bit Field Description
 			 */
 			if(($record_header_byte >> 7) & 1) {  // Check that it's a normal header
-				throw new Exception('phpFITFileReader->read_data_records(): this class can only hand normal headers!');
+				throw new Exception('phpFITFileAnalysis->read_data_records(): this class can only hand normal headers!');
 			}
 			$message_type = ($record_header_byte >> 6) & 1;  // 1: DEFINITION_MESSAGE; 0: DATA_MESSAGE
 			$local_mesg_type = $record_header_byte & 15;  // bindec('1111') == 15

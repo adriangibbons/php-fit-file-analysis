@@ -1,11 +1,11 @@
 <?php
 	/*
-	 * Demonstration of the phpFITFileReader class using Twitter Bootstrap framework
-	 * https://github.com/adriangibbons/php-FIT-File-Reader
+	 * Demonstration of the phpFITFileAnalysis class using Twitter Bootstrap framework
+	 * https://github.com/adriangibbons/php-FIT-File-Analysis
 	 *
 	 * If you find this useful, feel free to drop me a line at Adrian.GitHub@gmail.com
 	 */
-	require('classes/php-FIT-File-Reader.php');
+	require('classes/php-FIT-File-Analysis.php');
 	require('libraries/PolylineEncoder.php');		// https://github.com/dyaaj/polyline-encoder
 	require('libraries/Line_DouglasPeucker.php');	// https://github.com/gregallensworth/PHP-Geometry
 	try {
@@ -13,10 +13,10 @@
 		
 		$options = [
 	//		'fix_data'	=> [],
-			'set_units'	=> 'raw',
+			'units'		=> 'raw',
 	//		'pace'		=> false
 		];
-		$pFFR = new phpFITFileReader($file, $options);
+		$pFFA = new phpFITFileAnalysis($file, $options);
 	}
 	catch(Exception $e) {
 		echo 'caught exception: '.$e->getMessage();
@@ -24,11 +24,11 @@
 	}
 	
 	$units = 'm';
-	$pool_length = $pFFR->data_mesgs['session']['pool_length'];
-	$total_distance = number_format($pFFR->data_mesgs['record']['distance']);
-	if($pFFR->get_enum_data('display_measure', $pFFR->data_mesgs['session']['pool_length_unit']) == 'statute') {
-		$pool_length = round($pFFR->data_mesgs['session']['pool_length'] * 1.0936133);
-		$total_distance = number_format($pFFR->data_mesgs['record']['distance'] * 1.0936133);
+	$pool_length = $pFFA->data_mesgs['session']['pool_length'];
+	$total_distance = number_format($pFFA->data_mesgs['record']['distance']);
+	if($pFFA->get_enum_data('display_measure', $pFFA->data_mesgs['session']['pool_length_unit']) == 'statute') {
+		$pool_length = round($pFFA->data_mesgs['session']['pool_length'] * 1.0936133);
+		$total_distance = number_format($pFFA->data_mesgs['record']['distance'] * 1.0936133);
 		$units = 'yd';
 	}
 ?>
@@ -36,15 +36,15 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>php-FIT-File-Reader demo</title>
+<title>php-FIT-File-Analysis demo</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
 <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="jumbotron">
   <div class="container">
-    <h2><strong>php-FIT-File-Reader </strong><small>A PHP class for reading FIT files created by Garmin GPS devices.</small></h2>
-    <p>This is a demonstration of the phpFITFileReader class available on <a class="btn btn-default btn-lg" href="https://github.com/adriangibbons/php-FIT-File-Reader" target="_blank" role="button"><i class="fa fa-github"></i> GitHub</a></p>
+    <h2><strong>php-FIT-File-Analysis </strong><small>A PHP class for reading FIT files created by Garmin GPS devices.</small></h2>
+    <p>This is a demonstration of the phpFITFileAnalysis class available on <a class="btn btn-default btn-lg" href="https://github.com/adriangibbons/php-FIT-File-Analysis" target="_blank" role="button"><i class="fa fa-github"></i> GitHub</a></p>
   </div>
 </div>
 <div class="container">
@@ -58,13 +58,13 @@
           <dt>File: </dt>
           <dd><?php echo $file; ?></dd>
           <dt>Device: </dt>
-          <dd><?php echo $pFFR->get_manufacturer() . ' ' . $pFFR->get_product(); ?></dd>
+          <dd><?php echo $pFFA->get_manufacturer() . ' ' . $pFFA->get_product(); ?></dd>
           <dt>Sport: </dt>
-          <dd><?php echo $pFFR->get_sport().' ('.$pFFR->get_sub_sport().')'; ?></dd>
+          <dd><?php echo $pFFA->get_sport().' ('.$pFFA->get_sub_sport().')'; ?></dd>
           <dt>Pool length: </dt>
           <dd><?php echo $pool_length.' '.$units; ?></dd>
           <dt>Duration: </dt>
-          <dd><?php echo gmdate('H:i:s', $pFFR->data_mesgs['session']['total_elapsed_time']); ?></dd>
+          <dd><?php echo gmdate('H:i:s', $pFFA->data_mesgs['session']['total_elapsed_time']); ?></dd>
           <dt>Total distance: </dt>
           <dd><?php echo $total_distance.' '.$units; ?></dd>
         </dl>
@@ -94,17 +94,17 @@
           </thead>
           <tbody>
             <?php
-				$lengths = count($pFFR->data_mesgs['length']['timestamp']);
+				$lengths = count($pFFA->data_mesgs['length']['timestamp']);
 				for($i=0; $i<$lengths; $i++) {
-					$min = floor($pFFR->data_mesgs['length']['total_timer_time'][$i] / 60);
-					$sec = number_format($pFFR->data_mesgs['length']['total_timer_time'][$i] - ($min*60), 1);
+					$min = floor($pFFA->data_mesgs['length']['total_timer_time'][$i] / 60);
+					$sec = number_format($pFFA->data_mesgs['length']['total_timer_time'][$i] - ($min*60), 1);
 					$dur = $min.':'.$sec;
-					if($pFFR->get_enum_data('length_type', $pFFR->data_mesgs['length']['length_type'][$i]) == 'active') {
+					if($pFFA->get_enum_data('length_type', $pFFA->data_mesgs['length']['length_type'][$i]) == 'active') {
 						echo '<tr>';
 						echo '<td>'.($i+1).'</td>';
 						echo '<td>'.$dur.'</td>';
-						echo '<td>'.$pFFR->data_mesgs['length']['total_strokes'][$i].'</td>';
-						echo '<td>'.$pFFR->get_enum_data('swim_stroke', $pFFR->data_mesgs['length']['swim_stroke'][$i]).'</td>';
+						echo '<td>'.$pFFA->data_mesgs['length']['total_strokes'][$i].'</td>';
+						echo '<td>'.$pFFA->get_enum_data('swim_stroke', $pFFA->data_mesgs['length']['swim_stroke'][$i]).'</td>';
 						echo '</tr>';
 					}
 					else {
@@ -149,8 +149,8 @@
 <?php
 	$tmp = [];
 	for($i=0; $i<$lengths; $i++) {
-		if($pFFR->get_enum_data('length_type', $pFFR->data_mesgs['length']['length_type'][$i]) == 'active')
-			$tmp[] = '['.$i.', '.$pFFR->data_mesgs['length']['total_timer_time'][$i].']';
+		if($pFFA->get_enum_data('length_type', $pFFA->data_mesgs['length']['length_type'][$i]) == 'active')
+			$tmp[] = '['.$i.', '.$pFFA->data_mesgs['length']['total_timer_time'][$i].']';
 	}
 	echo implode(', ', $tmp);
 ?>
@@ -166,8 +166,8 @@
 <?php
 	$tmp = [];
 	for($i=0; $i<$lengths; $i++) {
-		if($pFFR->get_enum_data('length_type', $pFFR->data_mesgs['length']['length_type'][$i]) == 'active')
-			$tmp[] = '['.$i.', '.$pFFR->data_mesgs['length']['total_strokes'][$i].']';
+		if($pFFA->get_enum_data('length_type', $pFFA->data_mesgs['length']['length_type'][$i]) == 'active')
+			$tmp[] = '['.$i.', '.$pFFA->data_mesgs['length']['total_strokes'][$i].']';
 	}
 	echo implode(', ', $tmp);
 ?>

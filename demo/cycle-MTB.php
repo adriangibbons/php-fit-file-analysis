@@ -1,13 +1,13 @@
 <?php
 	/*
-	 * Demonstration of the phpFITFileReader class using Twitter Bootstrap framework
-	 * https://github.com/adriangibbons/php-FIT-File-Reader
+	 * Demonstration of the phpFITFileAnalysis class using Twitter Bootstrap framework
+	 * https://github.com/adriangibbons/php-FIT-File-Analysis
 	 *
 	 * Not intended to be demonstration of how to best use Google APIs, but works for me!
 	 *
 	 * If you find this useful, feel free to drop me a line at Adrian.GitHub@gmail.com
 	 */
-	require('classes/php-FIT-File-Reader.php');
+	require('classes/php-FIT-File-Analysis.php');
 	require('libraries/PolylineEncoder.php');		// https://github.com/dyaaj/polyline-encoder
 	require('libraries/Line_DouglasPeucker.php');	// https://github.com/gregallensworth/PHP-Geometry
 	try {
@@ -16,10 +16,10 @@
 		$options = [
 	// Just using the defaults so no need to provide
 	//		'fix_data'	=> [],
-	//		'set_units'	=> 'metric',
+	//		'units'		=> 'metric',
 	//		'pace'		=> false
 		];
-		$pFFR = new phpFITFileReader($file, $options);
+		$pFFA = new phpFITFileAnalysis($file, $options);
 	}
 	catch(Exception $e) {
 		echo 'caught exception: '.$e->getMessage();
@@ -27,8 +27,8 @@
 	}
 	
 	// Google Static Maps API
-	$position_lat = $pFFR->data_mesgs['record']['position_lat'];
-	$position_long = $pFFR->data_mesgs['record']['position_long'];
+	$position_lat = $pFFA->data_mesgs['record']['position_lat'];
+	$position_long = $pFFA->data_mesgs['record']['position_long'];
 	$lat_long_combined = [];
 	
 	foreach($position_lat as $key => $value) {  // Assumes every lat has a corresponding long
@@ -56,7 +56,7 @@
 	
 	// Google Time Zone API
 	$date = new DateTime('1989-12-31', new DateTimeZone('UTC'));  // FIT timestamps are seconds since UTC 00:00:00 Dec 31 1989, source FIT SDK
-	$date_s = $date->getTimestamp() + $pFFR->data_mesgs['session']['start_time'];
+	$date_s = $date->getTimestamp() + $pFFA->data_mesgs['session']['start_time'];
 	
 	$url_tz = 'https://maps.googleapis.com/maps/api/timezone/json?location='.$LatLng_start.'&timestamp='.$date_s.'&key=AIzaSyDlPWKTvmHsZ-X6PGsBPAvo0nm1-WdwuYE';
 	
@@ -92,15 +92,15 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>php-FIT-File-Reader demo</title>
+<title>php-FIT-File-Analysis demo</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
 <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="jumbotron">
   <div class="container">
-    <h2><strong>php-FIT-File-Reader </strong><small>A PHP class for reading FIT files created by Garmin GPS devices.</small></h2>
-    <p>This is a demonstration of the phpFITFileReader class available on <a class="btn btn-default btn-lg" href="https://github.com/adriangibbons/php-FIT-File-Reader" target="_blank" role="button"><i class="fa fa-github"></i> GitHub</a></p>
+    <h2><strong>php-FIT-File-Analysis </strong><small>A PHP class for reading FIT files created by Garmin GPS devices.</small></h2>
+    <p>This is a demonstration of the phpFITFileAnalysis class available on <a class="btn btn-default btn-lg" href="https://github.com/adriangibbons/php-FIT-File-Analysis" target="_blank" role="button"><i class="fa fa-github"></i> GitHub</a></p>
   </div>
 </div>
 <div class="container">
@@ -109,9 +109,9 @@
       <dt>File: </dt>
       <dd><?php echo $file; ?></dd>
       <dt>Device: </dt>
-      <dd><?php echo $pFFR->get_manufacturer() . ' ' . $pFFR->get_product(); ?></dd>
+      <dd><?php echo $pFFA->get_manufacturer() . ' ' . $pFFA->get_product(); ?></dd>
       <dt>Sport: </dt>
-      <dd><?php echo $pFFR->get_sport(); ?></dd>
+      <dd><?php echo $pFFA->get_sport(); ?></dd>
     </dl>
   </div>
   <div class="col-md-6">
@@ -123,9 +123,9 @@
 ?>
       </dd>
       <dt>Duration: </dt>
-      <dd><?php echo gmdate('H:i:s', $pFFR->data_mesgs['session']['total_elapsed_time']); ?></dd>
+      <dd><?php echo gmdate('H:i:s', $pFFA->data_mesgs['session']['total_elapsed_time']); ?></dd>
       <dt>Distance: </dt>
-      <dd><?php echo max($pFFR->data_mesgs['record']['distance']); ?> km</dd>
+      <dd><?php echo max($pFFA->data_mesgs['record']['distance']); ?> km</dd>
     </dl>
   </div>
   <div class="col-md-2">
@@ -136,7 +136,7 @@
       <div class="panel-body">
 <?php
 	// Output all the Messages read in the FIT file.
-	foreach($pFFR->data_mesgs as $mesg_key=> $mesg) {
+	foreach($pFFA->data_mesgs as $mesg_key=> $mesg) {
 		if($mesg_key == 'record') echo '<strong><mark><u>';
 		echo $mesg_key.'<br>';
 		if($mesg_key == 'record') echo '</u></mark></strong>';
@@ -151,7 +151,7 @@
       <div class="panel-body">
 <?php
 	// Output all the Fields found in Record messages within the FIT file.
-	foreach($pFFR->data_mesgs['record'] as $mesg_key=> $mesg) {
+	foreach($pFFA->data_mesgs['record'] as $mesg_key=> $mesg) {
 		if($mesg_key == 'speed' || $mesg_key == 'heart_rate') echo '<strong><mark><u>';
 		echo $mesg_key.'<br>';
 		if($mesg_key == 'speed' || $mesg_key == 'heart_rate') echo '</strong></mark></u>';
@@ -200,7 +200,7 @@
         <h3 class="panel-title"><i class="fa fa-bug"></i> Debug Information</h3>
       </div>
       <div class="panel-body">
-        <?php $pFFR->show_debug_info(); ?>
+        <?php $pFFA->show_debug_info(); ?>
       </div>
     </div>
   </div>
@@ -236,7 +236,7 @@
       'data': [
 <?php
 	$tmp = [];
-	foreach($pFFR->data_mesgs['record']['speed'] as $key => $value) {
+	foreach($pFFA->data_mesgs['record']['speed'] as $key => $value) {
 		$tmp[] = '['.$key.', '.$value.']';
 	}
 	echo implode(', ', $tmp);
@@ -271,7 +271,7 @@
 <?php
 	unset($tmp);
 	$tmp = [];
-	foreach($pFFR->data_mesgs['record']['heart_rate'] as $key => $value) {
+	foreach($pFFA->data_mesgs['record']['heart_rate'] as $key => $value) {
 		$tmp[] = '['.$key.', '.$value.']';
 	}
 	echo implode(', ', $tmp);
