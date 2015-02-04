@@ -42,7 +42,7 @@ $pFFR->data_mesgs['session']['num_laps']
 foreach($pFFR->data_mesgs as $mesg_key => $mesg) {  // Iterate the array and output the messages
     echo "<strong>Found Message: $mesg_key</strong><br>";
     foreach($mesg as $field_key => $field) {  // Iterate each message and output the fields
-        echo "&nbsp;&nbsp;&nbsp;&nbsp;Found Field: $mesg_key -> $field_key<br>";
+        echo " - Found Field: $mesg_key -> $field_key<br>";
     }
     echo "<br>";
 }
