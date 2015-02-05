@@ -22,7 +22,7 @@ class phpFITFileAnalysis {
 	private $file_header = [];		// Contains information about the FIT file such as the Protocol version, Profile version, and Data Size.
 	private $timestamp = 0;			// Timestamps are used as the indexes for Record data (e.g. Speed, Heart Rate, etc).
 	
-	// Enumerated data looked up by get_enum_data().
+	// Enumerated data looked up by enum_data().
 	// Values from 'Profile.xls' contained within the FIT SDK.
 	private $enum_data = [
 		'activity' => [0 => 'manual', 1 => 'auto_multi_sport'],
@@ -851,7 +851,7 @@ class phpFITFileAnalysis {
 	 * Where these values have been identified in the FIT SDK, they have been included in $this->enum_data
 	 * This function returns the enumerated value for a given message type.
 	 */
-	public function get_enum_data($type, $value) {
+	public function enum_data($type, $value) {
 		if(is_array($value)) {
 			$tmp = [];
 			foreach($value as $element) {
@@ -870,30 +870,17 @@ class phpFITFileAnalysis {
 	/*
 	 * Short-hand access to commonly used enumerated data.
 	 */
-	public function get_manufacturer() {
-		$tmp = $this->get_enum_data('manufacturer', $this->data_mesgs['device_info']['manufacturer']);
+	public function manufacturer() {
+		$tmp = $this->enum_data('manufacturer', $this->data_mesgs['device_info']['manufacturer']);
 		return is_array($tmp) ? $tmp[0] : $tmp;
 	}
-	public function get_product() {
-		$tmp = $this->get_enum_data('product', $this->data_mesgs['device_info']['product']);
+	public function product() {
+		$tmp = $this->enum_data('product', $this->data_mesgs['device_info']['product']);
 		return is_array($tmp) ? $tmp[0] : $tmp;
 	}
-	public function get_sport() {
-		$tmp = $this->get_enum_data('sport', $this->data_mesgs['session']['sport']);
+	public function sport() {
+		$tmp = $this->enum_data('sport', $this->data_mesgs['session']['sport']);
 		return is_array($tmp) ? $tmp[0] : $tmp;
-	}
-	public function get_sub_sport() {
-		$tmp = $this->get_enum_data('sub_sport', $this->data_mesgs['session']['sub_sport']);
-		return is_array($tmp) ? $tmp[0] : $tmp;
-	}
-	public function get_swim_stroke() {
-		if($this->get_sport() == 'Swimming') {
-			$tmp = $this->get_enum_data('swim_stroke', $this->data_mesgs['session']['swim_stroke']);
-			return is_array($tmp) ? $tmp[0] : $tmp;
-		}
-		else {
-			return 'N/A';
-		}
 	}
 	
 	/*
