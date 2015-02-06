@@ -1038,6 +1038,114 @@ class phpFITFileAnalysis {
 	}
 	
 	/*
+	 * Calculate HR zones using HRmax formula: zone = HRmax * percentage.
+	 */
+	public function hr_zones_max($hr_maximum, $percentages_array=[0.60, 0.75, 0.85, 0.95]) {
+		if(array_walk($percentages_array, function(&$value, $key, $hr_maximum) { $value = round($value * $hr_maximum); }, $hr_maximum)) return $percentages_array;
+		else throw new Exception('phpFITFileAnalysis->hr_zones_max(): cannot calculate zones, please check inputs!');
+	}
+	
+	/*
+	 * Calculate HR zones using HRreserve formula: zone = HRresting + ((HRmax - HRresting) * percentage).
+	 */
+	public function hr_zones_reserve($hr_resting, $hr_maximum, $percentages_array=[0.60, 0.70, 0.80, 0.90]) {
+		if(array_walk($percentages_array, function(&$value, $key, $params) { $value = round($params[0] + ($value * $params[1])); }, [$hr_resting, $hr_maximum - $hr_resting])) return $percentages_array;
+		else throw new Exception('phpFITFileAnalysis->hr_zones_reserve(): cannot calculate zones, please check inputs!');
+	}
+	
+	/*
+	 * Calculate power zones using Functional Threshold Power value: zone = FTP * percentage.
+	 */
+	public function power_zones($functional_threshold_power, $percentages_array=[0.55, 0.75, 0.90, 1.05, 1.20, 1.50]) {
+		if(array_walk($percentages_array, function(&$value, $key, $functional_threshold_power) { $value = round($value * $functional_threshold_power) + 1; }, $functional_threshold_power)) return $percentages_array;
+		else throw new Exception('phpFITFileAnalysis->power_zones(): cannot calculate zones, please check inputs!');
+	}
+	
+	/*
+	 * Partition the data (e.g. cadence, heart_rate, power, speed) using thresholds provided as an array.
+	 */
+	public function partition_data($record_field='', $thresholds=null, $percentages=true, $labels_for_keys=true) {
+		if(!isset($this->data_mesgs['record'][$record_field])) throw new Exception('phpFITFileAnalysis->partition_data(): '.$record_field.' data not present in FIT file!');
+		if(!is_array($thresholds)) throw new Exception('phpFITFileAnalysis->partition_data(): thresholds must be an array e.g. [10,20,30,40,50]!');
+		
+		foreach($thresholds as $threshold) {
+			if(!is_numeric($threshold) || $threshold < 0) throw new Exception('phpFITFileAnalysis->partition_data(): '.$threshold.' not valid in thresholds!');
+			if(isset($last_threshold) && $last_threshold >= $threshold) {
+				throw new Exception('phpFITFileAnalysis->partition_data(): error near ..., '.$last_threshold.', '.$threshold.', ... - each element in thresholds array must be greater than previous element!');
+			}
+			$last_threshold = $threshold;
+		}
+		
+		$result = array_fill(0, count($thresholds)+1, 0);
+		
+		foreach($this->data_mesgs['record'][$record_field] as $value) {
+			$key = 0;
+			for($key; $key<count($thresholds); ++$key) {
+				if($value < $thresholds[$key]) {
+					$result[$key]++;
+					goto loop_end;
+				}
+			}
+			$result[$key]++;
+			loop_end:
+		}
+		
+		array_unshift($thresholds, 0);
+		$keys = [];
+		
+		if($labels_for_keys === true) {
+			for($i=0; $i<count($thresholds); ++$i) {
+				$keys[] = $thresholds[$i] . (isset($thresholds[$i+1]) ? '-'.($thresholds[$i+1] - 1) : '+');
+			}
+			$result = array_combine($keys, $result);
+		}
+		
+		if($percentages === true) {
+			$total = array_sum($result);
+			array_walk($result, function (&$value, $key, $total) { $value = round($value / $total * 100, 1); }, $total);
+		}
+		
+		return $result;
+	}
+	
+	/*
+	 * Split data into buckets/bins using a Counting Sort algorithm (http://en.wikipedia.org/wiki/Counting_sort) to generate data for a histogram plot.
+	 */
+	public function histogram($bucket_width=25, $record_field='') {
+		if(!isset($this->data_mesgs['record'][$record_field])) throw new Exception('phpFITFileAnalysis->histogram(): '.$record_field.' data not present in FIT file!');
+		if(!is_numeric($bucket_width) || $bucket_width <= 0) throw new Exception('phpFITFileAnalysis->histogram(): bucket width is not valid!');
+		
+		foreach($this->data_mesgs['record'][$record_field] as $value) {
+			$key = round($value / $bucket_width) * $bucket_width;
+			isset($result[$key]) ? $result[$key]++ : $result[$key] = 1;
+		}
+		
+		for($i=0; $i<max(array_keys($result)) / $bucket_width; ++$i) {
+			if(!isset($result[$i * $bucket_width]))
+				$result[$i * $bucket_width] = 0;
+		}
+		
+		ksort($result);
+		return $result;
+	}
+	
+	/*
+	 * Helper functions / shortcuts.
+	 */	
+	public function hr_partioned_HRmaximum($hr_maximum) {
+		return $this->partition_data('heart_rate', $this->hr_zones_max($hr_maximum));
+	}
+	public function hr_partioned_HRreserve($hr_resting, $hr_maximum) {
+		return $this->partition_data('heart_rate', $this->hr_zones_reserve($hr_resting, $hr_maximum));
+	}
+	public function power_partioned($functional_threshold_power) {
+		return $this->partition_data('power', $this->power_zones($functional_threshold_power));
+	}
+	public function power_histogram($bucket_width=25) {
+		return $this->histogram($bucket_width, 'power');
+	}
+	
+	/*
 	 * Outputs tables of information being listened for and found within the processed FIT file.
 	 */
 	public function show_debug_info() {

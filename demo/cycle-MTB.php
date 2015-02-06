@@ -99,7 +99,7 @@
 <body>
 <div class="jumbotron">
   <div class="container">
-    <h2><strong>php-FIT-File-Analysis </strong><small>A PHP class for reading FIT files created by Garmin GPS devices.</small></h2>
+    <h2><strong>php-FIT-File-Analysis </strong><small>A PHP class for analysing FIT files created by Garmin GPS devices.</small></h2>
     <p>This is a demonstration of the phpFITFileAnalysis class available on <a class="btn btn-default btn-lg" href="https://github.com/adriangibbons/php-FIT-File-Analysis" target="_blank" role="button"><i class="fa fa-github"></i> GitHub</a></p>
   </div>
 </div>

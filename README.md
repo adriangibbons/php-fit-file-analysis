@@ -7,12 +7,12 @@ A live demonstration can be found [here](http://www.adriangibbons.com/php-FIT-Fi
 
 Please read this page in its entirety and the [FAQ](https://github.com/adriangibbons/php-FIT-File-Analysis/wiki/Frequently-Asked-Questions-(FAQ)) first if you have any questions or need support.
 
-###What is a FIT file?
+##What is a FIT file?
 FIT or Flexible and Interoperable Data Transfer is a file format used for GPS tracks and routes. It is used by newer Garmin fitness GPS devices, including the Edge and Forerunner series, which are popular with cyclists and runners.
 
 Visit the FAQ page within the Wiki for more information.
 
-How do I use php-FIT-File-Analysis with my PHP-driven website?
+##How do I use php-FIT-File-Analysis with my PHP-driven website?
 
 Download the class from GitHub and put it somewhere appropriate (e.g. classes/). A conscious effort has been made to keep everything in a single file.
 
@@ -242,8 +242,28 @@ foreach($pFFA->data_mesgs['record']['speed'] as $key => $value) {
 ```
 Note that if 'raw' units are requested then this parameter has no effect on the speed data, as it is left untouched from what was read-in from the file.
 
-###Acknowledgement
+##Analysis
+The following functions return arrays of that could be used to create tables/charts:
+```php
+$pFFA->hr_partioned_HRmaximum(195);  // Input: HRmaximum
+$pFFA->hr_partioned_HRreserve(48, 195);  // Inputs: HRmaximum and HRresting
+$pFFA->power_partioned(312);  // Input: Functional Threshold Power
+$pFFA->power_histogram();  // Input: bucket width (optional; default=25w)
+```
+For advanced control over these functions, or use with other sensor data (e.g. cadence or speed), use the underlying functions:
+```php
+$pFFA->partition_data($record_field='', $thresholds=null, $percentages=true, $labels_for_keys=true);
+$pFFA->histogram($bucket_width=25, $record_field='');
+```
+Functions exist to determine thresholds based on percentages of user-supplied data:
+```php
+$pFFA->hr_zones_max($hr_maximum, $percentages_array=[0.60, 0.75, 0.85, 0.95]);
+$pFFA->hr_zones_reserve($hr_resting, $hr_maximum, $percentages_array=[0.60, 0.70, 0.80, 0.90]);
+$pFFA->power_zones($functional_threshold_power, $percentages_array=[0.55, 0.75, 0.90, 1.05, 1.20, 1.50]);
+```
+A demo of power analysis is available [here](http://www.adriangibbons.com/php-FIT-File-Analysis-demo/analysis_power.php).
 
+##Acknowledgement
 This class has been created using information available in a Software Development Kit (SDK) made available by ANT ([thisisant.com](http://www.thisisant.com/resources/fit)).
 
 As a minimum, I'd recommend reading the three PDFs included in the SDK:
