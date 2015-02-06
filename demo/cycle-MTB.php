@@ -109,9 +109,9 @@
       <dt>File: </dt>
       <dd><?php echo $file; ?></dd>
       <dt>Device: </dt>
-      <dd><?php echo $pFFA->get_manufacturer() . ' ' . $pFFA->get_product(); ?></dd>
+      <dd><?php echo $pFFA->manufacturer() . ' ' . $pFFA->product(); ?></dd>
       <dt>Sport: </dt>
-      <dd><?php echo $pFFA->get_sport(); ?></dd>
+      <dd><?php echo $pFFA->sport(); ?></dd>
     </dl>
   </div>
   <div class="col-md-6">
