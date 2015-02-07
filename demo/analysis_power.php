@@ -23,6 +23,8 @@
 		}
 		$date->setTimestamp($date_s);
 		
+		$power_metrics = $pFFA->power_metrics(312);
+		$critical_power = $pFFA->critical_power([2,3,5,10,30,60,120,300,600,1200,3600,7200,10800,18000]);
 		$power_histogram = $pFFA->power_histogram();
 		$power_table = $pFFA->power_partioned(312);
 		$power_pie_chart = $pFFA->partition_data('power', $pFFA->power_zones(312), true, false);
@@ -38,7 +40,6 @@
 <meta charset="utf-8">
 <title>php-FIT-File-Analysis demo</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-<link rel="stylesheet" href="css/style.css">
 <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 </head>
 <body>
@@ -75,7 +76,29 @@
   </div>
   <div class="row">
     <div class="col-md-10 col-md-offset-1">
-        
+      
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title"><i class="fa fa-tachometer"></i> Power Metrics</h3></a>
+        </div>
+        <div class="panel-body">
+          <?php
+		  	foreach($power_metrics as $key => $value) {
+				echo "$key: $value<br>";
+			}
+		  ?>
+        </div>
+      </div>
+      
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title"><i class="fa fa-line-chart"></i> Critical Power</h3></a>
+        </div>
+        <div class="panel-body">
+          <div id="critical_power" style="width:100%; height:300px"></div>
+        </div>
+      </div>
+      
       <div class="panel panel-default">
         <div class="panel-heading">
           <h3 class="panel-title"><i class="fa fa-bar-chart"></i> Power Distribution (histogram)</h3>
@@ -86,17 +109,23 @@
       </div>
         
       <div class="panel panel-default">
-        <div class="panel-heading" role="tab" id="headingThree">
+        <div class="panel-heading">
           <h3 class="panel-title"><i class="fa fa-pie-chart"></i> Power Zones</h3>
         </div>
         <div class="panel-body">
-          <div class="col-md-6 col-md-offset-1">
-            <table class="table table-bordered table-striped">
+          <div class="col-md-4 col-md-offset-1">
+            <table id="power_zones_table" class="table table-bordered table-striped">
+              <thead>
+                <th>Zone</th>
+                <th>Zone range</th>
+                <th>% in zone</th>
+              </thead>
               <tbody>
               	<?php
+					$i = 1;
 					foreach($power_table as $key => $value) {
-						echo '<tr>';
-						echo '<td>'.$key.' w</td><td>'.$value.' %</td>';
+						echo '<tr id="'.number_format($value, 1, '-', '').'">';
+						echo '<td>'.$i++.'</td><td>'.$key.' w</td><td>'.$value.' %</td>';
 						echo '</tr>';
 					}
 				?>
@@ -104,7 +133,7 @@
               </tbody>
             </table>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-4 col-md-offset-1">
             <div id="power_pie_chart" style="width:100%; height:250px"></div>
           </div>
         </div>
@@ -119,6 +148,51 @@
 <script type="text/javascript">
   $(document).ready( function() {
     
+    var critical_power_options = {
+      lines: { show: true, fill: true, fillColor: "rgba(11, 98, 164, 0.5)", lineWidth: 1 },
+      points: { show: true },
+      xaxis: {
+        ticks: [2,3,5,10,30,60,120,300,600,1200,3600,7200,10800,18000],
+        transform: function (v) { return Math.log(v); },
+        inverseTransform: function (v) { return Math.exp(v); },
+		tickFormatter: function(label, series) {
+          var hours = parseInt( label / 3600 ) % 24;
+          var minutes = parseInt( label / 60 ) % 60;
+          var seconds = label % 60;
+          var result = (hours > 0 ? hours + "h" : (minutes > 0 ? minutes + "m" : seconds + 's'));
+		  return result;
+		}
+      },
+      yaxis: {
+        tickFormatter: function(label, series) {
+          if(label > 0) return label.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' w';
+		  else return '';
+        }
+      },
+      grid: {
+        hoverable: true,
+        borderWidth: {
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0
+        }
+      }
+    };
+	
+	var critical_power = {
+      'color': 'rgba(11, 98, 164, 1)',
+      'data': [
+<?php
+	foreach($critical_power as $key => $value) {
+		echo '['.$key.', '.$value.'], ';
+	}
+?>
+      ]
+    };
+    
+    var markings = [{ color: "rgba(203, 75, 75, 1)", lineWidth: 2, xaxis: { from: <?php echo $power_metrics['Normalised Power']; ?>, to: <?php echo $power_metrics['Normalised Power']; ?> } }];
+	    
 	var power_distribution_options = {
       points: { show: false },
       xaxis: {
@@ -142,7 +216,8 @@
           right: 0,
           bottom: 0,
           left: 0
-        }
+        },
+        markings: markings
       },
       legend: { show: false }
     };
@@ -162,17 +237,25 @@
       series: {
         pie: {
           radius: 1,
-          innerRadius: 0.5,
           show: true,
-          label: { show: false }
+		  label: {
+            show: true,
+            radius: 3/4,
+			formatter: labelFormatter
+          }
         }
       },
+      grid: { hoverable: true },
       legend: { show: false }
     };
+	
+    function labelFormatter(label, series) {
+      return "<div style='font-size:8pt; text-align:center; padding:2px; color:#333; border-radius: 5px; background-color: #fafafa; border: 1px solid #ddd;'><strong>" + label + "</strong><br/>" + series.data[0][1] + "%</div>";
+    }
     
 	var power_pie_chart = [
       {
-        label: "Active_Recovery",
+        label: "Active Recovery",
         data: <?php echo $power_pie_chart[0]; ?>,
         "color": "rgba(217, 83, 79, 0.2)"
       },
@@ -208,9 +291,71 @@
       }
     ];
     
-    $.plot('#power_distribution', [power_distribution], power_distribution_options);
+    $("<div id='tooltip_bg'></div>").css({
+       position: "absolute",
+       display: "none",
+       "text-align": "center",
+       "-moz-border-radius": "5px",
+       "-webkit-border-radius": "5px",
+       "border-radius": "5px",
+       "border": "2px solid #fff",
+       padding: "3px 7px",
+       "font-size": "12px",
+       "color": "#fff",
+       "background-color": "#fff"
+     }).appendTo("body");
+     
+     $("<div id='tooltip'></div>").css({
+       position: "absolute",
+       display: "none",
+       "text-align": "center",
+       "-moz-border-radius": "5px",
+       "-webkit-border-radius": "5px",
+       "border-radius": "5px",
+       "border": "2px solid",
+       padding: "3px 7px",
+       "font-size": "12px",
+       "color": "#555"
+     }).appendTo("body");
+     
+     $("#critical_power").bind("plothover", function (event, pos, item) {
+       if (item) {
+         var x = item.datapoint[0].toFixed(2),
+         y = item.datapoint[1].toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                	
+      var currentColor = item.series.color;
+      var lastComma = currentColor.lastIndexOf(',');
+      var newColor = currentColor.slice(0, lastComma + 1) + "0.1)";
+      
+      $("#tooltip").html('<strong>' + item.series.xaxis.ticks[item.dataIndex].label + '</strong><br>' + y + ' w')
+        .css({top: item.pageY-45, left: item.pageX+5, "border-color": item.series.color, "background-color": newColor })
+        .fadeIn(200);
+      $("#tooltip_bg").html('<strong>' + item.series.xaxis.ticks[item.dataIndex].label + '</strong><br>' + y + ' w')
+        .css({top: item.pageY-45, left: item.pageX+5 })
+        .fadeIn(200);
+      } else {
+        $("#tooltip").hide();
+        $("#tooltip_bg").hide();
+      }
+	});
+    
+    $.plot('#critical_power', [critical_power], critical_power_options);
+    
+    var plot_pd = $.plot('#power_distribution', [power_distribution], power_distribution_options);
+    var o = plot_pd.pointOffset({ x: <?php echo $power_metrics['Normalised Power']; ?>, y: plot_pd.height() });
+    $("#power_distribution").append("<span style='background-color: #fafafa; top: 12px; color: #333; text-align: center; font-size: 12px; border: 1px solid #ddd; border-radius: 5px; padding: 3px 7px; position: absolute; left:" + (o.left + 6) + "px'><strong>normalised power</strong><br><?php echo $power_metrics['Normalised Power']; ?> w</span>");
     
     $.plot('#power_pie_chart', power_pie_chart, power_pie_chart_options);
+	
+	
+    $("#power_pie_chart").bind("plothover", function (event, pos, obj) {
+      if (!obj) {
+        $("#power_zones_table tr").removeClass("danger");
+        return;
+      }
+      $("#power_zones_table tr").removeClass("danger");
+      $("#" + obj.series.data[0][1].toFixed(1).toString().replace(/\./g, '-') ).addClass("danger");
+    });
   });
 </script>
 </body>
