@@ -261,6 +261,24 @@ $pFFA->hr_zones_max($hr_maximum, $percentages_array=[0.60, 0.75, 0.85, 0.95]);
 $pFFA->hr_zones_reserve($hr_resting, $hr_maximum, $percentages_array=[0.60, 0.70, 0.80, 0.90]);
 $pFFA->power_zones($functional_threshold_power, $percentages_array=[0.55, 0.75, 0.90, 1.05, 1.20, 1.50]);
 ```
+Two functions exist for analysing power data:
+```php
+$pFFA->power_metrics($functional_threshold_power);  // e.g. 312
+$pFFA->critical_power($time_periods);  // e.g. 300 or [300, 600, 900, 1200]
+```
+**Power metrics:**
+ * Average Power
+ * Kilojoules
+ * Normalised Power (estimate had your power output been constant)
+ * Variability Index (ratio of Normalised Power / Average Power)
+ * Intensity Factor (ratio of Normalised Power / Functional Threshold Power)
+ * Training Stress Score (effort based on relative intensity and duration)
+
+**Critical Power** (or Best Effort) is the highest average power sustained for a specified period of time within the activity. You can supply a single time period (in seconds), or an array or time periods.
+
+Note that ```$pFFA->critical_power``` and some power metrics (Normalised Power, Variability Index, Intensity Factor, Training Stress Score) are dependent on the [PHP Trader](http://php.net/manual/en/book.trader.php) extension being loaded on the server.
+
+
 A demo of power analysis is available [here](http://www.adriangibbons.com/php-FIT-File-Analysis-demo/analysis_power.php).
 
 ##Acknowledgement
