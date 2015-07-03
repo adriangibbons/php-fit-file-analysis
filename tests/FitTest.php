@@ -1,6 +1,7 @@
 <?
 use adriangibbons\FitAnalysis\phpFITFileAnalysis;
 
+error_reporting(E_ALL);
 require __DIR__ . '/../php-FIT-File-Analysis.php';
 
 class FitTest extends PHPUnit_Framework_TestCase
