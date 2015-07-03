@@ -829,18 +829,9 @@ class phpFITFileAnalysis
         if ($bDistance) {
             $this->interpolate_missing_data($missing_distance_keys, $this->data_mesgs['record']['distance']);
         }
-
-        /*
-        echo var_dump($missing_hr_keys);
-        var_dump(join(',', array_keys($this->data_mesgs['record']['heart_rate'])));
-        echo var_dump(min(array_keys($this->data_mesgs['record']['heart_rate'])));
-        echo var_dump(max(array_keys($this->data_mesgs['record']['heart_rate'])));
-        die();
-         */
         if ($bHeartRate) {
             $this->interpolate_missing_data($missing_hr_keys, $this->data_mesgs['record']['heart_rate']);
         }
-
         if ($bLatitudeLongitude) {
             $this->interpolate_missing_data($missing_lat_keys, $this->data_mesgs['record']['position_lat']);
             $this->interpolate_missing_data($missing_lon_keys, $this->data_mesgs['record']['position_long']);
