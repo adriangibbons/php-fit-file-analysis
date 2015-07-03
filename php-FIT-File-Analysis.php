@@ -594,13 +594,16 @@ class phpFITFileAnalysis
         if ($header_size != 12 && $header_size != 14) {
             throw new \Exception('phpFITFileAnalysis->read_header(): not a valid header size!');
         }
-        $this->file_header = unpack(
-            'C1protocol_version/' .
-            'v1profile_version/' .
-            'V1data_size/' .
-            'C4data_type/' .
-            'v1crc', substr($this->file_contents, $this->file_pointer, $header_size - 1)
-        );
+
+        $header_fields = 'C1protocol_version/' .
+        'v1profile_version/' .
+        'V1data_size/' .
+        'C4data_type';
+        if ($header_size > 12) {
+            $header_fields .= '/v1crc';
+        }
+        $this->file_header = unpack($header_fields, substr($this->file_contents, $this->file_pointer, $header_size - 1));
+
         $this->file_header['header_size'] = $header_size;
 
         $this->file_pointer += $this->file_header['header_size'] - 1;
