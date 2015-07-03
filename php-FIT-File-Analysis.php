@@ -684,6 +684,7 @@ class phpFITFileAnalysis
                 case DATA_MESSAGE:
                     // Check that we have information on the Data Message.
                     if (isset($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']])) {
+                        // first, we need timestamp - it may not be the first data field, so we have to do two passes
                         foreach ($this->defn_mesgs[$local_mesg_type]['field_defns'] as $field_defn) {
                             // Check that we have information on the Field Definition.
                             if (isset($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']])) {
@@ -691,10 +692,18 @@ class phpFITFileAnalysis
                                 // If it's a Record data message and it's a Timestamp field, store the timestamp...
                                 if ($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20 && $field_defn['field_definition_number'] === 253) {
                                     $this->timestamp = $this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][] = (unpack($this->types[$field_defn['base_type']], substr($this->file_contents, $this->file_pointer, $field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale']) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
+                                    continue;
                                 }
+                            }
+                        }
 
-                                // Else, if it's another field in a Record data message, use the Timestamp as the index.
-                                else if ($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20) {
+                        foreach ($this->defn_mesgs[$local_mesg_type]['field_defns'] as $field_defn) {
+                            // Check that we have information on the Field Definition.
+                            if (isset($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']])) {
+
+                                // If it's a Record data message and it's a Timestamp field, store the timestamp...
+                                if ($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20 && $field_defn['field_definition_number'] === 253) {
+                                } else if ($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20) {
                                     $this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][$this->timestamp] = (unpack($this->types[$field_defn['base_type']], substr($this->file_contents, $this->file_pointer, $field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale']) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
                                     // check if we know that field type
                                 } else if (isset($this->types[$field_defn['base_type']])) {
