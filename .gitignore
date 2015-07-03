@@ -1,6 +1,7 @@
 vendor
 composer.phar
 composer.lock
+test_files/*
 
 # Windows image file caches
 Thumbs.db
