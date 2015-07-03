@@ -829,9 +829,18 @@ class phpFITFileAnalysis
         if ($bDistance) {
             $this->interpolate_missing_data($missing_distance_keys, $this->data_mesgs['record']['distance']);
         }
+
+        /*
+        echo var_dump($missing_hr_keys);
+        var_dump(join(',', array_keys($this->data_mesgs['record']['heart_rate'])));
+        echo var_dump(min(array_keys($this->data_mesgs['record']['heart_rate'])));
+        echo var_dump(max(array_keys($this->data_mesgs['record']['heart_rate'])));
+        die();
+         */
         if ($bHeartRate) {
             $this->interpolate_missing_data($missing_hr_keys, $this->data_mesgs['record']['heart_rate']);
         }
+
         if ($bLatitudeLongitude) {
             $this->interpolate_missing_data($missing_lat_keys, $this->data_mesgs['record']['position_lat']);
             $this->interpolate_missing_data($missing_lon_keys, $this->data_mesgs['record']['position_long']);
@@ -849,16 +858,33 @@ class phpFITFileAnalysis
      */
     private function interpolate_missing_data(&$missing_keys, &$array)
     {
+        if (!is_array($array)) {
+            // can't interpollate from non-array
+            return;
+        }
+
         $num_points = 2;
         $prev_value;
         $next_value;
 
+        $min_key = min(array_keys($array));
+        $max_key = max(array_keys($array));
+
         for ($i = 0; $i < count($missing_keys); ++$i) {
             if ($missing_keys[$i] !== 0) {
+                // interpollating outside recorded range is impossible - use edge values instead
+                if ($missing_keys[$i] > $max_key) {
+                    $array[$missing_keys[$i]] = $array[$max_key];
+                    continue;
+                } else if ($missing_keys[$i] < $max_key) {
+                    $array[$missing_keys[$i]] = $array[$min_key];
+                    continue;
+                }
                 while ($missing_keys[$i] > key($array)) {
                     $prev_value = current($array);
                     next($array);
                 }
+
                 for ($j = $i + 1; $j < count($missing_keys); ++$j) {
                     if ($missing_keys[$j] < key($array)) {
                         $num_points++;
