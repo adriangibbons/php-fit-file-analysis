@@ -1,0 +1,15 @@
+{
+    "name": "adriangibbons/php-FIT-File-Analysis",
+    "type": "library",
+    "description": "PHP class for processing Garmin FIT files",
+    "keywords": ["garmin", "fit"],
+    "homepage": "https://github.com/adriangibbons/php-FIT-File-Analysis",
+    "require": {
+        "ext-trader": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "adriangibbons\\FitAnalysis\\": "."
+        }
+    }
+}
