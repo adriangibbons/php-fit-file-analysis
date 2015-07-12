@@ -1,39 +1,40 @@
 <?php
-use adriangibbons\FitAnalysis\phpFITFileAnalysis;
+    use adriangibbons\FitAnalysis\phpFITFileAnalysis;
 
-require __DIR__ . '/../php-FIT-File-Analysis.php';
+    require __DIR__ . '/../php-FIT-File-Analysis.php';
 
-try {
-    $file = '';
+	try {
+		$file = '';
 
-    $options = [
-        //        'fix_data' => ['all'],
-        'units' => ['metric'],
-    ];
-    $pFFA = new phpFITFileAnalysis($file, $options);
+		$options = [
+	//		'fix_data' => ['all'],
+			'units' => ['metric']
+		];
+		$pFFA = new phpFITFileAnalysis($file, $options);
 
-    // Google Time Zone API
-    $date   = new DateTime("1989-12-31", new DateTimeZone("UTC")); // timestamp[s]: seconds since UTC 00:00:00 Dec 31 1989
-    $date_s = $date->getTimestamp() + $pFFA->data_mesgs['session']['start_time'];
+		// Google Time Zone API
+		$date = new DateTime("1989-12-31", new DateTimeZone("UTC"));  // timestamp[s]: seconds since UTC 00:00:00 Dec 31 1989
+		$date_s = $date->getTimestamp() + $pFFA->data_mesgs['session']['start_time'];
 
-    $url_tz = "https://maps.googleapis.com/maps/api/timezone/json?location=" . reset($pFFA->data_mesgs['record']['position_lat']) . ',' . reset($pFFA->data_mesgs['record']['position_long']) . "&timestamp=" . $date_s . "&key=AIzaSyDlPWKTvmHsZ-X6PGsBPAvo0nm1-WdwuYE";
+		$url_tz = "https://maps.googleapis.com/maps/api/timezone/json?location=".reset($pFFA->data_mesgs['record']['position_lat']).','.reset($pFFA->data_mesgs['record']['position_long'])."&timestamp=".$date_s."&key=AIzaSyDlPWKTvmHsZ-X6PGsBPAvo0nm1-WdwuYE";
 
-    $result  = file_get_contents("$url_tz");
-    $json_tz = json_decode($result);
-    if ($json_tz->status == "OK") {
-        $date_s = $date_s + $json_tz->rawOffset + $json_tz->dstOffset;
-    }
-    $date->setTimestamp($date_s);
+		$result = file_get_contents("$url_tz");
+		$json_tz = json_decode($result);
+		if($json_tz->status == "OK") {
+			$date_s = $date_s + $json_tz->rawOffset + $json_tz->dstOffset;
+		}
+		$date->setTimestamp($date_s);
 
-    $power_metrics   = $pFFA->power_metrics(312);
-    $critical_power  = $pFFA->critical_power([2, 3, 5, 10, 30, 60, 120, 300, 600, 1200, 3600, 7200, 10800, 18000]);
-    $power_histogram = $pFFA->power_histogram();
-    $power_table     = $pFFA->power_partioned(312);
-    $power_pie_chart = $pFFA->partition_data('power', $pFFA->power_zones(312), true, false);
-} catch (\Exception $e) {
-    echo 'caught exception: ' . $e->getMessage();
-    die();
-}
+		$power_metrics = $pFFA->power_metrics(312);
+		$critical_power = $pFFA->critical_power([2,3,5,10,30,60,120,300,600,1200,3600,7200,10800,18000]);
+		$power_histogram = $pFFA->power_histogram();
+		$power_table = $pFFA->power_partioned(312);
+		$power_pie_chart = $pFFA->partition_data('power', $pFFA->power_zones(312), true, false);
+	}
+	catch(Exception $e) {
+		echo 'caught exception: '.$e->getMessage();
+		die();
+	}
 ?>
 <!doctype html>
 <html>
@@ -54,11 +55,11 @@ try {
   <div class="col-md-6">
     <dl class="dl-horizontal">
       <dt>File: </dt>
-      <dd><?php echo $file;?></dd>
+      <dd><?php echo $file; ?></dd>
       <dt>Device: </dt>
-      <dd><?php echo $pFFA->manufacturer() . ' ' . $pFFA->product();?></dd>
+      <dd><?php echo $pFFA->manufacturer() . ' ' . $pFFA->product(); ?></dd>
       <dt>Sport: </dt>
-      <dd><?php echo $pFFA->sport();?></dd>
+      <dd><?php echo $pFFA->sport(); ?></dd>
     </dl>
   </div>
   <div class="col-md-6">
@@ -66,13 +67,13 @@ try {
       <dt>Recorded: </dt>
       <dd>
 <?php
-echo $date->format('D, d-M-y @ g:ia');
+	echo $date->format('D, d-M-y @ g:ia');
 ?>
       </dd>
       <dt>Duration: </dt>
-      <dd><?php echo gmdate('H:i:s', $pFFA->data_mesgs['session']['total_elapsed_time']);?></dd>
+      <dd><?php echo gmdate('H:i:s', $pFFA->data_mesgs['session']['total_elapsed_time']); ?></dd>
       <dt>Distance: </dt>
-      <dd><?php echo max($pFFA->data_mesgs['record']['distance']);?> km</dd>
+      <dd><?php echo max($pFFA->data_mesgs['record']['distance']); ?> km</dd>
     </dl>
   </div>
   <div class="row">
@@ -84,10 +85,10 @@ echo $date->format('D, d-M-y @ g:ia');
         </div>
         <div class="panel-body">
           <?php
-foreach ($power_metrics as $key => $value) {
-    echo "$key: $value<br>";
-}
-?>
+		  	foreach($power_metrics as $key => $value) {
+				echo "$key: $value<br>";
+			}
+		  ?>
         </div>
       </div>
 
@@ -123,13 +124,13 @@ foreach ($power_metrics as $key => $value) {
               </thead>
               <tbody>
               	<?php
-$i = 1;
-foreach ($power_table as $key => $value) {
-    echo '<tr id="' . number_format($value, 1, '-', '') . '">';
-    echo '<td>' . $i++ . '</td><td>' . $key . ' w</td><td>' . $value . ' %</td>';
-    echo '</tr>';
-}
-?>
+					$i = 1;
+					foreach($power_table as $key => $value) {
+						echo '<tr id="'.number_format($value, 1, '-', '').'">';
+						echo '<td>'.$i++.'</td><td>'.$key.' w</td><td>'.$value.' %</td>';
+						echo '</tr>';
+					}
+				?>
                 </tr>
               </tbody>
             </table>
@@ -185,14 +186,14 @@ foreach ($power_table as $key => $value) {
       'color': 'rgba(11, 98, 164, 1)',
       'data': [
 <?php
-foreach ($critical_power as $key => $value) {
-    echo '[' . $key . ', ' . $value . '], ';
-}
+	foreach($critical_power as $key => $value) {
+		echo '['.$key.', '.$value.'], ';
+	}
 ?>
       ]
     };
 
-    var markings = [{ color: "rgba(203, 75, 75, 1)", lineWidth: 2, xaxis: { from: <?php echo $power_metrics['Normalised Power'];?>, to: <?php echo $power_metrics['Normalised Power'];?> } }];
+    var markings = [{ color: "rgba(203, 75, 75, 1)", lineWidth: 2, xaxis: { from: <?php echo $power_metrics['Normalised Power']; ?>, to: <?php echo $power_metrics['Normalised Power']; ?> } }];
 
 	var power_distribution_options = {
       points: { show: false },
@@ -227,9 +228,9 @@ foreach ($critical_power as $key => $value) {
 	  bars: { show: true, zero: false, barWidth: 25, fillColor: "rgba(77, 167, 77, 0.5)", lineWidth: 1 },
       'data': [
 <?php
-foreach ($power_histogram as $key => $value) {
-    echo '[' . $key . ', ' . $value . '], ';
-}
+	foreach($power_histogram as $key => $value) {
+		echo '['.$key.', '.$value.'], ';
+	}
 ?>
       ]
     };
@@ -257,37 +258,37 @@ foreach ($power_histogram as $key => $value) {
 	var power_pie_chart = [
       {
         label: "Active Recovery",
-        data: <?php echo $power_pie_chart[0];?>,
+        data: <?php echo $power_pie_chart[0]; ?>,
         "color": "rgba(217, 83, 79, 0.2)"
       },
       {
         label: "Endurance",
-        data: <?php echo $power_pie_chart[1];?>,
+        data: <?php echo $power_pie_chart[1]; ?>,
         "color": "rgba(217, 83, 79, 0.35)"
       },
       {
         label: "Tempo",
-        data: <?php echo $power_pie_chart[2];?>,
+        data: <?php echo $power_pie_chart[2]; ?>,
         "color": "rgba(217, 83, 79, 0.5)"
       },
       {
         label: "Threshold",
-        data: <?php echo $power_pie_chart[3];?>,
+        data: <?php echo $power_pie_chart[3]; ?>,
         "color": "rgba(217, 83, 79, 0.65)"
       },
       {
         label: "VO2max",
-        data: <?php echo $power_pie_chart[4];?>,
+        data: <?php echo $power_pie_chart[4]; ?>,
         "color": "rgba(217, 83, 79, 0.7)"
       },
       {
         label: "Anaerobic",
-        data: <?php echo $power_pie_chart[5];?>,
+        data: <?php echo $power_pie_chart[5]; ?>,
         "color": "rgba(217, 83, 79, 0.85)"
       },
       {
         label: "Neuromuscular",
-        data: <?php echo $power_pie_chart[6];?>,
+        data: <?php echo $power_pie_chart[6]; ?>,
         "color": "rgba(217, 83, 79, 1)"
       }
     ];
@@ -343,8 +344,8 @@ foreach ($power_histogram as $key => $value) {
     $.plot('#critical_power', [critical_power], critical_power_options);
 
     var plot_pd = $.plot('#power_distribution', [power_distribution], power_distribution_options);
-    var o = plot_pd.pointOffset({ x: <?php echo $power_metrics['Normalised Power'];?>, y: plot_pd.height() });
-    $("#power_distribution").append("<span style='background-color: #fafafa; top: 12px; color: #333; text-align: center; font-size: 12px; border: 1px solid #ddd; border-radius: 5px; padding: 3px 7px; position: absolute; left:" + (o.left + 6) + "px'><strong>normalised power</strong><br><?php echo $power_metrics['Normalised Power'];?> w</span>");
+    var o = plot_pd.pointOffset({ x: <?php echo $power_metrics['Normalised Power']; ?>, y: plot_pd.height() });
+    $("#power_distribution").append("<span style='background-color: #fafafa; top: 12px; color: #333; text-align: center; font-size: 12px; border: 1px solid #ddd; border-radius: 5px; padding: 3px 7px; position: absolute; left:" + (o.left + 6) + "px'><strong>normalised power</strong><br><?php echo $power_metrics['Normalised Power']; ?> w</span>");
 
     $.plot('#power_pie_chart', power_pie_chart, power_pie_chart_options);
 
