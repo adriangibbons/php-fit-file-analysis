@@ -22,7 +22,6 @@ class phpFITFileAnalysis {
 	private $file_pointer = 0;		// Points to the location in the file that shall be read next.
 	private $defn_mesgs = [];		// Array of FIT 'Definition Messages', which describe the architecture, format, and fields of 'Data Messages'.
 	private $file_header = [];		// Contains information about the FIT file such as the Protocol version, Profile version, and Data Size.
-	private $timestamp = 0;			// Timestamps are used as the indexes for Record data (e.g. Speed, Heart Rate, etc).
 
 	// Enumerated data looked up by enum_data().
 	// Values from 'Profile.xls' contained within the FIT SDK.
@@ -361,6 +360,23 @@ class phpFITFileAnalysis {
 		13	=> 'Ctmp',	// byte
 	);
 
+    private $invalid_values = array(
+        0   => 255,  // enum
+        1   => 127,  // sint8
+        2   => 255,  // uint8
+        131 => 32767,  // sint16
+        132 => 65535,  // uint16
+        133 => 2147483647,  // sint32
+        134 => 4294967295,  // uint32
+        7   => 0,  // string
+        136 => 4294967295,  // float32
+        137 => 9223372036854775807,  // float64
+        10  => 0,  // uint8z
+        139 => 0,  // uint16z
+        140 => 0,  // uint32z
+        13  => 255,  // byte
+    );
+
 	/*
 	 * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
 	 * 4.4 Scale/Offset
@@ -555,10 +571,10 @@ class phpFITFileAnalysis {
 	// PHP Constructor - called when an object of the class is instantiated.
 	function __construct($file_path, $options=NULL) {
 		if(empty($file_path)) {
-			throw new Exception('phpFITFileAnalysis->__construct(): file_path is empty!');
+			throw new \Exception('phpFITFileAnalysis->__construct(): file_path is empty!');
 		}
 		if(!file_exists($file_path)) {
-			throw new Exception('phpFITFileAnalysis->__construct(): file \''.$file_path.'\' does not exist!');
+			throw new \Exception('phpFITFileAnalysis->__construct(): file \''.$file_path.'\' does not exist!');
 		}
 
 		/*
@@ -587,7 +603,7 @@ class phpFITFileAnalysis {
 		$this->file_pointer++;
 
 		if($header_size != 12 && $header_size != 14) {
-			throw new Exception('phpFITFileAnalysis->read_header(): not a valid header size!');
+			throw new \Exception('phpFITFileAnalysis->read_header(): not a valid header size!');
 		}
         $header_fields = 'C1protocol_version/' .
                          'v1profile_version/' .
@@ -604,11 +620,11 @@ class phpFITFileAnalysis {
 		$file_extension = sprintf('%c%c%c%c', $this->file_header['data_type1'], $this->file_header['data_type2'], $this->file_header['data_type3'], $this->file_header['data_type4']);
 
 		if($file_extension != '.FIT' || $this->file_header['data_size'] <= 0) {
-			throw new Exception('phpFITFileAnalysis->read_header(): not a valid FIT file!');
+			throw new \Exception('phpFITFileAnalysis->read_header(): not a valid FIT file!');
 		}
 
 		if(strlen($this->file_contents) - $header_size - 2 !== $this->file_header['data_size']) {
-			throw new Exception('phpFITFileAnalysis->read_header(): file_header[\'data_size\'] does not seem correct!');
+			throw new \Exception('phpFITFileAnalysis->read_header(): file_header[\'data_size\'] does not seem correct!');
 		}
 	}
 
@@ -620,15 +636,7 @@ class phpFITFileAnalysis {
 		$message_type;
 		$local_mesg_type;
 
-        // value signifies invalid data point for that field size
-        $invalid_values = [
-            1=>255,
-            2=>65535,
-            4=>2147483647
-        ];
-
-
-		while($this->file_header['header_size'] + $this->file_header['data_size'] > $this->file_pointer) {
+    	while($this->file_header['header_size'] + $this->file_header['data_size'] > $this->file_pointer) {
 			$record_header_byte = ord(substr($this->file_contents, $this->file_pointer, 1));
 			$this->file_pointer++;
 
@@ -637,7 +645,7 @@ class phpFITFileAnalysis {
 			 * Table 4-1. Normal Header Bit Field Description
 			 */
 			if(($record_header_byte >> 7) & 1) {  // Check that it's a normal header
-				throw new Exception('phpFITFileAnalysis->read_data_records(): this class can only hand normal headers!');
+				throw new \Exception('phpFITFileAnalysis->read_data_records(): this class can only hand normal headers!');
 			}
 			$message_type = ($record_header_byte >> 6) & 1;  // 1: DEFINITION_MESSAGE; 0: DATA_MESSAGE
 			$local_mesg_type = $record_header_byte & 15;  // bindec('1111') == 15
@@ -683,29 +691,37 @@ class phpFITFileAnalysis {
 				case DATA_MESSAGE:
 					// Check that we have information on the Data Message.
 					if(isset($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']])) {
-						foreach($this->defn_mesgs[$local_mesg_type]['field_defns'] as $field_defn) {
-							// Check that we have information on the Field Definition.
-							if(isset($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']])) {
+                        $current_record = [];
 
-								// If it's a Record data message and it's a Timestamp field, store the timestamp...
-								if($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20 && $field_defn['field_definition_number'] === 253) {
-									$this->timestamp = $this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][] = (unpack($this->types[$field_defn['base_type']], substr($this->file_contents, $this->file_pointer, $field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale']) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
-								}
+                        foreach($this->defn_mesgs[$local_mesg_type]['field_defns'] as $field_defn) {
+							// Check that we have information on the Base type and Field Definition.
+							if(isset($this->types[$field_defn['base_type']]) &&
+                               isset($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']])) {
+                                $raw_value = unpack($this->types[$field_defn['base_type']], substr($this->file_contents, $this->file_pointer, $field_defn['size']))['tmp'];
+                                // Check that the value isn't invalid (missing cadence, unknown position etc...ignore those)
+                                if (empty($this->invalid_values[$field_defn['base_type']]) || $raw_value !== $this->invalid_values[$field_defn['base_type']]) {
+                                    // Apply scale and offset to get real value
+                                    $field_value = ($raw_value / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale']) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
 
-								// Else, if it's another field in a Record data message, use the Timestamp as the index.
-								else if($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20) {
-                                    $field_value = (unpack($this->types[$field_defn['base_type']], substr($this->file_contents, $this->file_pointer, $field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale']) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
-                                    if (isset($invalid_values[$field_defn['size']]) && $field_value != $invalid_values[$field_defn['size']]) {
-									   $this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][$this->timestamp] = $field_value;
-                                    }
-								}
+    								// Save to temporary array and wait until we have timestamp to push it to real array
+    								if($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20) {
+    									$current_record[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']] = $field_value;
+    								}
 
-								else if (isset($this->types[$field_defn['base_type']])) {
-									$this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][] = (unpack($this->types[$field_defn['base_type']], substr($this->file_contents, $this->file_pointer, $field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale']) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
-								}
+    								else {
+    									$this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][] = $field_value;
+    								}
+                                }
 							}
 							$this->file_pointer += $field_defn['size'];
 						}
+
+                        // Append records from temporary array to real ones
+                        if (isset($current_record['timestamp'])) {
+                            foreach ($current_record as $key => $value) {
+                                $this->data_mesgs['record'][$key][$current_record['timestamp']] = $value;
+                            }
+                        }
 					}
 					else {
 						$this->file_pointer += $this->defn_mesgs[$local_mesg_type]['total_size'];
@@ -720,6 +736,14 @@ class phpFITFileAnalysis {
 	private function fix_data($options) {
 		if(!isset($options['fix_data']))
 			return;
+        if (!isset($this->data_mesgs['record']) || !is_array($this->data_mesgs['record']['timestamp'])) {
+            /*
+            If we can read only one record from the file (like for swimming activities),
+            it gets converted from array to single value...and there is nothing to fix there
+            */
+            return;
+        }
+
 		array_walk($options['fix_data'], function(&$value) { $value = strtolower($value); } );  // Make all lower-case.
 		$bCadence = $bDistance = $bHeartRate = $bLatitudeLongitude = $bSpeed = $bPower = false;
 		if(in_array('all', $options['fix_data'])) {
@@ -812,7 +836,7 @@ class phpFITFileAnalysis {
 	 */
 	private function interpolate_missing_data(&$missing_keys, &$array){
         if (!is_array($array)) {
-            // can't interpollate from non-array
+            // Can't interpollate from non-array
             return;
         }
 
@@ -825,7 +849,7 @@ class phpFITFileAnalysis {
 
 		for($i=0; $i<count($missing_keys); ++$i) {
 			if($missing_keys[$i] !== 0) {
-                // interpollating outside recorded range is impossible - use edge values instead
+                // Interpollating outside recorded range is impossible - use edge values instead
                 if ($missing_keys[$i] > $max_key) {
                     $array[$missing_keys[$i]] = $array[$max_key];
                     continue;
@@ -1072,7 +1096,7 @@ class phpFITFileAnalysis {
 	 */
 	public function hr_zones_max($hr_maximum, $percentages_array=[0.60, 0.75, 0.85, 0.95]) {
 		if(array_walk($percentages_array, function(&$value, $key, $hr_maximum) { $value = round($value * $hr_maximum); }, $hr_maximum)) return $percentages_array;
-		else throw new Exception('phpFITFileAnalysis->hr_zones_max(): cannot calculate zones, please check inputs!');
+		else throw new \Exception('phpFITFileAnalysis->hr_zones_max(): cannot calculate zones, please check inputs!');
 	}
 
 	/*
@@ -1080,7 +1104,7 @@ class phpFITFileAnalysis {
 	 */
 	public function hr_zones_reserve($hr_resting, $hr_maximum, $percentages_array=[0.60, 0.70, 0.80, 0.90]) {
 		if(array_walk($percentages_array, function(&$value, $key, $params) { $value = round($params[0] + ($value * $params[1])); }, [$hr_resting, $hr_maximum - $hr_resting])) return $percentages_array;
-		else throw new Exception('phpFITFileAnalysis->hr_zones_reserve(): cannot calculate zones, please check inputs!');
+		else throw new \Exception('phpFITFileAnalysis->hr_zones_reserve(): cannot calculate zones, please check inputs!');
 	}
 
 	/*
@@ -1088,20 +1112,20 @@ class phpFITFileAnalysis {
 	 */
 	public function power_zones($functional_threshold_power, $percentages_array=[0.55, 0.75, 0.90, 1.05, 1.20, 1.50]) {
 		if(array_walk($percentages_array, function(&$value, $key, $functional_threshold_power) { $value = round($value * $functional_threshold_power) + 1; }, $functional_threshold_power)) return $percentages_array;
-		else throw new Exception('phpFITFileAnalysis->power_zones(): cannot calculate zones, please check inputs!');
+		else throw new \Exception('phpFITFileAnalysis->power_zones(): cannot calculate zones, please check inputs!');
 	}
 
 	/*
 	 * Partition the data (e.g. cadence, heart_rate, power, speed) using thresholds provided as an array.
 	 */
 	public function partition_data($record_field='', $thresholds=null, $percentages=true, $labels_for_keys=true) {
-		if(!isset($this->data_mesgs['record'][$record_field])) throw new Exception('phpFITFileAnalysis->partition_data(): '.$record_field.' data not present in FIT file!');
-		if(!is_array($thresholds)) throw new Exception('phpFITFileAnalysis->partition_data(): thresholds must be an array e.g. [10,20,30,40,50]!');
+		if(!isset($this->data_mesgs['record'][$record_field])) throw new \Exception('phpFITFileAnalysis->partition_data(): '.$record_field.' data not present in FIT file!');
+		if(!is_array($thresholds)) throw new \Exception('phpFITFileAnalysis->partition_data(): thresholds must be an array e.g. [10,20,30,40,50]!');
 
 		foreach($thresholds as $threshold) {
-			if(!is_numeric($threshold) || $threshold < 0) throw new Exception('phpFITFileAnalysis->partition_data(): '.$threshold.' not valid in thresholds!');
+			if(!is_numeric($threshold) || $threshold < 0) throw new \Exception('phpFITFileAnalysis->partition_data(): '.$threshold.' not valid in thresholds!');
 			if(isset($last_threshold) && $last_threshold >= $threshold) {
-				throw new Exception('phpFITFileAnalysis->partition_data(): error near ..., '.$last_threshold.', '.$threshold.', ... - each element in thresholds array must be greater than previous element!');
+				throw new \Exception('phpFITFileAnalysis->partition_data(): error near ..., '.$last_threshold.', '.$threshold.', ... - each element in thresholds array must be greater than previous element!');
 			}
 			$last_threshold = $threshold;
 		}
@@ -1142,8 +1166,8 @@ class phpFITFileAnalysis {
 	 * Split data into buckets/bins using a Counting Sort algorithm (http://en.wikipedia.org/wiki/Counting_sort) to generate data for a histogram plot.
 	 */
 	public function histogram($bucket_width=25, $record_field='') {
-		if(!isset($this->data_mesgs['record'][$record_field])) throw new Exception('phpFITFileAnalysis->histogram(): '.$record_field.' data not present in FIT file!');
-		if(!is_numeric($bucket_width) || $bucket_width <= 0) throw new Exception('phpFITFileAnalysis->histogram(): bucket width is not valid!');
+		if(!isset($this->data_mesgs['record'][$record_field])) throw new \Exception('phpFITFileAnalysis->histogram(): '.$record_field.' data not present in FIT file!');
+		if(!is_numeric($bucket_width) || $bucket_width <= 0) throw new \Exception('phpFITFileAnalysis->histogram(): bucket width is not valid!');
 
 		foreach($this->data_mesgs['record'][$record_field] as $value) {
 			$key = round($value / $bucket_width) * $bucket_width;
@@ -1182,7 +1206,7 @@ class phpFITFileAnalysis {
 	 * http://php.net/manual/en/book.trader.php
 	 */
 	public function power_metrics($functional_threshold_power) {
-		if(!isset($this->data_mesgs['record']['power'])) throw new Exception('phpFITFileAnalysis->power_metrics(): power data not present in FIT file!');
+		if(!isset($this->data_mesgs['record']['power'])) throw new \Exception('phpFITFileAnalysis->power_metrics(): power data not present in FIT file!');
 
 		$power_metrics['Average Power'] = array_sum($this->data_mesgs['record']['power']) / count($this->data_mesgs['record']['power']);
 		$power_metrics['Kilojoules'] = ($power_metrics['Average Power'] * count($this->data_mesgs['record']['power'])) / 1000;
@@ -1227,14 +1251,14 @@ class phpFITFileAnalysis {
 	 * Returns Critical Power (Best Efforts) values for supplied time period(s).
 	 */
 	public function critical_power($time_periods) {
-		if(!isset($this->data_mesgs['record']['power'])) throw new Exception('phpFITFileAnalysis->critical_power(): power data not present in FIT file!');
-		if(!extension_loaded('trader')) throw new Exception('phpFITFileAnalysis->critical_power(): Trader extension not loaded - http://php.net/manual/en/book.trader.php');
+		if(!isset($this->data_mesgs['record']['power'])) throw new \Exception('phpFITFileAnalysis->critical_power(): power data not present in FIT file!');
+		if(!extension_loaded('trader')) throw new \Exception('phpFITFileAnalysis->critical_power(): Trader extension not loaded - http://php.net/manual/en/book.trader.php');
 
 		if(is_array($time_periods)) {
 			$count = count($this->data_mesgs['record']['power']);
 			foreach($time_periods as $time_period) {
-				if(!is_numeric($time_period)) throw new Exception('phpFITFileAnalysis->critical_power(): time periods must only contain numeric data!');
-				if($time_period < 0) throw new Exception('phpFITFileAnalysis->critical_power(): time periods cannot be negative!');
+				if(!is_numeric($time_period)) throw new \Exception('phpFITFileAnalysis->critical_power(): time periods must only contain numeric data!');
+				if($time_period < 0) throw new \Exception('phpFITFileAnalysis->critical_power(): time periods cannot be negative!');
 				if($time_period > $count) break;
 
 				$averages = trader_sma($this->data_mesgs['record']['power'], $time_period);
@@ -1258,7 +1282,7 @@ class phpFITFileAnalysis {
 
 			return $critical_power_values;
 		}
-		else throw new Exception('phpFITFileAnalysis->critical_power(): time periods not valid!');
+		else throw new \Exception('phpFITFileAnalysis->critical_power(): time periods not valid!');
 	}
 
 	/*
