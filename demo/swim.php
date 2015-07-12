@@ -1,16 +1,17 @@
 <?php
+    use adriangibbons\FitAnalysis\phpFITFileAnalysis;
+
 	/*
 	 * Demonstration of the phpFITFileAnalysis class using Twitter Bootstrap framework
 	 * https://github.com/adriangibbons/php-FIT-File-Analysis
 	 *
 	 * If you find this useful, feel free to drop me a line at Adrian.GitHub@gmail.com
 	 */
-	require('classes/php-FIT-File-Analysis.php');
-	require('libraries/PolylineEncoder.php');		// https://github.com/dyaaj/polyline-encoder
-	require('libraries/Line_DouglasPeucker.php');	// https://github.com/gregallensworth/PHP-Geometry
-	try {
-		$file = 'fit_files/GitHub_swim_demo.FIT';
-		
+    require __DIR__ . '/../php-FIT-File-Analysis.php';
+    require __DIR__ . '/libraries/Line_DouglasPeucker.php'; // https://github.com/gregallensworth/PHP-Geometry
+    try {
+        $file = __DIR__ . '/fit_files/GitHub_swim_demo.FIT';
+
 		$options = [
 	//		'fix_data'	=> [],
 			'units'		=> 'raw',
@@ -22,7 +23,7 @@
 		echo 'caught exception: '.$e->getMessage();
 		die();
 	}
-	
+
 	$units = 'm';
 	$pool_length = $pFFA->data_mesgs['session']['pool_length'];
 	$total_distance = number_format($pFFA->data_mesgs['record']['distance']);
@@ -158,7 +159,7 @@
       lines: { show: true, fill: false, lineWidth: 2 },
       points: { show: false }
     };
-    
+
 	var num_strokes = {
       'color': 'rgba(11, 98, 164, 0.5)',
 	  'label': 'Number of Strokes',
@@ -176,7 +177,7 @@
       points: { show: false },
 	  yaxis: 2
     };
-        	
+
     $.plot('#lap_times', [lap_times, num_strokes], chart_options);
   });
 </script>

@@ -1,4 +1,6 @@
 <?php
+    use adriangibbons\FitAnalysis\phpFITFileAnalysis;
+
 	/*
 	 * Demonstration of the phpFITFileAnalysis class using Twitter Bootstrap framework
 	 * https://github.com/adriangibbons/php-FIT-File-Analysis
@@ -7,12 +9,12 @@
 	 *
 	 * If you find this useful, feel free to drop me a line at Adrian.GitHub@gmail.com
 	 */
-	require('classes/php-FIT-File-Analysis.php');
-	require('libraries/PolylineEncoder.php');		// https://github.com/dyaaj/polyline-encoder
-	require('libraries/Line_DouglasPeucker.php');	// https://github.com/gregallensworth/PHP-Geometry
+    require __DIR__ . '/../php-FIT-File-Analysis.php';
+    require __DIR__ . '/libraries/PolylineEncoder.php'; // https://github.com/dyaaj/polyline-encoder
+    require __DIR__ . '/libraries/Line_DouglasPeucker.php'; // https://github.com/gregallensworth/PHP-Geometry
 	try {
-		$file = 'fit_files/GitHub_cycle-MTB_demo.FIT';
-		
+		$file = __DIR__ . '/fit_files/GitHub_cycle-MTB_demo.FIT';
+
 		$options = [
 	// Just using the defaults so no need to provide
 	//		'fix_data'	=> [],
@@ -25,41 +27,41 @@
 		echo 'caught exception: '.$e->getMessage();
 		die();
 	}
-	
+
 	// Google Static Maps API
 	$position_lat = $pFFA->data_mesgs['record']['position_lat'];
 	$position_long = $pFFA->data_mesgs['record']['position_long'];
 	$lat_long_combined = [];
-	
+
 	foreach($position_lat as $key => $value) {  // Assumes every lat has a corresponding long
 		$lat_long_combined[] = [$position_lat[$key],$position_long[$key]];
 	}
-	
+
 	$delta = 0.0001;
 	do {
 		$RDP_LatLng_coord = simplify_RDP($lat_long_combined,$delta);  // Simplify the array of coordinates using the Ramer-Douglas-Peucker algorithm.
 		$delta += 0.0001;  // Rough accuracy somewhere between 4m and 12m depending where in the World coordinates are, source http://en.wikipedia.org/wiki/Decimal_degrees
-	
+
 		$polylineEncoder = new PolylineEncoder();  // Create an encoded string to pass as the path variable for the Google Static Maps API
 		foreach($RDP_LatLng_coord as $RDP)
 			$polylineEncoder->addPoint($RDP[0], $RDP[1]);
 		$map_encoded_polyline = $polylineEncoder->encodedString();
-	
+
 		$map_string = '&path=color:red%7Cenc:'.$map_encoded_polyline;
 	} while(strlen($map_string) > 1800);  // Google Map web service URL limit is 2048 characters. 1800 is arbitrary attempt to stay under 2048
-	
+
 	$LatLng_start = implode(',',$lat_long_combined[0]);
 	$LatLng_finish = implode(',',$lat_long_combined[count($lat_long_combined)-1]);
-	
+
 	$map_string .= '&markers=color:red%7Clabel:F%7C'.$LatLng_finish.'&markers=color:green%7Clabel:S%7C'.$LatLng_start;
-	
-	
+
+
 	// Google Time Zone API
 	$date = new DateTime('1989-12-31', new DateTimeZone('UTC'));  // FIT timestamps are seconds since UTC 00:00:00 Dec 31 1989, source FIT SDK
 	$date_s = $date->getTimestamp() + $pFFA->data_mesgs['session']['start_time'];
-	
+
 	$url_tz = 'https://maps.googleapis.com/maps/api/timezone/json?location='.$LatLng_start.'&timestamp='.$date_s.'&key=AIzaSyDlPWKTvmHsZ-X6PGsBPAvo0nm1-WdwuYE';
-	
+
 	$result = file_get_contents($url_tz);
 	$json_tz = json_decode($result);
 	if($json_tz->status == 'OK') {
@@ -69,8 +71,8 @@
 		$json_tz->timeZoneName = 'Error';
 	}
 	$date->setTimestamp($date_s);
-	
-	
+
+
 	// Google Geocoding API
 	$location = 'Error';
 	$url_coord = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.$LatLng_start.'&key=AIzaSyDlPWKTvmHsZ-X6PGsBPAvo0nm1-WdwuYE';
@@ -243,7 +245,7 @@
 ?>
       ]
     };
-	
+
 	var heart_rate_options = {
       lines: { show: true, fill: true, fillColor: 'rgba(255, 0, 0, .4)', lineWidth: 1 },
       points: { show: false },
@@ -278,7 +280,7 @@
 ?>
       ]
     };
-        	
+
     $.plot('#speed', [speed], speed_options);
 	$.plot('#heart_rate', [heart_rate], heart_rate_options);
   });

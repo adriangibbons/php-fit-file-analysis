@@ -1,28 +1,30 @@
 <?php
-	require('classes/php-FIT-File-Analysis.php');
-	
+    use adriangibbons\FitAnalysis\phpFITFileAnalysis;
+
+    require __DIR__ . '/../php-FIT-File-Analysis.php';
+
 	try {
 		$file = '';
-		
+
 		$options = [
 	//		'fix_data' => ['all'],
 			'units' => ['metric']
 		];
 		$pFFA = new phpFITFileAnalysis($file, $options);
-		
+
 		// Google Time Zone API
 		$date = new DateTime("1989-12-31", new DateTimeZone("UTC"));  // timestamp[s]: seconds since UTC 00:00:00 Dec 31 1989
 		$date_s = $date->getTimestamp() + $pFFA->data_mesgs['session']['start_time'];
-		
+
 		$url_tz = "https://maps.googleapis.com/maps/api/timezone/json?location=".reset($pFFA->data_mesgs['record']['position_lat']).','.reset($pFFA->data_mesgs['record']['position_long'])."&timestamp=".$date_s."&key=AIzaSyDlPWKTvmHsZ-X6PGsBPAvo0nm1-WdwuYE";
-		
+
 		$result = file_get_contents("$url_tz");
 		$json_tz = json_decode($result);
 		if($json_tz->status == "OK") {
 			$date_s = $date_s + $json_tz->rawOffset + $json_tz->dstOffset;
 		}
 		$date->setTimestamp($date_s);
-		
+
 		$power_metrics = $pFFA->power_metrics(312);
 		$critical_power = $pFFA->critical_power([2,3,5,10,30,60,120,300,600,1200,3600,7200,10800,18000]);
 		$power_histogram = $pFFA->power_histogram();
@@ -76,7 +78,7 @@
   </div>
   <div class="row">
     <div class="col-md-10 col-md-offset-1">
-      
+
       <div class="panel panel-default">
         <div class="panel-heading">
           <h3 class="panel-title"><i class="fa fa-tachometer"></i> Power Metrics</h3></a>
@@ -89,7 +91,7 @@
 		  ?>
         </div>
       </div>
-      
+
       <div class="panel panel-default">
         <div class="panel-heading">
           <h3 class="panel-title"><i class="fa fa-line-chart"></i> Critical Power</h3></a>
@@ -98,7 +100,7 @@
           <div id="critical_power" style="width:100%; height:300px"></div>
         </div>
       </div>
-      
+
       <div class="panel panel-default">
         <div class="panel-heading">
           <h3 class="panel-title"><i class="fa fa-bar-chart"></i> Power Distribution (histogram)</h3>
@@ -107,7 +109,7 @@
           <div id="power_distribution" style="width:100%; height:300px"></div>
         </div>
       </div>
-        
+
       <div class="panel panel-default">
         <div class="panel-heading">
           <h3 class="panel-title"><i class="fa fa-pie-chart"></i> Power Zones</h3>
@@ -147,7 +149,7 @@
 <script language="javascript" type="text/javascript" src="js/jquery.flot.pie.min.js"></script>
 <script type="text/javascript">
   $(document).ready( function() {
-    
+
     var critical_power_options = {
       lines: { show: true, fill: true, fillColor: "rgba(11, 98, 164, 0.5)", lineWidth: 1 },
       points: { show: true },
@@ -179,7 +181,7 @@
         }
       }
     };
-	
+
 	var critical_power = {
       'color': 'rgba(11, 98, 164, 1)',
       'data': [
@@ -190,9 +192,9 @@
 ?>
       ]
     };
-    
+
     var markings = [{ color: "rgba(203, 75, 75, 1)", lineWidth: 2, xaxis: { from: <?php echo $power_metrics['Normalised Power']; ?>, to: <?php echo $power_metrics['Normalised Power']; ?> } }];
-	    
+
 	var power_distribution_options = {
       points: { show: false },
       xaxis: {
@@ -232,7 +234,7 @@
 ?>
       ]
     };
-	
+
     var power_pie_chart_options = {
       series: {
         pie: {
@@ -248,11 +250,11 @@
       grid: { hoverable: true },
       legend: { show: false }
     };
-	
+
     function labelFormatter(label, series) {
       return "<div style='font-size:8pt; text-align:center; padding:2px; color:#333; border-radius: 5px; background-color: #fafafa; border: 1px solid #ddd;'><strong>" + label + "</strong><br/>" + series.data[0][1] + "%</div>";
     }
-    
+
 	var power_pie_chart = [
       {
         label: "Active Recovery",
@@ -290,7 +292,7 @@
         "color": "rgba(217, 83, 79, 1)"
       }
     ];
-    
+
     $("<div id='tooltip_bg'></div>").css({
        position: "absolute",
        display: "none",
@@ -304,7 +306,7 @@
        "color": "#fff",
        "background-color": "#fff"
      }).appendTo("body");
-     
+
      $("<div id='tooltip'></div>").css({
        position: "absolute",
        display: "none",
@@ -317,16 +319,16 @@
        "font-size": "12px",
        "color": "#555"
      }).appendTo("body");
-     
+
      $("#critical_power").bind("plothover", function (event, pos, item) {
        if (item) {
          var x = item.datapoint[0].toFixed(2),
          y = item.datapoint[1].toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                	
+
       var currentColor = item.series.color;
       var lastComma = currentColor.lastIndexOf(',');
       var newColor = currentColor.slice(0, lastComma + 1) + "0.1)";
-      
+
       $("#tooltip").html('<strong>' + item.series.xaxis.ticks[item.dataIndex].label + '</strong><br>' + y + ' w')
         .css({top: item.pageY-45, left: item.pageX+5, "border-color": item.series.color, "background-color": newColor })
         .fadeIn(200);
@@ -338,16 +340,16 @@
         $("#tooltip_bg").hide();
       }
 	});
-    
+
     $.plot('#critical_power', [critical_power], critical_power_options);
-    
+
     var plot_pd = $.plot('#power_distribution', [power_distribution], power_distribution_options);
     var o = plot_pd.pointOffset({ x: <?php echo $power_metrics['Normalised Power']; ?>, y: plot_pd.height() });
     $("#power_distribution").append("<span style='background-color: #fafafa; top: 12px; color: #333; text-align: center; font-size: 12px; border: 1px solid #ddd; border-radius: 5px; padding: 3px 7px; position: absolute; left:" + (o.left + 6) + "px'><strong>normalised power</strong><br><?php echo $power_metrics['Normalised Power']; ?> w</span>");
-    
+
     $.plot('#power_pie_chart', power_pie_chart, power_pie_chart_options);
-	
-	
+
+
     $("#power_pie_chart").bind("plothover", function (event, pos, obj) {
       if (!obj) {
         $("#power_zones_table tr").removeClass("danger");
