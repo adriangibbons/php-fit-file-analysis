@@ -5,22 +5,23 @@
  * A PHP class for Analysing FIT files created by Garmin GPS devices.
  * Adrian Gibbons, 2015
  * Adrian.GitHub@gmail.com
- * 
+ *
  * https://github.com/adriangibbons/php-FIT-File-Analysis
  * http://www.thisisant.com/resources/fit
  */
- 
+
 define('DEFINITION_MESSAGE', 1);
 define('DATA_MESSAGE', 0);
 
 class phpFITFileAnalysis {
 	public $data_mesgs = [];  // Used to store the data read from the file in associative arrays.
 	
-	private $file_contents = '';	// FIT file is read-in to memory as a string, split into an array, and reversed. See __construct().
-	private $file_pointer = 0;		// Points to the location in the file that shall be read next.
-	private $defn_mesgs = [];		// Array of FIT 'Definition Messages', which describe the architecture, format, and fields of 'Data Messages'.
-	private $file_header = [];		// Contains information about the FIT file such as the Protocol version, Profile version, and Data Size.
-	private $timestamp = 0;			// Timestamps are used as the indexes for Record data (e.g. Speed, Heart Rate, etc).
+	private $file_contents = '';			// FIT file is read-in to memory as a string, split into an array, and reversed. See __construct().
+	private $file_pointer = 0;				// Points to the location in the file that shall be read next.
+	private $defn_mesgs = [];				// Array of FIT 'Definition Messages', which describe the architecture, format, and fields of 'Data Messages'.
+	private $file_header = [];				// Contains information about the FIT file such as the Protocol version, Profile version, and Data Size.
+	private $timestamp = 0;					// Timestamps are used as the indexes for Record data (e.g. Speed, Heart Rate, etc).
+	private $php_trader_ext_loaded = false;	// Is the PHP Trader extension loaded? Use $this->sma() algorithm if not available.
 	
 	// Enumerated data looked up by enum_data().
 	// Values from 'Profile.xls' contained within the FIT SDK.
@@ -549,7 +550,7 @@ class phpFITFileAnalysis {
 			]
 		]
 	];
-	
+
 	// PHP Constructor - called when an object of the class is instantiated.
 	function __construct($file_path, $options=NULL) {
 		if(empty($file_path)) {
@@ -558,6 +559,7 @@ class phpFITFileAnalysis {
 		if(!file_exists($file_path)) {
 			throw new Exception('phpFITFileAnalysis->__construct(): file \''.$file_path.'\' does not exist!');
 		}
+		$this->php_trader_ext_loaded = extension_loaded('trader');
 		
 		/*
 	 	 * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
@@ -1052,7 +1054,7 @@ class phpFITFileAnalysis {
 		if(array_walk($percentages_array, function(&$value, $key, $params) { $value = round($params[0] + ($value * $params[1])); }, [$hr_resting, $hr_maximum - $hr_resting])) return $percentages_array;
 		else throw new Exception('phpFITFileAnalysis->hr_zones_reserve(): cannot calculate zones, please check inputs!');
 	}
-	
+    
 	/*
 	 * Calculate power zones using Functional Threshold Power value: zone = FTP * percentage.
 	 */
@@ -1146,6 +1148,21 @@ class phpFITFileAnalysis {
 	}
 	
 	/*
+	 * Simple moving average algorithm
+	 */
+	private function sma($array, $time_period) {
+		$sma_data = [];
+		$data = array_values($array);
+		$count = count($array);
+		
+		for($i=0; $i<$count-$time_period; ++$i) {
+			$sma_data[] = array_sum(array_slice($array, $i, $time_period)) / $time_period;
+		}
+		
+		return $sma_data;
+	}
+
+	/*
 	 * Returns 'Average Power', 'Kilojoules', 'Normalised Power', 'Variability Index', 'Intensity Factor', and 'Training Stress Score' in an array.
 	 * 
 	 * Normalised Power (and metrics dependent on it) require the PHP trader extension to be loaded
@@ -1157,38 +1174,27 @@ class phpFITFileAnalysis {
 		$power_metrics['Average Power'] = array_sum($this->data_mesgs['record']['power']) / count($this->data_mesgs['record']['power']);
 		$power_metrics['Kilojoules'] = ($power_metrics['Average Power'] * count($this->data_mesgs['record']['power'])) / 1000;
 		
-		if(extension_loaded('trader')) {
-			$NP_values = trader_sma($this->data_mesgs['record']['power'], 30);  // NP1 capture all values for rolling 30s averages
-			
-			$NormalisedPower = 0.0;
-			foreach($NP_values as $value) {  // NP2 Raise all the values obtained in step NP1 to the fourth power
-				$NormalisedPower += pow($value,4);
-			}
-			$NormalisedPower /= count($NP_values);  // NP3 Find the average of the values in NP2
-			$power_metrics['Normalised Power'] = pow($NormalisedPower, 1/4);  // NP4 taking the fourth root of the value obtained in step NP3
-			
-			$power_metrics['Variability Index'] = $power_metrics['Normalised Power'] / $power_metrics['Average Power'];
-			$power_metrics['Intensity Factor'] = $power_metrics['Normalised Power'] / $functional_threshold_power;
-			$power_metrics['Training Stress Score'] = (count($this->data_mesgs['record']['power']) * $power_metrics['Normalised Power'] * $power_metrics['Intensity Factor']) / ($functional_threshold_power * 36);
-			
-			// Round the values to make them something sensible.
-			$power_metrics['Average Power'] = (int)round($power_metrics['Average Power']);
-			$power_metrics['Kilojoules'] = (int)round($power_metrics['Kilojoules']);
-			$power_metrics['Normalised Power'] = (int)round($power_metrics['Normalised Power']);
-			$power_metrics['Variability Index'] = round($power_metrics['Variability Index'], 2);
-			$power_metrics['Intensity Factor'] = round($power_metrics['Intensity Factor'], 2);
-			$power_metrics['Training Stress Score'] = (int)round($power_metrics['Training Stress Score']);
+		// NP1 capture all values for rolling 30s averages
+		$NP_values = ($this->php_trader_ext_loaded) ? trader_sma($this->data_mesgs['record']['power'], 30) : $this->sma($this->data_mesgs['record']['power'], 30);
+		
+		$NormalisedPower = 0.0;
+		foreach($NP_values as $value) {  // NP2 Raise all the values obtained in step NP1 to the fourth power
+			$NormalisedPower += pow($value,4);
 		}
-		else {
-			$power_metrics['Normalised Power'] = 'Trader extension not loaded - http://php.net/manual/en/book.trader.php';
-			$power_metrics['Variability Index'] = 'Trader extension not loaded - http://php.net/manual/en/book.trader.php';
-			$power_metrics['Intensity Factor'] = 'Trader extension not loaded - http://php.net/manual/en/book.trader.php';
-			$power_metrics['Training Stress Score'] = 'Trader extension not loaded - http://php.net/manual/en/book.trader.php';
-			
-			// Round the values to make them something sensible.
-			$power_metrics['Average Power'] = (int)round($power_metrics['Average Power']);
-			$power_metrics['Kilojoules'] = (int)round($power_metrics['Kilojoules']);
-		}
+		$NormalisedPower /= count($NP_values);  // NP3 Find the average of the values in NP2
+		$power_metrics['Normalised Power'] = pow($NormalisedPower, 1/4);  // NP4 taking the fourth root of the value obtained in step NP3
+		
+		$power_metrics['Variability Index'] = $power_metrics['Normalised Power'] / $power_metrics['Average Power'];
+		$power_metrics['Intensity Factor'] = $power_metrics['Normalised Power'] / $functional_threshold_power;
+		$power_metrics['Training Stress Score'] = (count($this->data_mesgs['record']['power']) * $power_metrics['Normalised Power'] * $power_metrics['Intensity Factor']) / ($functional_threshold_power * 36);
+		
+		// Round the values to make them something sensible.
+		$power_metrics['Average Power'] = (int)round($power_metrics['Average Power']);
+		$power_metrics['Kilojoules'] = (int)round($power_metrics['Kilojoules']);
+		$power_metrics['Normalised Power'] = (int)round($power_metrics['Normalised Power']);
+		$power_metrics['Variability Index'] = round($power_metrics['Variability Index'], 2);
+		$power_metrics['Intensity Factor'] = round($power_metrics['Intensity Factor'], 2);
+		$power_metrics['Training Stress Score'] = (int)round($power_metrics['Training Stress Score']);
 		
 		return $power_metrics;
 	}
@@ -1198,7 +1204,6 @@ class phpFITFileAnalysis {
 	 */
 	public function critical_power($time_periods) {
 		if(!isset($this->data_mesgs['record']['power'])) throw new Exception('phpFITFileAnalysis->critical_power(): power data not present in FIT file!');
-		if(!extension_loaded('trader')) throw new Exception('phpFITFileAnalysis->critical_power(): Trader extension not loaded - http://php.net/manual/en/book.trader.php');
 		
 		if(is_array($time_periods)) {
 			$count = count($this->data_mesgs['record']['power']);
@@ -1207,7 +1212,7 @@ class phpFITFileAnalysis {
 				if($time_period < 0) throw new Exception('phpFITFileAnalysis->critical_power(): time periods cannot be negative!');
 				if($time_period > $count) break;
 				
-				$averages = trader_sma($this->data_mesgs['record']['power'], $time_period);
+				$averages = ($this->php_trader_ext_loaded) ? trader_sma($this->data_mesgs['record']['power'], $time_period) : $this->sma($this->data_mesgs['record']['power'], $time_period);
 				if($averages !== false) {
 					$critical_power_values[$time_period] = max($averages);
 				}
@@ -1220,7 +1225,7 @@ class phpFITFileAnalysis {
 				$critical_power_values[$time_periods] = 0;
 			}
 			else {
-				$averages = trader_sma($this->data_mesgs['record']['power'], $time_periods);
+				$averages = ($this->php_trader_ext_loaded) ? trader_sma($this->data_mesgs['record']['power'], $time_periods) : $this->sma($this->data_mesgs['record']['power'], $time_periods);
 				if($averages !== false) {
 					$critical_power_values[$time_periods] = max($averages);
 				}
