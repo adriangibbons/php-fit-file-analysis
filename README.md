@@ -271,6 +271,7 @@ $pFFA->hr_metrics($hr_resting, $hr_maximum, $hr_FT, $gender);
 **Heart Rate metrics:**
  * TRIMP (TRaining IMPulse)
  * Intensity Factor
+
 ###Power
 Two functions exist for analysing power data:
 ```php
