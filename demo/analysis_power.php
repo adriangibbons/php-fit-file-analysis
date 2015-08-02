@@ -2,7 +2,7 @@
 	require('classes/php-FIT-File-Analysis.php');
 	
 	try {
-		$file = '';
+		$file = 'fit_files/GitHub_stationary-bike-power_demo.FIT';
 		
 		$options = [
 	//		'fix_data' => ['all'],
@@ -10,19 +10,12 @@
 		];
 		$pFFA = new phpFITFileAnalysis($file, $options);
 		
-		// Google Time Zone API
+		// Time and date of ride (can't use Google timezone API as no lat/long in stationary trainer file
 		$date = new DateTime("1989-12-31", new DateTimeZone("UTC"));  // timestamp[s]: seconds since UTC 00:00:00 Dec 31 1989
 		$date_s = $date->getTimestamp() + $pFFA->data_mesgs['session']['start_time'];
-		
-		$url_tz = "https://maps.googleapis.com/maps/api/timezone/json?location=".reset($pFFA->data_mesgs['record']['position_lat']).','.reset($pFFA->data_mesgs['record']['position_long'])."&timestamp=".$date_s."&key=AIzaSyDlPWKTvmHsZ-X6PGsBPAvo0nm1-WdwuYE";
-		
-		$result = file_get_contents("$url_tz");
-		$json_tz = json_decode($result);
-		if($json_tz->status == "OK") {
-			$date_s = $date_s + $json_tz->rawOffset + $json_tz->dstOffset;
-		}
 		$date->setTimestamp($date_s);
 		
+		$hr_metrics = $pFFA->hr_metrics(52, 185, 172, 'male');
 		$power_metrics = $pFFA->power_metrics(312);
 		$critical_power = $pFFA->critical_power([2,3,5,10,30,60,120,300,600,1200,3600,7200,10800,18000]);
 		$power_histogram = $pFFA->power_histogram();
@@ -63,10 +56,7 @@
   <div class="col-md-6">
     <dl class="dl-horizontal">
       <dt>Recorded: </dt>
-      <dd>
-<?php
-	echo $date->format('D, d-M-y @ g:ia');
-?>
+      <dd><?php echo $date->format('D, d-M-y @ g:ia'); ?>
       </dd>
       <dt>Duration: </dt>
       <dd><?php echo gmdate('H:i:s', $pFFA->data_mesgs['session']['total_elapsed_time']); ?></dd>
@@ -79,14 +69,25 @@
       
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h3 class="panel-title"><i class="fa fa-tachometer"></i> Power Metrics</h3></a>
+          <h3 class="panel-title"><i class="fa fa-tachometer"></i> Metrics</h3></a>
         </div>
         <div class="panel-body">
-          <?php
-		  	foreach($power_metrics as $key => $value) {
-				echo "$key: $value<br>";
-			}
-		  ?>
+          <div class="col-md-5 col-md-offset-1">
+            <h4>Power</h4>
+            <?php
+	          foreach($power_metrics as $key => $value) {
+                echo "$key: $value<br>";
+              }
+            ?>
+          </div>
+          <div class="col-md-5">
+            <h4>Heart Rate</h4>
+            <?php
+	          foreach($hr_metrics as $key => $value) {
+                echo "$key: $value<br>";
+              }
+            ?>
+          </div>
         </div>
       </div>
       
