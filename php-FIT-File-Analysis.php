@@ -5,6 +5,9 @@
  * A PHP class for Analysing FIT files created by Garmin GPS devices.
  * Adrian Gibbons, 2015
  * Adrian.GitHub@gmail.com
+ * 
+ * G Frogley edits, June 2016
+ * Added code to generate TRIMPexp and hrIF (Intensity Factor) value to measure session if Power is not present
  *
  * https://github.com/adriangibbons/php-FIT-File-Analysis
  * http://www.thisisant.com/resources/fit
@@ -1165,6 +1168,32 @@ class phpFITFileAnalysis {
 		
 		return $sma_data;
 	}
+	
+	public function hr_zones_reserve($hr_resting, $hr_maximum, $percentages_array=[0.60, 0.65, 0.75, 0.82, 0.89, 0.94 ]) {
+    
+	/*
+	 * Calculate TRIMP (TRaining IMPulse) and an Intensity Factor using HR data. Useful if power data not available.
+	 */
+    public function hrAnalysis($hr_resting, $hr_maximum, $hrFT, $gender) {
+        $hrAnalysis = [  // array to hold HR analysis data
+            'TRIMPexp' => 0.0,
+            'hrIF' => 0.0,
+        ];
+        if(in_array($gender, ['F', 'f', 'Female', 'female'])) {
+            $gender_coeff = 1.67;
+        } else {
+            $gender_coeff = 1.92;
+        }
+        foreach($this->data_mesgs['record']['heart_rate'] as $hr) {
+			// TRIMPexp formula from http://fellrnr.com/wiki/TRIMP
+			// TRIMPexp = sum(D x HRr x 0.64ey)
+            $temp_heart_rate = ($hr - $hr_resting) / ($hr_maximum - $hr_resting);
+            $hrAnalysis['TRIMPexp'] += ((1/60) * $temp_heart_rate * 0.64 * (exp($gender_coeff * $temp_heart_rate))); 
+        }
+		$hrAnalysis['hrIF'] = (array_sum($this->data_mesgs['record']['heart_rate'])/(count($this->data_mesgs['record']['heart_rate']))) / $hrFT;
+		
+		return $hrAnalysis;
+    }
 
 	/*
 	 * Returns 'Average Power', 'Kilojoules', 'Normalised Power', 'Variability Index', 'Intensity Factor', and 'Training Stress Score' in an array.
