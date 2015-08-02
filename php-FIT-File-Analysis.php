@@ -9,6 +9,10 @@
  * https://github.com/adriangibbons/php-FIT-File-Analysis
  * http://www.thisisant.com/resources/fit
  */
+ 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(-1);
 
 define('DEFINITION_MESSAGE', 1);
 define('DATA_MESSAGE', 0);
