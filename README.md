@@ -276,7 +276,7 @@ $pFFA->critical_power($time_periods);  // e.g. 300 or [300, 600, 900, 1200]
 
 **Critical Power** (or Best Effort) is the highest average power sustained for a specified period of time within the activity. You can supply a single time period (in seconds), or an array or time periods.
 
-Note that ```$pFFA->critical_power``` and some power metrics (Normalised Power, Variability Index, Intensity Factor, Training Stress Score) are dependent on the [PHP Trader](http://php.net/manual/en/book.trader.php) extension being loaded on the server.
+Note that ```$pFFA->critical_power``` and some power metrics (Normalised Power, Variability Index, Intensity Factor, Training Stress Score) will use the [PHP Trader](http://php.net/manual/en/book.trader.php) extension if it is loaded on the server. If the extension is not loaded then it will use the built-in Simple Moving Average algorithm, which is far less performant particularly for larger files!
 
 
 A demo of power analysis is available [here](http://www.adriangibbons.com/php-FIT-File-Analysis-demo/analysis_power.php).
