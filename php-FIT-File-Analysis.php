@@ -1191,7 +1191,8 @@ class phpFITFileAnalysis {
             $temp_heart_rate = ($hr - $hr_resting) / ($hr_maximum - $hr_resting);
             $hr_metrics['TRIMPexp'] += ((1/60) * $temp_heart_rate * 0.64 * (exp($gender_coeff * $temp_heart_rate))); 
         }
-		$hr_metrics['hrIF'] = (array_sum($this->data_mesgs['record']['heart_rate'])/(count($this->data_mesgs['record']['heart_rate']))) / $hr_FT;
+		$hr_metrics['TRIMPexp'] = round($hr_metrics['TRIMPexp']);
+		$hr_metrics['hrIF'] = round((array_sum($this->data_mesgs['record']['heart_rate'])/(count($this->data_mesgs['record']['heart_rate']))) / $hr_FT, 2);
 		
 		return $hr_metrics;
     }
