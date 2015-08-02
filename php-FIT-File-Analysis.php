@@ -808,12 +808,28 @@ class phpFITFileAnalysis {
 	 * For the missing keys in the data, interpolate using values either side and insert as necessary.
 	 */
 	private function interpolate_missing_data(&$missing_keys, &$array){
+		if (!is_array($array)) {
+            return;  // Can't interpolate if not an array
+        }
+		
 		$num_points = 2;
 		$prev_value;
 		$next_value;
 		
+		$min_key = min(array_keys($array));
+		$max_key = max(array_keys($array));
+		
 		for($i=0; $i<count($missing_keys); ++$i) {
 			if($missing_keys[$i] !== 0) {
+				// Interpolating outside recorded range is impossible - use edge values instead
+				if ($missing_keys[$i] > $max_key) {
+					$array[$missing_keys[$i]] = $array[$max_key];
+					continue;
+				} else if ($missing_keys[$i] < $max_key) {
+					$array[$missing_keys[$i]] = $array[$min_key];
+					continue;
+				}
+				
 				while($missing_keys[$i] > key($array)) {
 					$prev_value = current($array);
 					next($array);
