@@ -1050,7 +1050,7 @@ class phpFITFileAnalysis {
 	/*
 	 * Calculate HR zones using HRreserve formula: zone = HRresting + ((HRmax - HRresting) * percentage).
 	 */
-	public function hr_zones_reserve($hr_resting, $hr_maximum, $percentages_array=[0.60, 0.70, 0.80, 0.90]) {
+	public function hr_zones_reserve($hr_resting, $hr_maximum, $percentages_array=[0.60, 0.65, 0.75, 0.82, 0.89, 0.94 ]) {
 		if(array_walk($percentages_array, function(&$value, $key, $params) { $value = round($params[0] + ($value * $params[1])); }, [$hr_resting, $hr_maximum - $hr_resting])) return $percentages_array;
 		else throw new Exception('phpFITFileAnalysis->hr_zones_reserve(): cannot calculate zones, please check inputs!');
 	}
