@@ -1168,14 +1168,13 @@ class phpFITFileAnalysis {
 		
 		return $sma_data;
 	}
-	
-	public function hr_zones_reserve($hr_resting, $hr_maximum, $percentages_array=[0.60, 0.65, 0.75, 0.82, 0.89, 0.94 ]) {
     
 	/*
 	 * Calculate TRIMP (TRaining IMPulse) and an Intensity Factor using HR data. Useful if power data not available.
+	 * hr_FT is heart rate at Functional Threshold, or Lactate Threshold Heart Rate (LTHR)
 	 */
-    public function hrAnalysis($hr_resting, $hr_maximum, $hrFT, $gender) {
-        $hrAnalysis = [  // array to hold HR analysis data
+    public function hr_metrics($hr_resting, $hr_maximum, $hr_FT, $gender) {
+        $hr_metrics = [  // array to hold HR analysis data
             'TRIMPexp' => 0.0,
             'hrIF' => 0.0,
         ];
@@ -1188,11 +1187,11 @@ class phpFITFileAnalysis {
 			// TRIMPexp formula from http://fellrnr.com/wiki/TRIMP
 			// TRIMPexp = sum(D x HRr x 0.64ey)
             $temp_heart_rate = ($hr - $hr_resting) / ($hr_maximum - $hr_resting);
-            $hrAnalysis['TRIMPexp'] += ((1/60) * $temp_heart_rate * 0.64 * (exp($gender_coeff * $temp_heart_rate))); 
+            $hr_metrics['TRIMPexp'] += ((1/60) * $temp_heart_rate * 0.64 * (exp($gender_coeff * $temp_heart_rate))); 
         }
-		$hrAnalysis['hrIF'] = (array_sum($this->data_mesgs['record']['heart_rate'])/(count($this->data_mesgs['record']['heart_rate']))) / $hrFT;
+		$hr_metrics['hrIF'] = (array_sum($this->data_mesgs['record']['heart_rate'])/(count($this->data_mesgs['record']['heart_rate']))) / $hr_FT;
 		
-		return $hrAnalysis;
+		return $hr_metrics;
     }
 
 	/*

@@ -258,9 +258,20 @@ $pFFA->histogram($bucket_width=25, $record_field='');
 Functions exist to determine thresholds based on percentages of user-supplied data:
 ```php
 $pFFA->hr_zones_max($hr_maximum, $percentages_array=[0.60, 0.75, 0.85, 0.95]);
-$pFFA->hr_zones_reserve($hr_resting, $hr_maximum, $percentages_array=[0.60, 0.70, 0.80, 0.90]);
+$pFFA->hr_zones_reserve($hr_resting, $hr_maximum, $percentages_array=[0.60, 0.65, 0.75, 0.82, 0.89, 0.94 ]) {
 $pFFA->power_zones($functional_threshold_power, $percentages_array=[0.55, 0.75, 0.90, 1.05, 1.20, 1.50]);
 ```
+###Heart Rate
+A function exists for analysing heart rate data:
+```php
+// hr_FT is heart rate at Functional Threshold, or Lactate Threshold Heart Rate
+$pFFA->hr_metrics($hr_resting, $hr_maximum, $hr_FT, $gender);
+// e.g. $pFFA->hr_metrics(52, 189, 172, 'male');
+```
+**Heart Rate metrics:**
+ * TRIMP (TRaining IMPulse)
+ * Intensity Factor
+###Power
 Two functions exist for analysing power data:
 ```php
 $pFFA->power_metrics($functional_threshold_power);  // e.g. 312
