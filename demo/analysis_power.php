@@ -2,7 +2,7 @@
 	require('classes/php-FIT-File-Analysis.php');
 	
 	try {
-		$file = 'fit_files/GitHub_stationary-bike-power_demo.FIT';
+		$file = 'fit_files/GitHub_Zwift-Watopia.FIT';
 		
 		$options = [
 	//		'fix_data' => ['all'],
@@ -10,9 +10,17 @@
 		];
 		$pFFA = new phpFITFileAnalysis($file, $options);
 		
-		// Time and date of ride (can't use Google timezone API as no lat/long in stationary trainer file
+		// Google Time Zone API
 		$date = new DateTime("1989-12-31", new DateTimeZone("UTC"));  // timestamp[s]: seconds since UTC 00:00:00 Dec 31 1989
 		$date_s = $date->getTimestamp() + $pFFA->data_mesgs['session']['start_time'];
+		
+		$url_tz = "https://maps.googleapis.com/maps/api/timezone/json?location=".reset($pFFA->data_mesgs['record']['position_lat']).','.reset($pFFA->data_mesgs['record']['position_long'])."&timestamp=".$date_s."&key=AIzaSyDlPWKTvmHsZ-X6PGsBPAvo0nm1-WdwuYE";
+		
+		$result = file_get_contents("$url_tz");
+		$json_tz = json_decode($result);
+		if($json_tz->status == "OK") {
+			$date_s = $date_s + $json_tz->rawOffset + $json_tz->dstOffset;
+		}
 		$date->setTimestamp($date_s);
 		
 		$hr_metrics = $pFFA->hr_metrics(52, 185, 172, 'male');
