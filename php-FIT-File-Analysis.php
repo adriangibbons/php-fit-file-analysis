@@ -637,7 +637,7 @@ class phpFITFileAnalysis {
 			 * Table 4-1. Normal Header Bit Field Description
 			 */
 			if(($record_header_byte >> 7) & 1) {  // Check that it's a normal header
-				throw new Exception('phpFITFileAnalysis->read_data_records(): this class can only hand normal headers!');
+				throw new Exception('phpFITFileAnalysis->read_data_records(): this class can only handle normal headers!');
 			}
 			$message_type = ($record_header_byte >> 6) & 1;  // 1: DEFINITION_MESSAGE; 0: DATA_MESSAGE
 			$local_mesg_type = $record_header_byte & 15;  // bindec('1111') == 15
