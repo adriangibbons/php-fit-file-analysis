@@ -104,29 +104,31 @@
   </div>
 </div>
 <div class="container">
-  <div class="col-md-6">
-    <dl class="dl-horizontal">
-      <dt>File: </dt>
-      <dd><?php echo $file; ?></dd>
-      <dt>Device: </dt>
-      <dd><?php echo $pFFA->manufacturer() . ' ' . $pFFA->product(); ?></dd>
-      <dt>Sport: </dt>
-      <dd><?php echo $pFFA->sport(); ?></dd>
-    </dl>
-  </div>
-  <div class="col-md-6">
-    <dl class="dl-horizontal">
-      <dt>Recorded: </dt>
-      <dd>
+  <div class="row">
+    <div class="col-md-6">
+      <dl class="dl-horizontal">
+        <dt>File: </dt>
+        <dd><?php echo $file; ?></dd>
+        <dt>Device: </dt>
+        <dd><?php echo $pFFA->manufacturer() . ' ' . $pFFA->product(); ?></dd>
+        <dt>Sport: </dt>
+        <dd><?php echo $pFFA->sport(); ?></dd>
+      </dl>
+    </div>
+    <div class="col-md-6">
+      <dl class="dl-horizontal">
+        <dt>Recorded: </dt>
+        <dd>
 <?php
 	echo $date->format('D, d-M-y @ g:ia');
 ?>
-      </dd>
-      <dt>Duration: </dt>
-      <dd><?php echo gmdate('H:i:s', $pFFA->data_mesgs['session']['total_elapsed_time']); ?></dd>
-      <dt>Distance: </dt>
-      <dd><?php echo max($pFFA->data_mesgs['record']['distance']); ?> km</dd>
-    </dl>
+        </dd>
+        <dt>Duration: </dt>
+        <dd><?php echo gmdate('H:i:s', $pFFA->data_mesgs['session']['total_elapsed_time']); ?></dd>
+        <dt>Distance: </dt>
+        <dd><?php echo max($pFFA->data_mesgs['record']['distance']); ?> km</dd>
+      </dl>
+    </div>
   </div>
   <div class="col-md-2">
     <div class="panel panel-default">
