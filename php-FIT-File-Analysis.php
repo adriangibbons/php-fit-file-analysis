@@ -667,7 +667,7 @@ class phpFITFileAnalysis {
 					
 					$field_definitions = [];
 					$total_size = 0;
-					while($num_fields-- > 0) {
+					for($i=0; $i<$num_fields; ++$i) {
 						$field_definition_number = ord(substr($this->file_contents, $this->file_pointer, 1));
 						$this->file_pointer++;
 						$size = ord(substr($this->file_contents, $this->file_pointer, 1));
