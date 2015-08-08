@@ -1,9 +1,8 @@
 # php-FIT-File-Analysis
-(previously php-FIT-File-Reader; renamed as class does more than just read!)
 
 A PHP class for reading FIT files created by Garmin GPS devices.
 
-A live demonstration can be found [here](http://www.adriangibbons.com/php-FIT-File-Analysis-demo/).
+[Live demonstration](http://www.adriangibbons.com/php-FIT-File-Analysis-demo/) and [power analysis demo](http://www.adriangibbons.com/php-FIT-File-Analysis-demo/analysis_power.php) (Right-click and Open in new tab)
 
 Please read this page in its entirety and the [FAQ](https://github.com/adriangibbons/php-FIT-File-Analysis/wiki/Frequently-Asked-Questions-(FAQ)) first if you have any questions or need support.
 
