@@ -1,8 +1,8 @@
 <?php
-	require('classes/php-FIT-File-Analysis.php');
+	require __DIR__ . '/../php-FIT-File-Analysis.php';
 	
 	try {
-		$file = 'fit_files/GitHub_Zwift-Watopia.FIT';
+		$file = 'fit_files/power-analysis.fit';
 		
 		$options = [
 	//		'fix_data' => ['all'],

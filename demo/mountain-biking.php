@@ -7,11 +7,11 @@
 	 *
 	 * If you find this useful, feel free to drop me a line at Adrian.GitHub@gmail.com
 	 */
-	require('classes/php-FIT-File-Analysis.php');
+	require __DIR__ . '/../php-FIT-File-Analysis.php';
 	require('libraries/PolylineEncoder.php');		// https://github.com/dyaaj/polyline-encoder
 	require('libraries/Line_DouglasPeucker.php');	// https://github.com/gregallensworth/PHP-Geometry
 	try {
-		$file = 'fit_files/GitHub_cycle-MTB_demo.FIT';
+		$file = 'fit_files/mountain-biking.fit';
 		
 		$options = [
 	// Just using the defaults so no need to provide
