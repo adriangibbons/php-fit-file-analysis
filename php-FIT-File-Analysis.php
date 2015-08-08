@@ -1345,10 +1345,10 @@ class phpFITFileAnalysis {
 		echo '</thead>';
 		echo '<tbody>';
 		foreach( $this->defn_mesgs as $key => $val ) {
-			echo  '<tr><td>'.$val['global_mesg_num'].'</td><td>'.$val['num_fields'].'</td><td>';
-			
+			echo  '<tr><td>'.$val['global_mesg_num'].(isset($this->data_mesg_info[$val['global_mesg_num']]) ? ' ('.$this->data_mesg_info[$val['global_mesg_num']]['mesg_name'].')' : ' (unknown)').'</td><td>'.$val['num_fields'].'</td><td>';
 			foreach($val['field_defns'] as $defn) {
-				echo  'defn: '.$defn['field_definition_number'].'; size: '.$defn['size'].'; type: '.$defn['base_type'].'<br>';
+				echo 'defn: '.$defn['field_definition_number'].'; size: '.$defn['size'].'; type: '.$defn['base_type'];
+				echo ' (' . (isset($this->data_mesg_info[$val['global_mesg_num']]['field_defns'][$defn['field_definition_number']]) ? $this->data_mesg_info[$val['global_mesg_num']]['field_defns'][$defn['field_definition_number']]['field_name'] : 'unknown') . ')<br>';
 			}
 			echo  '</td><td>'.$val['total_size'].'</td></tr>';
 		}
