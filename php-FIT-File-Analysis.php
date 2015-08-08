@@ -27,7 +27,6 @@ class phpFITFileAnalysis {
 	private $file_pointer = 0;				// Points to the location in the file that shall be read next.
 	private $defn_mesgs = [];				// Array of FIT 'Definition Messages', which describe the architecture, format, and fields of 'Data Messages'.
 	private $file_header = [];				// Contains information about the FIT file such as the Protocol version, Profile version, and Data Size.
-	private $timestamp = 0;					// Timestamps are used as the indexes for Record data (e.g. Speed, Heart Rate, etc).
 	private $php_trader_ext_loaded = false;	// Is the PHP Trader extension loaded? Use $this->sma() algorithm if not available.
 	
 	// Enumerated data looked up by enum_data().
@@ -683,18 +682,15 @@ class phpFITFileAnalysis {
 				case DATA_MESSAGE:
 					// Check that we have information on the Data Message.
 					if(isset($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']])) {
+						$tmp_record_array = [];  // Temporary array to store Record data message pieces
+						
 						foreach($this->defn_mesgs[$local_mesg_type]['field_defns'] as $field_defn) {
 							// Check that we have information on the Field Definition and a valud base type exists.
 							if(isset($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]) && isset($this->types[$field_defn['base_type']])) {
 								
-								// If it's a Record data message and it's a Timestamp field, store the timestamp...
-								if($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20 && $field_defn['field_definition_number'] === 253) {
-									$this->timestamp = $this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][] = (unpack($this->types[$field_defn['base_type']], substr($this->file_contents, $this->file_pointer, $field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale']) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
-								}
-								
-								// Else, if it's another field in a Record data message, use the Timestamp as the index.
-								else if($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20) {
-									$this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][$this->timestamp] = (unpack($this->types[$field_defn['base_type']], substr($this->file_contents, $this->file_pointer, $field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale']) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
+								// If it's a Record data message, store all the pieces in the temporary array as the timestamp may not be first...
+								if($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20) {
+									$tmp_record_array[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']] = (unpack($this->types[$field_defn['base_type']], substr($this->file_contents, $this->file_pointer, $field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale']) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
 								}
 								
 								else {
@@ -702,6 +698,16 @@ class phpFITFileAnalysis {
 								}
 							}
 							$this->file_pointer += $field_defn['size'];
+						}
+						
+						// Process the temporary array and load values into the public data messages array
+						if(isset($tmp_record_array['timestamp'])) {
+							$timestamp = $tmp_record_array['timestamp'];
+							unset($tmp_record_array['timestamp']);
+							
+							foreach($tmp_record_array as $key => $value) {
+								$this->data_mesgs['record'][$key][$timestamp] = $value;
+							}
 						}
 					}
 					else {
