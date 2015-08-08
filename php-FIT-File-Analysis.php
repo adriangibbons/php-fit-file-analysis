@@ -684,8 +684,8 @@ class phpFITFileAnalysis {
 					// Check that we have information on the Data Message.
 					if(isset($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']])) {
 						foreach($this->defn_mesgs[$local_mesg_type]['field_defns'] as $field_defn) {
-							// Check that we have information on the Field Definition.
-							if(isset($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']])) {
+							// Check that we have information on the Field Definition and a valud base type exists.
+							if(isset($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]) && isset($this->types[$field_defn['base_type']])) {
 								
 								// If it's a Record data message and it's a Timestamp field, store the timestamp...
 								if($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20 && $field_defn['field_definition_number'] === 253) {
