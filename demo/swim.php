@@ -7,7 +7,7 @@
 	 */
 	require __DIR__ . '/../php-FIT-File-Analysis.php';
 	try {
-		$file = 'fit_files/swim_demo.fit';
+		$file = __DIR__ . '/fit_files/swim_demo.fit';
 		
 		$options = [
 	//		'fix_data'	=> [],
