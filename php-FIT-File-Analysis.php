@@ -1305,6 +1305,8 @@ class phpFITFileAnalysis {
 	 * Outputs tables of information being listened for and found within the processed FIT file.
 	 */
 	public function show_debug_info() {
+		asort($this->defn_mesgs);  // Sort the definition messages
+		
 		echo '<h3>Types</h3>';
 		echo '<table class=\'table table-condensed table-striped\'>';  // Bootstrap classes
 		echo '<thead>';
