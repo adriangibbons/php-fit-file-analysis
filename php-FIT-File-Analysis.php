@@ -366,6 +366,23 @@ class phpFITFileAnalysis {
 		13	=> 'Ctmp',	// byte
 	);
 	
+	private $invalid_values = array(
+		0	=> 255,		// 0xFF
+		1	=> 127,		// 0x7F
+		2	=> 255,		// 0xFF
+		131	=> 32767,	// 0x7FFF
+		132	=> 65535,	// 0xFFFF
+		133	=> 2147483647,	// 0x7FFFFFFF
+		134	=> 4294967295,	// 0xFFFFFFFF
+		7	=> 0,			// 0x00
+		136	=> 4294967295,	// 0xFFFFFFFF
+		137	=> 9223372036854775807,	// 0xFFFFFFFFFFFFFFFF
+		10	=> 0,	// 0x00
+		139	=> 0,	// 0x0000
+		140	=> 0,	// 0x00000000
+		13	=> 255,	// 0xFF
+	);
+	
 	/*
 	 * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
 	 * 4.4 Scale/Offset
@@ -694,6 +711,7 @@ class phpFITFileAnalysis {
 					// Check that we have information on the Data Message.
 					if(isset($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']])) {
 						$tmp_record_array = [];  // Temporary array to store Record data message pieces
+						$tmp_value = null;  // Placeholder for value for checking before inserting into the tmp_record_array
 						
 						foreach($this->defn_mesgs[$local_mesg_type]['field_defns'] as $field_defn) {
 							// Check that we have information on the Field Definition and a valud base type exists.
@@ -701,7 +719,10 @@ class phpFITFileAnalysis {
 								
 								// If it's a Record data message, store all the pieces in the temporary array as the timestamp may not be first...
 								if($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20) {
-									$tmp_record_array[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']] = (unpack($this->types[$field_defn['base_type']], substr($this->file_contents, $this->file_pointer, $field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale']) - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
+									$tmp_value = unpack($this->types[$field_defn['base_type']], substr($this->file_contents, $this->file_pointer, $field_defn['size']))['tmp'];
+									
+									// Check if it's an invalid value for the type
+									$tmp_record_array[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']] = ($tmp_value !== $this->invalid_values[$field_defn['base_type']]) ? $tmp_value / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale'] - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'] : null;
 								}
 								
 								else {
@@ -717,7 +738,9 @@ class phpFITFileAnalysis {
 							unset($tmp_record_array['timestamp']);
 							
 							foreach($tmp_record_array as $key => $value) {
-								$this->data_mesgs['record'][$key][$timestamp] = $value;
+								if($value !== null) {
+									$this->data_mesgs['record'][$key][$timestamp] = $value;
+								}
 							}
 						}
 					}
@@ -760,6 +783,7 @@ class phpFITFileAnalysis {
 		$missing_distance_keys = [];
 		$missing_hr_keys = [];
 		$missing_lat_keys = [];
+
 		$missing_lon_keys = [];
 		$missing_speed_keys = [];
 		$missing_power_keys = [];
