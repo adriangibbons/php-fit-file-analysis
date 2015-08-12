@@ -736,6 +736,7 @@ class phpFITFileAnalysis {
 						if(isset($tmp_record_array['timestamp'])) {
 							$timestamp = $tmp_record_array['timestamp'];
 							unset($tmp_record_array['timestamp']);
+							$this->data_mesgs['record']['timestamp'][] = $timestamp;
 							
 							foreach($tmp_record_array as $key => $value) {
 								if($value !== null) {
@@ -760,7 +761,12 @@ class phpFITFileAnalysis {
 		array_walk($options['fix_data'], function(&$value) { $value = strtolower($value); } );  // Make all lower-case.
 		$bCadence = $bDistance = $bHeartRate = $bLatitudeLongitude = $bSpeed = $bPower = false;
 		if(in_array('all', $options['fix_data'])) {
-			$bCadence = $bDistance = $bHeartRate = $bLatitudeLongitude = $bSpeed = $bPower = true;
+			$bCadence = isset($this->data_mesgs['record']['cadence']);
+			$bDistance = isset($this->data_mesgs['record']['distance']);
+			$bHeartRate = isset($this->data_mesgs['record']['heart_rate']);
+			$bLatitudeLongitude = isset($this->data_mesgs['record']['position_lat']) && isset($this->data_mesgs['record']['position_long']);
+			$bSpeed = isset($this->data_mesgs['record']['speed']);
+			$bPower = isset($this->data_mesgs['record']['power']);
 		}
 		else {
 			if(isset($this->data_mesgs['record']['timestamp'])) {
@@ -780,10 +786,10 @@ class phpFITFileAnalysis {
 					$bPower = (count($this->data_mesgs['record']['power']) === $count_timestamp) ? false : in_array('power', $options['fix_data']);
 			}
 		}
+		
 		$missing_distance_keys = [];
 		$missing_hr_keys = [];
 		$missing_lat_keys = [];
-
 		$missing_lon_keys = [];
 		$missing_speed_keys = [];
 		$missing_power_keys = [];
