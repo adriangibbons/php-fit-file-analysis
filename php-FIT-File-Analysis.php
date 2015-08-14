@@ -28,6 +28,7 @@ class phpFITFileAnalysis {
 	private $defn_mesgs = [];				// Array of FIT 'Definition Messages', which describe the architecture, format, and fields of 'Data Messages'.
 	private $file_header = [];				// Contains information about the FIT file such as the Protocol version, Profile version, and Data Size.
 	private $php_trader_ext_loaded = false;	// Is the PHP Trader extension loaded? Use $this->sma() algorithm if not available.
+	private $types = null;					// Set by $endianness depending on architecture in Definition Message.
 	
 	// Enumerated data looked up by enum_data().
 	// Values from 'Profile.xls' contained within the FIT SDK.
@@ -349,21 +350,39 @@ class phpFITFileAnalysis {
 	 * $types array holds a string used by the PHP unpack() function to format binary data.
 	 * 'tmp' is the name of the (single element) array created.
 	 */
-	private $types = [
-		0	=> 'Ctmp',	// enum
-		1	=> 'ctmp',	// sint8
-		2	=> 'Ctmp',	// uint8
-		131	=> 'Stmp',	// sint16
-		132	=> 'vtmp',	// uint16
-		133	=> 'ltmp',	// sint32
-		134	=> 'Vtmp',	// uint32
-		7	=> 'Ctmp',	// string
-		136	=> 'ftmp',	// float32
-		137	=> 'dtmp',	// float64
-		10	=> 'Ctmp',	// uint8z
-		139	=> 'vtmp',	// uint16z
-		140	=> 'Vtmp',	// uint32z
-		13	=> 'Ctmp',	// byte
+	private $endianness = [
+		0 => [  // Little Endianness
+			0	=> 'Ctmp',	// enum
+			1	=> 'ctmp',	// sint8
+			2	=> 'Ctmp',	// uint8
+			131	=> 'stmp',	// sint16
+			132	=> 'vtmp',	// uint16
+			133	=> 'Vtmp',	// sint32 - manually convert uint32 to sint32 in fix_data()
+			134	=> 'Vtmp',	// uint32
+			7	=> 'Ctmp',	// string
+			136	=> 'ftmp',	// float32
+			137	=> 'dtmp',	// float64
+			10	=> 'Ctmp',	// uint8z
+			139	=> 'vtmp',	// uint16z
+			140	=> 'Vtmp',	// uint32z
+			13	=> 'Ctmp',	// byte
+		],
+		1 => [  // Big Endianness
+			0	=> 'Ctmp',	// enum
+			1	=> 'ctmp',	// sint8
+			2	=> 'Ctmp',	// uint8
+			131	=> 'stmp',	// sint16
+			132	=> 'ntmp',	// uint16
+			133	=> 'Ntmp',	// sint32 - manually convert uint32 to sint32 in fix_data()
+			134	=> 'Ntmp',	// uint32
+			7	=> 'Ctmp',	// string
+			136	=> 'ftmp',	// float32
+			137	=> 'dtmp',	// float64
+			10	=> 'Ctmp',	// uint8z
+			139	=> 'ntmp',	// uint16z
+			140	=> 'Ntmp',	// uint32z
+			13	=> 'Ctmp',	// byte
+		]
 	];
 	
 	private $invalid_values = [
@@ -372,7 +391,7 @@ class phpFITFileAnalysis {
 		2	=> 255,		// 0xFF
 		131	=> 32767,	// 0x7FFF
 		132	=> 65535,	// 0xFFFF
-		133	=> 2147483647,	// 0x7FFFFFFF
+		133	=> 4294967295,	// 0xFFFFFFFF - manually convert uint32 to sint32 in fix_data()
 		134	=> 4294967295,	// 0xFFFFFFFF
 		7	=> 0,			// 0x00
 		136	=> 4294967295,	// 0xFFFFFFFF
@@ -677,9 +696,12 @@ class phpFITFileAnalysis {
 					 */
 					
 					$this->file_pointer++;  // Reserved - IGNORED
-					$this->file_pointer++;  // Architecture - IGNORED
+					$architecture = ord(substr($this->file_contents, $this->file_pointer, 1));  // Architecture
+					$this->file_pointer++;
 					
-					$global_mesg_num = unpack('v1tmp', substr($this->file_contents, $this->file_pointer, 2))['tmp'];
+					$this->types = $this->endianness[$architecture];
+					
+					$global_mesg_num = ($architecture === 0) ? unpack('v1tmp', substr($this->file_contents, $this->file_pointer, 2))['tmp'] : unpack('n1tmp', substr($this->file_contents, $this->file_pointer, 2))['tmp'];
 					$this->file_pointer += 2;
 					
 					$num_fields = ord(substr($this->file_contents, $this->file_pointer, 1));
@@ -756,6 +778,23 @@ class phpFITFileAnalysis {
 	 * If the user has requested for the data to be fixed, identify the missing keys for that data.
 	 */
 	private function fix_data($options) {
+		// Since as though we always unpack as position_lat and position_long as unsigned (due to unpack not supporting specification of endianness),
+		// we need to convert from unsigned to signed values as position_lat and position_long are type sint32
+		if(isset($this->data_mesgs['record']['position_lat'])) {
+			foreach($this->data_mesgs['record']['position_lat'] as &$v) {
+				if($v >= 0x7FFFFFFF) {
+					$v = -1 * ($v - 0x7FFFFFFF);
+				}
+			}
+		}
+		if(isset($this->data_mesgs['record']['position_long'])) {
+			foreach($this->data_mesgs['record']['position_long'] as &$v) {
+				if($v >= 0x7FFFFFFF) {
+					$v = -1 * ($v - 0x7FFFFFFF);
+				}
+			}
+		}
+		
 		if(!isset($options['fix_data']))
 			return;
 		array_walk($options['fix_data'], function(&$value) { $value = strtolower($value); } );  // Make all lower-case.
