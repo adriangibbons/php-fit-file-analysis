@@ -795,6 +795,9 @@ class phpFITFileAnalysis {
 			}
 		}
 		
+		// Remove duplicate timestamps
+		$this->data_mesgs['record']['timestamp'] = array_unique($this->data_mesgs['record']['timestamp']);
+		
 		if(!isset($options['fix_data']))
 			return;
 		array_walk($options['fix_data'], function(&$value) { $value = strtolower($value); } );  // Make all lower-case.
