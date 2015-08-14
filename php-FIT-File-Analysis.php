@@ -349,7 +349,7 @@ class phpFITFileAnalysis {
 	 * $types array holds a string used by the PHP unpack() function to format binary data.
 	 * 'tmp' is the name of the (single element) array created.
 	 */
-	private $types = array(
+	private $types = [
 		0	=> 'Ctmp',	// enum
 		1	=> 'ctmp',	// sint8
 		2	=> 'Ctmp',	// uint8
@@ -364,9 +364,9 @@ class phpFITFileAnalysis {
 		139	=> 'vtmp',	// uint16z
 		140	=> 'Vtmp',	// uint32z
 		13	=> 'Ctmp',	// byte
-	);
+	];
 	
-	private $invalid_values = array(
+	private $invalid_values = [
 		0	=> 255,		// 0xFF
 		1	=> 127,		// 0x7F
 		2	=> 255,		// 0xFF
@@ -381,7 +381,7 @@ class phpFITFileAnalysis {
 		139	=> 0,	// 0x0000
 		140	=> 0,	// 0x00000000
 		13	=> 255,	// 0xFF
-	);
+	];
 	
 	/*
 	 * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
