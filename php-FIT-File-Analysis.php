@@ -938,10 +938,12 @@ class phpFITFileAnalysis {
 				if ($missing_keys[$i] > $max_key) {
 					$array[$missing_keys[$i]] = $array[$max_key];
 					continue;
-				} else if ($missing_keys[$i] < $max_key) {
+				} else if ($missing_keys[$i] < $min_key) {
 					$array[$missing_keys[$i]] = $array[$min_key];
 					continue;
 				}
+				
+				reset($array);
 				
 				while($missing_keys[$i] > key($array)) {
 					$prev_value = current($array);
