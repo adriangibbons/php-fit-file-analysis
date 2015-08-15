@@ -28,6 +28,7 @@ class phpFITFileAnalysis {
 	private $defn_mesgs = [];				// Array of FIT 'Definition Messages', which describe the architecture, format, and fields of 'Data Messages'.
 	private $file_header = [];				// Contains information about the FIT file such as the Protocol version, Profile version, and Data Size.
 	private $php_trader_ext_loaded = false;	// Is the PHP Trader extension loaded? Use $this->sma() algorithm if not available.
+	private $types = null;					// Set by $endianness depending on architecture in Definition Message.
 	
 	// Enumerated data looked up by enum_data().
 	// Values from 'Profile.xls' contained within the FIT SDK.
@@ -349,30 +350,48 @@ class phpFITFileAnalysis {
 	 * $types array holds a string used by the PHP unpack() function to format binary data.
 	 * 'tmp' is the name of the (single element) array created.
 	 */
-	private $types = array(
-		0	=> 'Ctmp',	// enum
-		1	=> 'ctmp',	// sint8
-		2	=> 'Ctmp',	// uint8
-		131	=> 'Stmp',	// sint16
-		132	=> 'vtmp',	// uint16
-		133	=> 'ltmp',	// sint32
-		134	=> 'Vtmp',	// uint32
-		7	=> 'Ctmp',	// string
-		136	=> 'ftmp',	// float32
-		137	=> 'dtmp',	// float64
-		10	=> 'Ctmp',	// uint8z
-		139	=> 'vtmp',	// uint16z
-		140	=> 'Vtmp',	// uint32z
-		13	=> 'Ctmp',	// byte
-	);
+	private $endianness = [
+		0 => [  // Little Endianness
+			0	=> 'Ctmp',	// enum
+			1	=> 'ctmp',	// sint8
+			2	=> 'Ctmp',	// uint8
+			131	=> 'vtmp',	// sint16 - manually convert uint16 to sint16 in fix_data()
+			132	=> 'vtmp',	// uint16
+			133	=> 'Vtmp',	// sint32 - manually convert uint32 to sint32 in fix_data()
+			134	=> 'Vtmp',	// uint32
+			7	=> 'Ctmp',	// string
+			136	=> 'ftmp',	// float32
+			137	=> 'dtmp',	// float64
+			10	=> 'Ctmp',	// uint8z
+			139	=> 'vtmp',	// uint16z
+			140	=> 'Vtmp',	// uint32z
+			13	=> 'Ctmp',	// byte
+		],
+		1 => [  // Big Endianness
+			0	=> 'Ctmp',	// enum
+			1	=> 'ctmp',	// sint8
+			2	=> 'Ctmp',	// uint8
+			131	=> 'ntmp',	// sint16 - manually convert uint16 to sint16 in fix_data()
+			132	=> 'ntmp',	// uint16
+			133	=> 'Ntmp',	// sint32 - manually convert uint32 to sint32 in fix_data()
+			134	=> 'Ntmp',	// uint32
+			7	=> 'Ctmp',	// string
+			136	=> 'ftmp',	// float32
+			137	=> 'dtmp',	// float64
+			10	=> 'Ctmp',	// uint8z
+			139	=> 'ntmp',	// uint16z
+			140	=> 'Ntmp',	// uint32z
+			13	=> 'Ctmp',	// byte
+		]
+	];
 	
-	private $invalid_values = array(
+	private $invalid_values = [
 		0	=> 255,		// 0xFF
 		1	=> 127,		// 0x7F
 		2	=> 255,		// 0xFF
 		131	=> 32767,	// 0x7FFF
 		132	=> 65535,	// 0xFFFF
-		133	=> 2147483647,	// 0x7FFFFFFF
+		133	=> 4294967295,	// 0xFFFFFFFF - manually convert uint32 to sint32 in fix_data()
 		134	=> 4294967295,	// 0xFFFFFFFF
 		7	=> 0,			// 0x00
 		136	=> 4294967295,	// 0xFFFFFFFF
@@ -381,7 +400,7 @@ class phpFITFileAnalysis {
 		139	=> 0,	// 0x0000
 		140	=> 0,	// 0x00000000
 		13	=> 255,	// 0xFF
-	);
+	];
 	
 	/*
 	 * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
@@ -677,9 +696,12 @@ class phpFITFileAnalysis {
 					 */
 					
 					$this->file_pointer++;  // Reserved - IGNORED
-					$this->file_pointer++;  // Architecture - IGNORED
+					$architecture = ord(substr($this->file_contents, $this->file_pointer, 1));  // Architecture
+					$this->file_pointer++;
 					
-					$global_mesg_num = unpack('v1tmp', substr($this->file_contents, $this->file_pointer, 2))['tmp'];
+					$this->types = $this->endianness[$architecture];
+					
+					$global_mesg_num = ($architecture === 0) ? unpack('v1tmp', substr($this->file_contents, $this->file_pointer, 2))['tmp'] : unpack('n1tmp', substr($this->file_contents, $this->file_pointer, 2))['tmp'];
 					$this->file_pointer += 2;
 					
 					$num_fields = ord(substr($this->file_contents, $this->file_pointer, 1));
@@ -756,6 +778,48 @@ class phpFITFileAnalysis {
 	 * If the user has requested for the data to be fixed, identify the missing keys for that data.
 	 */
 	private function fix_data($options) {
+		// Find messages that have been unpacked as unsigned integers that should be signed integers.
+		// http://php.net/manual/en/function.pack.php - signed integers endianness is always machine dependent.
+		// 131	s	signed short (always 16 bit, machine byte order)
+		// 133	l	signed long (always 32 bit, machine byte order)
+		foreach($this->defn_mesgs as $mesg) {
+			if(isset($this->data_mesg_info[$mesg['global_mesg_num']])) {
+				$mesg_name = $this->data_mesg_info[$mesg['global_mesg_num']]['mesg_name'];
+				
+				foreach($mesg['field_defns'] as $field) {
+					if($field['base_type'] === 131) {  // Convert uint16 to sint16
+						$field_name = $this->data_mesg_info[$mesg['global_mesg_num']]['field_defns'][$field['field_definition_number']]['field_name'];
+						if(is_array($this->data_mesgs[$mesg_name][$field_name])) {
+							foreach($this->data_mesgs[$mesg_name][$field_name] as &$v) {
+								if($v >= 0x7FFF) {
+									$v = -1 * ($v - 0x7FFF);
+								}
+							}
+						}
+						else if($this->data_mesgs[$mesg_name][$field_name] >= 0x7FFF) {
+							$this->data_mesgs[$mesg_name][$field_name] = -1 * ($this->data_mesgs[$mesg_name][$field_name] - 0x7FFF);
+						}
+					}
+					else if($field['base_type'] === 133) {  // Convert uint32 to sint32
+						$field_name = $this->data_mesg_info[$mesg['global_mesg_num']]['field_defns'][$field['field_definition_number']]['field_name'];
+						if(is_array($this->data_mesgs[$mesg_name][$field_name])) {
+							foreach($this->data_mesgs[$mesg_name][$field_name] as &$v) {
+								if($v >= 0x7FFFFFFF) {
+									$v = -1 * ($v - 0x7FFFFFFF);
+								}
+							}
+						}
+						else if($this->data_mesgs[$mesg_name][$field_name] >= 0x7FFFFFFF) {
+							$this->data_mesgs[$mesg_name][$field_name] = -1 * ($this->data_mesgs[$mesg_name][$field_name] - 0x7FFFFFFF);
+						}
+					}
+				}
+			}
+		}
+		
+		// Remove duplicate timestamps
+		$this->data_mesgs['record']['timestamp'] = array_unique($this->data_mesgs['record']['timestamp']);
+		
 		if(!isset($options['fix_data']))
 			return;
 		array_walk($options['fix_data'], function(&$value) { $value = strtolower($value); } );  // Make all lower-case.
