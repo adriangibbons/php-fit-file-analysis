@@ -355,7 +355,7 @@ class phpFITFileAnalysis {
 			0	=> 'Ctmp',	// enum
 			1	=> 'ctmp',	// sint8
 			2	=> 'Ctmp',	// uint8
-			131	=> 'stmp',	// sint16
+			131	=> 'vtmp',	// sint16 - manually convert uint16 to sint16 in fix_data()
 			132	=> 'vtmp',	// uint16
 			133	=> 'Vtmp',	// sint32 - manually convert uint32 to sint32 in fix_data()
 			134	=> 'Vtmp',	// uint32
@@ -371,7 +371,7 @@ class phpFITFileAnalysis {
 			0	=> 'Ctmp',	// enum
 			1	=> 'ctmp',	// sint8
 			2	=> 'Ctmp',	// uint8
-			131	=> 'stmp',	// sint16
+			131	=> 'ntmp',	// sint16 - manually convert uint16 to sint16 in fix_data()
 			132	=> 'ntmp',	// uint16
 			133	=> 'Ntmp',	// sint32 - manually convert uint32 to sint32 in fix_data()
 			134	=> 'Ntmp',	// uint32
@@ -778,19 +778,31 @@ class phpFITFileAnalysis {
 	 * If the user has requested for the data to be fixed, identify the missing keys for that data.
 	 */
 	private function fix_data($options) {
-		// Since as though we always unpack as position_lat and position_long as unsigned (due to unpack not supporting specification of endianness),
-		// we need to convert from unsigned to signed values as position_lat and position_long are type sint32
-		if(isset($this->data_mesgs['record']['position_lat'])) {
-			foreach($this->data_mesgs['record']['position_lat'] as &$v) {
-				if($v >= 0x7FFFFFFF) {
-					$v = -1 * ($v - 0x7FFFFFFF);
-				}
-			}
-		}
-		if(isset($this->data_mesgs['record']['position_long'])) {
-			foreach($this->data_mesgs['record']['position_long'] as &$v) {
-				if($v >= 0x7FFFFFFF) {
-					$v = -1 * ($v - 0x7FFFFFFF);
+		// Find messages that have been unpacked as unsigned integers that should be signed integers.
+		// http://php.net/manual/en/function.pack.php - signed integers endianness is always machine dependent.
+		// 131	s	signed short (always 16 bit, machine byte order)
+		// 133	l	signed long (always 32 bit, machine byte order)
+		foreach($this->defn_mesgs as $mesg) {
+			if(isset($this->data_mesg_info[$mesg['global_mesg_num']])) {
+				$mesg_name = $this->data_mesg_info[$mesg['global_mesg_num']]['mesg_name'];
+				
+				foreach($mesg['field_defns'] as $field) {
+					if($field['base_type'] === 131) {  // Convert uint16 to sint16
+						$field_name = $this->data_mesg_info[$mesg['global_mesg_num']]['field_defns'][$field['field_definition_number']]['field_name'];
+						foreach($this->data_mesgs[$mesg_name][$field_name] as &$v) {
+							if($v >= 0x7FFF) {
+								$v = -1 * ($v - 0x7FFF);
+							}
+						}
+					}
+					else if($field['base_type'] === 133) {  // Convert uint32 to sint32
+						$field_name = $this->data_mesg_info[$mesg['global_mesg_num']]['field_defns'][$field['field_definition_number']]['field_name'];
+						foreach($this->data_mesgs[$mesg_name][$field_name] as &$v) {
+							if($v >= 0x7FFFFFFF) {
+								$v = -1 * ($v - 0x7FFFFFFF);
+							}
+						}
+					}
 				}
 			}
 		}
