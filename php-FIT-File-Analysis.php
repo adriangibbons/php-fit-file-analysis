@@ -789,18 +789,28 @@ class phpFITFileAnalysis {
 				foreach($mesg['field_defns'] as $field) {
 					if($field['base_type'] === 131) {  // Convert uint16 to sint16
 						$field_name = $this->data_mesg_info[$mesg['global_mesg_num']]['field_defns'][$field['field_definition_number']]['field_name'];
-						foreach($this->data_mesgs[$mesg_name][$field_name] as &$v) {
-							if($v >= 0x7FFF) {
-								$v = -1 * ($v - 0x7FFF);
+						if(is_array($this->data_mesgs[$mesg_name][$field_name])) {
+							foreach($this->data_mesgs[$mesg_name][$field_name] as &$v) {
+								if($v >= 0x7FFF) {
+									$v = -1 * ($v - 0x7FFF);
+								}
 							}
+						}
+						else if($this->data_mesgs[$mesg_name][$field_name] >= 0x7FFF) {
+							$this->data_mesgs[$mesg_name][$field_name] = -1 * ($this->data_mesgs[$mesg_name][$field_name] - 0x7FFF);
 						}
 					}
 					else if($field['base_type'] === 133) {  // Convert uint32 to sint32
 						$field_name = $this->data_mesg_info[$mesg['global_mesg_num']]['field_defns'][$field['field_definition_number']]['field_name'];
-						foreach($this->data_mesgs[$mesg_name][$field_name] as &$v) {
-							if($v >= 0x7FFFFFFF) {
-								$v = -1 * ($v - 0x7FFFFFFF);
+						if(is_array($this->data_mesgs[$mesg_name][$field_name])) {
+							foreach($this->data_mesgs[$mesg_name][$field_name] as &$v) {
+								if($v >= 0x7FFFFFFF) {
+									$v = -1 * ($v - 0x7FFFFFFF);
+								}
 							}
+						}
+						else if($this->data_mesgs[$mesg_name][$field_name] >= 0x7FFFFFFF) {
+							$this->data_mesgs[$mesg_name][$field_name] = -1 * ($this->data_mesgs[$mesg_name][$field_name] - 0x7FFFFFFF);
 						}
 					}
 				}
