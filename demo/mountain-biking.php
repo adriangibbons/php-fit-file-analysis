@@ -11,7 +11,7 @@
 	require __DIR__ . '/libraries/PolylineEncoder.php'; // https://github.com/dyaaj/polyline-encoder
 	require __DIR__ . '/libraries/Line_DouglasPeucker.php'; // https://github.com/gregallensworth/PHP-Geometry
 	try {
-		$file = __DIR__ . '/fit_files/mountain-biking.fit';
+		$file = '/fit_files/mountain-biking.fit';
 		
 		$options = [
 	// Just using the defaults so no need to provide
@@ -19,7 +19,7 @@
 	//		'units'		=> 'metric',
 	//		'pace'		=> false
 		];
-		$pFFA = new phpFITFileAnalysis($file, $options);
+		$pFFA = new phpFITFileAnalysis(__DIR__ . $file, $options);
 	}
 	catch(Exception $e) {
 		echo 'caught exception: '.$e->getMessage();

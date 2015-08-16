@@ -2,13 +2,13 @@
 	require __DIR__ . '/../php-FIT-File-Analysis.php';
 	
 	try {
-		$file = __DIR__ . '/fit_files/power-analysis.fit';
+		$file = '/fit_files/power-analysis.fit';
 		
 		$options = [
 	//		'fix_data' => ['all'],
 			'units' => ['metric']
 		];
-		$pFFA = new phpFITFileAnalysis($file, $options);
+		$pFFA = new phpFITFileAnalysis(__DIR__ . $file, $options);
 		
 		// Google Time Zone API
 		$date = new DateTime("1989-12-31", new DateTimeZone("UTC"));  // timestamp[s]: seconds since UTC 00:00:00 Dec 31 1989

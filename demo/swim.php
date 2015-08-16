@@ -7,14 +7,14 @@
 	 */
 	require __DIR__ . '/../php-FIT-File-Analysis.php';
 	try {
-		$file = __DIR__ . '/fit_files/swim_demo.fit';
+		$file = '/fit_files/swim_demo.fit';
 		
 		$options = [
 	//		'fix_data'	=> [],
 			'units'		=> 'raw',
 	//		'pace'		=> false
 		];
-		$pFFA = new phpFITFileAnalysis($file, $options);
+		$pFFA = new phpFITFileAnalysis(__DIR__ . $file, $options);
 	}
 	catch(Exception $e) {
 		echo 'caught exception: '.$e->getMessage();
