@@ -1065,22 +1065,32 @@ class phpFITFileAnalysis {
 	 * Transform the values read from the FIT file into the units requested by the user.
 	 */
 	private function set_units($options) {
-		$units = '';
-		
-		if(isset($options['units'])) {
+		if(!empty($options['units'])) {
 			// Handle $options['units'] not being passed as array and/or not in lowercase.
 			$units = strtolower((is_array($options['units'])) ? $options['units'][0] : $options['units']);
+		}
+		else {
+			$units = 'metric';
 		}
 		
 		//  Handle $options['pace'] being pass as array and/or boolean vs string and/or lowercase.
 		$bPace = false;
 		if(isset($options['pace'])) {
 			$pace = is_array($options['pace']) ? $options['pace'][0] : $options['pace'];
-			if(is_bool($options['pace'])) {
+			if(is_bool($pace)) {
 				$bPace = $pace;
 			}
-			else if(is_string($options['pace'])) {
-				$bPace = (strtolower($pace) === 'true') ? true : false;
+			else if(is_string($pace)) {
+				$pace = strtolower($pace);
+				if($pace === 'true' || $pace === 'false') {
+					$bPace = $pace;
+				}
+				else {
+					throw new Exception('phpFITFileAnalysis->set_units(): pace option not valid!');
+				}
+			}
+			else {
+				throw new Exception('phpFITFileAnalysis->set_units(): pace option not valid!');
 			}
 		}
 		
@@ -1160,12 +1170,12 @@ class phpFITFileAnalysis {
 			case 'raw':
 				// Do nothing - leave values as read from file.
 				break;
-			default:  // Assume 'metric'.
+			case 'metric':
 				if(isset($this->data_mesgs['record']['speed'])) {  // convert  meters per second to kilometers per hour
 					if(is_array($this->data_mesgs['record']['speed'])) {
 						foreach($this->data_mesgs['record']['speed'] as &$value) {
 							if($bPace) {
-								$value = round(60 / 3.6 / $value, 3);
+								$value = ($value != 0) ? round(60 / 3.6 / $value, 3) : 0;
 							}
 							else {
 								$value = round($value * 3.6, 3);
@@ -1211,6 +1221,9 @@ class phpFITFileAnalysis {
 						$this->data_mesgs['record']['position_long'] = round($this->data_mesgs['record']['position_long'] * (180.0 / pow(2,31)), 5);
 					}
 				}
+				break;
+			default:
+				throw new Exception('phpFITFileAnalysis->set_units(): units option not valid!');
 				break;
 		}
 	}
