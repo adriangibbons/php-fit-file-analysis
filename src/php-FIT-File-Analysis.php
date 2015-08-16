@@ -851,7 +851,7 @@ class phpFITFileAnalysis {
 		}
 		
 		// Return if no option set
-		if(!isset($options['fix_data'])) {
+		if(empty($options['fix_data'])) {
 			return;
 		}
 		
