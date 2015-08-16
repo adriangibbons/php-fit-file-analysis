@@ -6,10 +6,10 @@ class FitTest extends PHPUnit_Framework_TestCase
 {
     public function testSampleFiles()
     {
-        foreach (array_diff(scandir('test_files'), array('..', '.')) as $filename) {
+        foreach (array_diff(scandir(__DIR__ . '/../demo/fit_files'), array('..', '.')) as $filename) {
             echo $filename . "\n";
 
-            $pFFA = new phpFITFileAnalysis('test_files/' . $filename, [
+            $pFFA = new phpFITFileAnalysis(__DIR__ . '/../demo/fit_files/' . $filename, [
                 'fix_data' => ['all'],
             ]);
             $this->assertGreaterThan(0, $pFFA->data_mesgs['activity']['timestamp'], "Should have timestamp set");
