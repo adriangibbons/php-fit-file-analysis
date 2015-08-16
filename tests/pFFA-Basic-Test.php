@@ -8,6 +8,7 @@ class BasicTest extends PHPUnit_Framework_TestCase
 {
 	private $base_dir;
 	private $demo_files = [];
+	private $valid_files = ['mountain-biking.fit', 'power-analysis.fit', 'road-cycling.fit', 'swim_demo.fit'];
 	
 	public function setUp()
 	{
@@ -17,7 +18,9 @@ class BasicTest extends PHPUnit_Framework_TestCase
 	public function testDemoFilesExist()
 	{
 		$this->demo_files = array_values(array_diff(scandir($this->base_dir), array('..', '.')));
-		$this->assertEquals(['mountain-biking.fit', 'power-analysis.fit', 'road-cycling.fit', 'swim_demo.fit'], $this->demo_files);
+		sort($this->demo_files);
+		sort($this->valid_files);
+		$this->assertEquals($this->valid_files, $this->demo_files);
 		var_dump($this->demo_files);
 	}
 	
