@@ -7,7 +7,7 @@
 	 *
 	 * If you find this useful, feel free to drop me a line at Adrian.GitHub@gmail.com
 	 */
-	require __DIR__ . '/../php-FIT-File-Analysis.php';
+	require __DIR__ . '/../src/php-FIT-File-Analysis.php';
 	require __DIR__ . '/libraries/PolylineEncoder.php'; // https://github.com/dyaaj/polyline-encoder
 	require __DIR__ . '/libraries/Line_DouglasPeucker.php'; // https://github.com/gregallensworth/PHP-Geometry
 	try {

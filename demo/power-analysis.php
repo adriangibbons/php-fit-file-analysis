@@ -1,5 +1,5 @@
 <?php
-	require __DIR__ . '/../php-FIT-File-Analysis.php';
+	require __DIR__ . '/../src/php-FIT-File-Analysis.php';
 	
 	try {
 		$file = '/fit_files/power-analysis.fit';

@@ -1,3 +1,7 @@
+vendor
+composer.phar
+composer.lock
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
