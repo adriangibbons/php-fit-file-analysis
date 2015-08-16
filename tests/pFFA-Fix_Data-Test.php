@@ -12,7 +12,7 @@ class FitTest extends PHPUnit_Framework_TestCase
 		$this->base_dir = __DIR__ . '/../demo/fit_files/';
 	}
 	
-	/*
+	/**
 	 * Original road-cycling.fit before fix_data() contains:
 	 * 
 	 * record message	| count()
@@ -37,7 +37,7 @@ class FitTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(4316, count($pFFA->data_mesgs['record']['heart_rate']));
 	}
 	
-	/*
+	/**
 	 * $pFFA->data_mesgs['record']['heart_rate']
 	 * 		[805987191 => 118],
 	 * 		[805987192 => missing],
@@ -62,7 +62,7 @@ class FitTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(4317, count($pFFA->data_mesgs['record']['heart_rate']));
 	}
 	
-	/*
+	/**
 	 * $pFFA->data_mesgs['record']['heart_rate']
 	 * 		[805987191 => 118],
 	 * 		[805987192 => 117.5],
@@ -73,6 +73,23 @@ class FitTest extends PHPUnit_Framework_TestCase
 		$pFFA = new phpFITFileAnalysis($this->base_dir . $this->filename, ['fix_data' => ['heart_rate']]);
 		
 		$this->assertEquals(117.5, $pFFA->data_mesgs['record']['heart_rate'][805987192]);
+	}
+	
+	public function testFixData_validate_options_pass()
+	{
+		// Positive testing
+		$valid_options = ['all', 'cadence', 'distance', 'heart_rate', 'lat_lon', 'speed', 'power'];
+		foreach($valid_options as $valid_option) {
+			$pFFA = new phpFITFileAnalysis($this->base_dir . $this->filename, ['fix_data' => [$valid_option]]);	
+		}
+	}
+	
+	/**
+	 * @expectedException Exception
+	 */
+	public function testFixData_validate_options_fail()
+	{
+		$pFFA = new phpFITFileAnalysis($this->base_dir . $this->filename, ['fix_data' => ['INVALID']]);
 	}
 }
 ?>
