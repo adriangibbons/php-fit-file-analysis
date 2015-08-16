@@ -26,6 +26,7 @@ class phpFITFileAnalysis {
 	private $file_contents = '';			// FIT file is read-in to memory as a string, split into an array, and reversed. See __construct().
 	private $file_pointer = 0;				// Points to the location in the file that shall be read next.
 	private $defn_mesgs = [];				// Array of FIT 'Definition Messages', which describe the architecture, format, and fields of 'Data Messages'.
+	private $defn_mesgs_all = [];			// Keeps a record of all Definition Messages as index ($local_mesg_type) of $defn_mesgs may be reused in file.
 	private $file_header = [];				// Contains information about the FIT file such as the Protocol version, Profile version, and Data Size.
 	private $php_trader_ext_loaded = false;	// Is the PHP Trader extension loaded? Use $this->sma() algorithm if not available.
 	private $types = null;					// Set by $endianness depending on architecture in Definition Message.
@@ -727,6 +728,12 @@ class phpFITFileAnalysis {
 							'field_defns' => $field_definitions,
 							'total_size' => $total_size
 						];
+					$this->defn_mesgs_all[] = [
+							'global_mesg_num' => $global_mesg_num,
+							'num_fields' => $num_fields,
+							'field_defns' => $field_definitions,
+							'total_size' => $total_size
+						];
 					break;
 				
 				case DATA_MESSAGE:
@@ -782,7 +789,7 @@ class phpFITFileAnalysis {
 		// http://php.net/manual/en/function.pack.php - signed integers endianness is always machine dependent.
 		// 131	s	signed short (always 16 bit, machine byte order)
 		// 133	l	signed long (always 32 bit, machine byte order)
-		foreach($this->defn_mesgs as $mesg) {
+		foreach($this->defn_mesgs_all as $mesg) {
 			if(isset($this->data_mesg_info[$mesg['global_mesg_num']])) {
 				$mesg_name = $this->data_mesg_info[$mesg['global_mesg_num']]['mesg_name'];
 				
@@ -1412,7 +1419,7 @@ class phpFITFileAnalysis {
 	 * Outputs tables of information being listened for and found within the processed FIT file.
 	 */
 	public function show_debug_info() {
-		asort($this->defn_mesgs);  // Sort the definition messages
+		asort($this->defn_mesgs_all);  // Sort the definition messages
 		
 		echo '<h3>Types</h3>';
 		echo '<table class=\'table table-condensed table-striped\'>';  // Bootstrap classes
@@ -1451,7 +1458,7 @@ class phpFITFileAnalysis {
 		echo '<th>total_size</th>';
 		echo '</thead>';
 		echo '<tbody>';
-		foreach( $this->defn_mesgs as $key => $val ) {
+		foreach( $this->defn_mesgs_all as $key => $val ) {
 			echo  '<tr><td>'.$val['global_mesg_num'].(isset($this->data_mesg_info[$val['global_mesg_num']]) ? ' ('.$this->data_mesg_info[$val['global_mesg_num']]['mesg_name'].')' : ' (unknown)').'</td><td>'.$val['num_fields'].'</td><td>';
 			foreach($val['field_defns'] as $defn) {
 				echo 'defn: '.$defn['field_definition_number'].'; size: '.$defn['size'].'; type: '.$defn['base_type'];
