@@ -799,12 +799,18 @@ class phpFITFileAnalysis {
 						$field_name = $this->data_mesg_info[$mesg['global_mesg_num']]['field_defns'][$field['field_definition_number']]['field_name'];
 						if(is_array($this->data_mesgs[$mesg_name][$field_name])) {
 							foreach($this->data_mesgs[$mesg_name][$field_name] as &$v) {
-								if($v >= 0x7FFF) {
+								if(PHP_INT_SIZE === 8 && $v > 0x7FFF) {
+									$v -= 0x10000;
+								}
+								if($v > 0x7FFF) {
 									$v = -1 * ($v - 0x7FFF);
 								}
 							}
 						}
-						else if($this->data_mesgs[$mesg_name][$field_name] >= 0x7FFF) {
+						else if($this->data_mesgs[$mesg_name][$field_name] > 0x7FFF) {
+							if(PHP_INT_SIZE === 8) {
+								$this->data_mesgs[$mesg_name][$field_name] -= 0x10000;
+							}
 							$this->data_mesgs[$mesg_name][$field_name] = -1 * ($this->data_mesgs[$mesg_name][$field_name] - 0x7FFF);
 						}
 					}
@@ -813,16 +819,18 @@ class phpFITFileAnalysis {
 						$field_name = $this->data_mesg_info[$mesg['global_mesg_num']]['field_defns'][$field['field_definition_number']]['field_name'];
 						if(is_array($this->data_mesgs[$mesg_name][$field_name])) {
 							foreach($this->data_mesgs[$mesg_name][$field_name] as &$v) {
-								if(PHP_INT_SIZE === 8 && $v >= 0x7FFFFFFF) {
+								if(PHP_INT_SIZE === 8 && $v > 0x7FFFFFFF) {
 									$v -= 0x100000000;
 								}
-								
-								if($v >= 0x7FFFFFFF) {
+								if($v > 0x7FFFFFFF) {
 									$v = -1 * ($v - 0x7FFFFFFF);
 								}
 							}
 						}
-						else if($this->data_mesgs[$mesg_name][$field_name] >= 0x7FFFFFFF) {
+						else if($this->data_mesgs[$mesg_name][$field_name] > 0x7FFFFFFF) {
+							if(PHP_INT_SIZE === 8) {
+								$this->data_mesgs[$mesg_name][$field_name] -= 0x100000000;
+							}
 							$this->data_mesgs[$mesg_name][$field_name] = -1 * ($this->data_mesgs[$mesg_name][$field_name] - 0x7FFFFFFF);
 						}
 					}
