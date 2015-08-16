@@ -850,9 +850,17 @@ class phpFITFileAnalysis {
 			$this->data_mesgs['record']['timestamp'] = array_unique($this->data_mesgs['record']['timestamp']);
 		}
 		
-		if(!isset($options['fix_data']))
+		// Return if no option set
+		if(!isset($options['fix_data'])) {
 			return;
+		}
+		
+		// Check if valid option(s) provided
 		array_walk($options['fix_data'], function(&$value) { $value = strtolower($value); } );  // Make all lower-case.
+		if(count(array_intersect(['all', 'cadence', 'distance', 'heart_rate', 'lat_lon', 'speed', 'power'], $options['fix_data'])) === 0) {
+			throw new Exception('phpFITFileAnalysis->fix_data(): option not valid!');
+		}
+		
 		$bCadence = $bDistance = $bHeartRate = $bLatitudeLongitude = $bSpeed = $bPower = false;
 		if(in_array('all', $options['fix_data'])) {
 			$bCadence = isset($this->data_mesgs['record']['cadence']);
