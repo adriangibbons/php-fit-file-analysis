@@ -23,10 +23,10 @@
 	
 	$units = 'm';
 	$pool_length = $pFFA->data_mesgs['session']['pool_length'];
-	$total_distance = number_format($pFFA->data_mesgs['record']['distance']);
+	$total_distance = number_format(max($pFFA->data_mesgs['record']['distance']));
 	if($pFFA->enum_data('display_measure', $pFFA->data_mesgs['session']['pool_length_unit']) == 'statute') {
 		$pool_length = round($pFFA->data_mesgs['session']['pool_length'] * 1.0936133);
-		$total_distance = number_format($pFFA->data_mesgs['record']['distance'] * 1.0936133);
+		$total_distance = number_format(max($pFFA->data_mesgs['record']['distance']) * 1.0936133);
 		$units = 'yd';
 	}
 ?>

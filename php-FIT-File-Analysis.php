@@ -762,9 +762,16 @@ class phpFITFileAnalysis {
 						}
 						
 						// Process the temporary array and load values into the public data messages array
-						if(isset($tmp_record_array['timestamp'])) {
-							$timestamp = $tmp_record_array['timestamp'];
-							unset($tmp_record_array['timestamp']);
+						if(!empty($tmp_record_array)) {
+							$timestamp = isset($this->data_mesgs['record']['timestamp']) ? max($this->data_mesgs['record']['timestamp']) + 1 : 0;
+							
+							if(isset($tmp_record_array['timestamp'])) {
+								if($tmp_record_array['timestamp'] > 0) {
+									$timestamp = $tmp_record_array['timestamp'];
+								}
+								unset($tmp_record_array['timestamp']);
+							}
+							
 							$this->data_mesgs['record']['timestamp'][] = $timestamp;
 							
 							foreach($tmp_record_array as $key => $value) {
