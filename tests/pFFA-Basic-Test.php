@@ -1,8 +1,10 @@
 <?php
 error_reporting(E_ALL);
-require __DIR__ . '/../src/php-FIT-File-Analysis.php';
+if(!class_exists('phpFITFileAnalysis')) {
+	require __DIR__ . '/../src/php-FIT-File-Analysis.php';
+}
 
-class FitTest extends PHPUnit_Framework_TestCase
+class BasicTest extends PHPUnit_Framework_TestCase
 {
 	private $base_dir;
 	private $demo_files = [];
@@ -15,7 +17,7 @@ class FitTest extends PHPUnit_Framework_TestCase
 	public function testDemoFilesExist()
 	{
 		$this->demo_files = array_values(array_diff(scandir($this->base_dir), array('..', '.')));
-		$this->assertEquals(['mountain-biking.fit', 'power-analysis.fit', 'swim_demo.fit'], $this->demo_files);
+		$this->assertEquals(['mountain-biking.fit', 'power-analysis.fit', 'road-cycling.fit', 'swim_demo.fit'], $this->demo_files);
 		var_dump($this->demo_files);
 	}
 	

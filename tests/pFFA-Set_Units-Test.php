@@ -1,8 +1,10 @@
 <?php
 error_reporting(E_ALL);
-require __DIR__ . '/../src/php-FIT-File-Analysis.php';
+if(!class_exists('phpFITFileAnalysis')) {
+	require __DIR__ . '/../src/php-FIT-File-Analysis.php';
+}
 
-class FitTest extends PHPUnit_Framework_TestCase
+class SetUnitsTest extends PHPUnit_Framework_TestCase
 {
 	private $base_dir;
 	private $filename = 'road-cycling.fit';
