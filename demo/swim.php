@@ -1,11 +1,11 @@
 <?php
 	/*
 	 * Demonstration of the phpFITFileAnalysis class using Twitter Bootstrap framework
-	 * https://github.com/adriangibbons/php-FIT-File-Analysis
+	 * https://github.com/adriangibbons/phpFITFileAnalysis
 	 *
 	 * If you find this useful, feel free to drop me a line at Adrian.GitHub@gmail.com
 	 */
-	require __DIR__ . '/../src/php-FIT-File-Analysis.php';
+	require __DIR__ . '/../src/phpFITFileAnalysis.php';
 	try {
 		$file = '/fit_files/swim.fit';
 		
@@ -14,7 +14,7 @@
 			'units'		=> 'raw',
 	//		'pace'		=> false
 		];
-		$pFFA = new phpFITFileAnalysis(__DIR__ . $file, $options);
+		$pFFA = new adriangibbons\phpFITFileAnalysis\phpFITFileAnalysis(__DIR__ . $file, $options);
 	}
 	catch(Exception $e) {
 		echo 'caught exception: '.$e->getMessage();
@@ -34,15 +34,15 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>php-FIT-File-Analysis demo</title>
+<title>phpFITFileAnalysis demo</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
 <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="jumbotron">
   <div class="container">
-    <h2><strong>php-FIT-File-Analysis </strong><small>A PHP class for analysing FIT files created by Garmin GPS devices.</small></h2>
-    <p>This is a demonstration of the phpFITFileAnalysis class available on <a class="btn btn-default btn-lg" href="https://github.com/adriangibbons/php-FIT-File-Analysis" target="_blank" role="button"><i class="fa fa-github"></i> GitHub</a></p>
+    <h2><strong>phpFITFileAnalysis </strong><small>A PHP class for analysing FIT files created by Garmin GPS devices.</small></h2>
+    <p>This is a demonstration of the phpFITFileAnalysis class available on <a class="btn btn-default btn-lg" href="https://github.com/adriangibbons/phpFITFileAnalysis" target="_blank" role="button"><i class="fa fa-github"></i> GitHub</a></p>
   </div>
 </div>
 <div class="container">

@@ -1,6 +1,8 @@
 <?php
+namespace adriangibbons\phpFITFileAnalysis;
+
 /**
- * php-FIT-File-Analysis
+ * phpFITFileAnalysis
  * =====================
  * A PHP class for Analysing FIT files created by Garmin GPS devices.
  * Adrian Gibbons, 2015
@@ -9,7 +11,7 @@
  * G Frogley edits, June 2016
  * Added code to generate TRIMPexp and hrIF (Intensity Factor) value to measure session if Power is not present
  *
- * https://github.com/adriangibbons/php-FIT-File-Analysis
+ * https://github.com/adriangibbons/phpFITFileAnalysis
  * http://www.thisisant.com/resources/fit
  */
  
