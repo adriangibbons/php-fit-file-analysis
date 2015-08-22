@@ -5,6 +5,7 @@
     "keywords": ["garmin", "fit"],
     "homepage": "https://github.com/adriangibbons/php-FIT-File-Analysis",
     "require-dev": {
-        "phpunit/phpunit": "4.8.*"
+        "phpunit/phpunit": "4.8.*",
+        "squizlabs/php_codesniffer": "2.*"
     }
 }
