@@ -26,7 +26,6 @@ class BasicTest extends PHPUnit_Framework_TestCase
     
     public function testDemoFileBasics()
     {
-        /*
         foreach($this->demo_files as $filename) {
 
             $pFFA = new phpFITFileAnalysis($this->base_dir . $filename);
@@ -62,6 +61,6 @@ class BasicTest extends PHPUnit_Framework_TestCase
                     }
                 }
             }
-        }*/
+        }
     }
 }
