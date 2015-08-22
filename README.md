@@ -20,8 +20,7 @@ Visit the FAQ page within the Wiki for more information.
 
 A couple of choices here:
 
-**The more modern way**
-Include the package *adriangibbons/php-fit-file-analysis* in a composer.json file e.g.
+**The more modern way: **Add the package *adriangibbons/php-fit-file-analysis* in a composer.json file:
 ```JSON
 {
     "require": {
@@ -31,8 +30,7 @@ Include the package *adriangibbons/php-fit-file-analysis* in a composer.json fil
 ```
 Run ```composer update``` from the command line.
 
-**The more manual way**
-Download the ZIP from GitHub and put PHP class file from the /src directory somewhere appropriate (e.g. classes/). A conscious effort has been made to keep everything in a single file.
+**The more manual way: **Download the ZIP from GitHub and put PHP class file from the /src directory somewhere appropriate (e.g. classes/). A conscious effort has been made to keep everything in a single file.
 
 Then include the file on the PHP page where you want to use it and instantiate an object of the class:
 ```php
