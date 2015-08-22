@@ -1,34 +1,33 @@
 <?php
-	/*
-	 * Demonstration of the phpFITFileAnalysis class using Twitter Bootstrap framework
-	 * https://github.com/adriangibbons/phpFITFileAnalysis
-	 *
-	 * If you find this useful, feel free to drop me a line at Adrian.GitHub@gmail.com
-	 */
-	require __DIR__ . '/../src/phpFITFileAnalysis.php';
-	try {
-		$file = '/fit_files/swim.fit';
-		
-		$options = [
-	//		'fixData'	=> [],
-			'units'		=> 'raw',
-	//		'pace'		=> false
-		];
-		$pFFA = new adriangibbons\phpFITFileAnalysis\phpFITFileAnalysis(__DIR__ . $file, $options);
-	}
-	catch(Exception $e) {
-		echo 'caught exception: '.$e->getMessage();
-		die();
-	}
-	
-	$units = 'm';
-	$pool_length = $pFFA->data_mesgs['session']['pool_length'];
-	$total_distance = number_format(max($pFFA->data_mesgs['record']['distance']));
-	if($pFFA->enumData('display_measure', $pFFA->data_mesgs['session']['pool_length_unit']) == 'statute') {
-		$pool_length = round($pFFA->data_mesgs['session']['pool_length'] * 1.0936133);
-		$total_distance = number_format(max($pFFA->data_mesgs['record']['distance']) * 1.0936133);
-		$units = 'yd';
-	}
+/**
+ * Demonstration of the phpFITFileAnalysis class using Twitter Bootstrap framework
+ * https://github.com/adriangibbons/phpFITFileAnalysis
+ *
+ * If you find this useful, feel free to drop me a line at Adrian.GitHub@gmail.com
+ */
+    require __DIR__ . '/../src/phpFITFileAnalysis.php';
+try {
+    $file = '/fit_files/swim.fit';
+        
+    $options = [
+    //		'fixData'	=> [],
+        'units'         => 'raw',
+    //		'pace'		=> false
+    ];
+    $pFFA = new adriangibbons\phpFITFileAnalysis\phpFITFileAnalysis(__DIR__ . $file, $options);
+} catch (Exception $e) {
+    echo 'caught exception: '.$e->getMessage();
+    die();
+}
+    
+    $units = 'm';
+    $pool_length = $pFFA->data_mesgs['session']['pool_length'];
+    $total_distance = number_format(max($pFFA->data_mesgs['record']['distance']));
+if ($pFFA->enumData('display_measure', $pFFA->data_mesgs['session']['pool_length_unit']) == 'statute') {
+    $pool_length = round($pFFA->data_mesgs['session']['pool_length'] * 1.0936133);
+    $total_distance = number_format(max($pFFA->data_mesgs['record']['distance']) * 1.0936133);
+    $units = 'yd';
+}
 ?>
 <!doctype html>
 <html>
@@ -92,28 +91,28 @@
           </thead>
           <tbody>
             <?php
-				$lengths = count($pFFA->data_mesgs['length']['timestamp']);
-				for($i=0; $i<$lengths; $i++) {
-					$min = floor($pFFA->data_mesgs['length']['total_timer_time'][$i] / 60);
-					$sec = number_format($pFFA->data_mesgs['length']['total_timer_time'][$i] - ($min*60), 1);
-					$dur = $min.':'.$sec;
-					if($pFFA->enumData('length_type', $pFFA->data_mesgs['length']['length_type'][$i]) == 'active') {
-						echo '<tr>';
-						echo '<td>'.($i+1).'</td>';
-						echo '<td>'.$dur.'</td>';
-						echo '<td>'.$pFFA->data_mesgs['length']['total_strokes'][$i].'</td>';
-						echo '<td>'.$pFFA->enumData('swim_stroke', $pFFA->data_mesgs['length']['swim_stroke'][$i]).'</td>';
-						echo '</tr>';
-					}
-					else {
-						echo '<tr class="danger">';echo '<td>'.($i+1).'</td>';
-						echo '<td>'.$dur.'</td>';
-						echo '<td>-</td>';
-						echo '<td>Rest</td>';
-						echo '</tr>';
-					}
-				}
-			?>
+                $lengths = count($pFFA->data_mesgs['length']['timestamp']);
+            for ($i=0; $i<$lengths; $i++) {
+                $min = floor($pFFA->data_mesgs['length']['total_timer_time'][$i] / 60);
+                $sec = number_format($pFFA->data_mesgs['length']['total_timer_time'][$i] - ($min*60), 1);
+                $dur = $min.':'.$sec;
+                if ($pFFA->enumData('length_type', $pFFA->data_mesgs['length']['length_type'][$i]) == 'active') {
+                    echo '<tr>';
+                    echo '<td>'.($i+1).'</td>';
+                    echo '<td>'.$dur.'</td>';
+                    echo '<td>'.$pFFA->data_mesgs['length']['total_strokes'][$i].'</td>';
+                    echo '<td>'.$pFFA->enumData('swim_stroke', $pFFA->data_mesgs['length']['swim_stroke'][$i]).'</td>';
+                    echo '</tr>';
+                } else {
+                    echo '<tr class="danger">';
+                    echo '<td>'.($i+1).'</td>';
+                    echo '<td>'.$dur.'</td>';
+                    echo '<td>-</td>';
+                    echo '<td>Rest</td>';
+                    echo '</tr>';
+                }
+            }
+            ?>
           </tbody>
         </table>
       </div>
@@ -145,12 +144,13 @@
       'label': 'Lap Time',
       'data': [
 <?php
-	$tmp = [];
-	for($i=0; $i<$lengths; $i++) {
-		if($pFFA->enumData('length_type', $pFFA->data_mesgs['length']['length_type'][$i]) == 'active')
-			$tmp[] = '['.$i.', '.$pFFA->data_mesgs['length']['total_timer_time'][$i].']';
-	}
-	echo implode(', ', $tmp);
+    $tmp = [];
+for ($i=0; $i<$lengths; $i++) {
+    if ($pFFA->enumData('length_type', $pFFA->data_mesgs['length']['length_type'][$i]) == 'active') {
+        $tmp[] = '['.$i.', '.$pFFA->data_mesgs['length']['total_timer_time'][$i].']';
+    }
+}
+    echo implode(', ', $tmp);
 ?>
       ],
       lines: { show: true, fill: false, lineWidth: 2 },
@@ -162,12 +162,13 @@
 	  'label': 'Number of Strokes',
       'data': [
 <?php
-	$tmp = [];
-	for($i=0; $i<$lengths; $i++) {
-		if($pFFA->enumData('length_type', $pFFA->data_mesgs['length']['length_type'][$i]) == 'active')
-			$tmp[] = '['.$i.', '.$pFFA->data_mesgs['length']['total_strokes'][$i].']';
-	}
-	echo implode(', ', $tmp);
+    $tmp = [];
+for ($i=0; $i<$lengths; $i++) {
+    if ($pFFA->enumData('length_type', $pFFA->data_mesgs['length']['length_type'][$i]) == 'active') {
+        $tmp[] = '['.$i.', '.$pFFA->data_mesgs['length']['total_strokes'][$i].']';
+    }
+}
+    echo implode(', ', $tmp);
 ?>
       ],
       bars: { show: true, fill: true, fillColor: "rgba(11, 98, 164, 0.3)", lineWidth: 1 },

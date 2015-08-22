@@ -1,45 +1,44 @@
 <?php
-	/*
-	 * Demonstration of the phpFITFileAnalysis class using Twitter Bootstrap framework
-	 * https://github.com/adriangibbons/phpFITFileAnalysis
-	 *
-	 * If you find this useful, feel free to drop me a line at Adrian.GitHub@gmail.com
-	 */
-	require __DIR__ . '/../src/phpFITFileAnalysis.php';
-	
-	try {
-		$file = '/fit_files/power-analysis.fit';
-		
-		$options = [
-	//		'fixData' => ['all'],
-			'units' => ['metric']
-		];
-		$pFFA = new adriangibbons\phpFITFileAnalysis\phpFITFileAnalysis(__DIR__ . $file, $options);
-		
-		// Google Time Zone API
-		$date = new DateTime("1989-12-31", new DateTimeZone("UTC"));  // timestamp[s]: seconds since UTC 00:00:00 Dec 31 1989
-		$date_s = $date->getTimestamp() + $pFFA->data_mesgs['session']['start_time'];
-		
-		$url_tz = "https://maps.googleapis.com/maps/api/timezone/json?location=".reset($pFFA->data_mesgs['record']['position_lat']).','.reset($pFFA->data_mesgs['record']['position_long'])."&timestamp=".$date_s."&key=AIzaSyDlPWKTvmHsZ-X6PGsBPAvo0nm1-WdwuYE";
-		
-		$result = file_get_contents("$url_tz");
-		$json_tz = json_decode($result);
-		if($json_tz->status == "OK") {
-			$date_s = $date_s + $json_tz->rawOffset + $json_tz->dstOffset;
-		}
-		$date->setTimestamp($date_s);
-		
-		$hr_metrics = $pFFA->hrMetrics(52, 185, 172, 'male');
-		$power_metrics = $pFFA->powerMetrics(312);
-		$criticalPower = $pFFA->criticalPower([2,3,5,10,30,60,120,300,600,1200,3600,7200,10800,18000]);
-		$power_histogram = $pFFA->powerHistogram();
-		$power_table = $pFFA->powerPartioned(312);
-		$power_pie_chart = $pFFA->partitionData('power', $pFFA->powerZones(312), true, false);
-	}
-	catch(Exception $e) {
-		echo 'caught exception: '.$e->getMessage();
-		die();
-	}
+/**
+ * Demonstration of the phpFITFileAnalysis class using Twitter Bootstrap framework
+ * https://github.com/adriangibbons/phpFITFileAnalysis
+ *
+ * If you find this useful, feel free to drop me a line at Adrian.GitHub@gmail.com
+ */
+require __DIR__ . '/../src/phpFITFileAnalysis.php';
+    
+try {
+    $file = '/fit_files/power-analysis.fit';
+        
+    $options = [
+    //		'fixData' => ['all'],
+        'units' => ['metric']
+    ];
+    $pFFA = new adriangibbons\phpFITFileAnalysis\phpFITFileAnalysis(__DIR__ . $file, $options);
+        
+    // Google Time Zone API
+    $date = new DateTime("1989-12-31", new DateTimeZone("UTC"));  // timestamp[s]: seconds since UTC 00:00:00 Dec 31 1989
+    $date_s = $date->getTimestamp() + $pFFA->data_mesgs['session']['start_time'];
+        
+    $url_tz = "https://maps.googleapis.com/maps/api/timezone/json?location=".reset($pFFA->data_mesgs['record']['position_lat']).','.reset($pFFA->data_mesgs['record']['position_long'])."&timestamp=".$date_s."&key=AIzaSyDlPWKTvmHsZ-X6PGsBPAvo0nm1-WdwuYE";
+        
+    $result = file_get_contents("$url_tz");
+    $json_tz = json_decode($result);
+    if ($json_tz->status == "OK") {
+        $date_s = $date_s + $json_tz->rawOffset + $json_tz->dstOffset;
+    }
+    $date->setTimestamp($date_s);
+        
+    $hr_metrics = $pFFA->hrMetrics(52, 185, 172, 'male');
+    $power_metrics = $pFFA->powerMetrics(312);
+    $criticalPower = $pFFA->criticalPower([2,3,5,10,30,60,120,300,600,1200,3600,7200,10800,18000]);
+    $power_histogram = $pFFA->powerHistogram();
+    $power_table = $pFFA->powerPartioned(312);
+    $power_pie_chart = $pFFA->partitionData('power', $pFFA->powerZones(312), true, false);
+} catch (Exception $e) {
+    echo 'caught exception: '.$e->getMessage();
+    die();
+}
 ?>
 <!doctype html>
 <html>
@@ -89,17 +88,17 @@
           <div class="col-md-5 col-md-offset-1">
             <h4>Power</h4>
             <?php
-	          foreach($power_metrics as $key => $value) {
+            foreach ($power_metrics as $key => $value) {
                 echo "$key: $value<br>";
-              }
+            }
             ?>
           </div>
           <div class="col-md-5">
             <h4>Heart Rate</h4>
             <?php
-	          foreach($hr_metrics as $key => $value) {
+            foreach ($hr_metrics as $key => $value) {
                 echo "$key: $value<br>";
-              }
+            }
             ?>
           </div>
         </div>
@@ -137,13 +136,13 @@
               </thead>
               <tbody>
               	<?php
-					$i = 1;
-					foreach($power_table as $key => $value) {
-						echo '<tr id="'.number_format($value, 1, '-', '').'">';
-						echo '<td>'.$i++.'</td><td>'.$key.' w</td><td>'.$value.' %</td>';
-						echo '</tr>';
-					}
-				?>
+                    $i = 1;
+                foreach ($power_table as $key => $value) {
+                    echo '<tr id="'.number_format($value, 1, '-', '').'">';
+                    echo '<td>'.$i++.'</td><td>'.$key.' w</td><td>'.$value.' %</td>';
+                    echo '</tr>';
+                }
+                ?>
                 </tr>
               </tbody>
             </table>
@@ -199,9 +198,9 @@
       'color': 'rgba(11, 98, 164, 1)',
       'data': [
 <?php
-	foreach($criticalPower as $key => $value) {
-		echo '['.$key.', '.$value.'], ';
-	}
+foreach ($criticalPower as $key => $value) {
+    echo '['.$key.', '.$value.'], ';
+}
 ?>
       ]
     };
@@ -241,9 +240,9 @@
 	  bars: { show: true, zero: false, barWidth: 25, fillColor: "rgba(77, 167, 77, 0.5)", lineWidth: 1 },
       'data': [
 <?php
-	foreach($power_histogram as $key => $value) {
-		echo '['.$key.', '.$value.'], ';
-	}
+foreach ($power_histogram as $key => $value) {
+    echo '['.$key.', '.$value.'], ';
+}
 ?>
       ]
     };
