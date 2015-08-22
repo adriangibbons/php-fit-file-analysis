@@ -49,16 +49,16 @@ $pFFA->data_mesgs['session']['num_laps']
 You could either iterate through the $pFFA->data_mesgs array, or take a look at the debug information you can dump to a webpage:
 ```php
 // Option 1. Iterate through the $pFFA->data_mesgs array
-foreach($pFFA->data_mesgs as $mesg_key => $mesg) {  // Iterate the array and output the messages
+foreach ($pFFA->data_mesgs as $mesg_key => $mesg) {  // Iterate the array and output the messages
     echo "<strong>Found Message: $mesg_key</strong><br>";
-    foreach($mesg as $field_key => $field) {  // Iterate each message and output the fields
+    foreach ($mesg as $field_key => $field) {  // Iterate each message and output the fields
         echo " - Found Field: $mesg_key -> $field_key<br>";
     }
     echo "<br>";
 }
 
 // Option 2. Show the debug information
-$pFFA->show_debug_info();  // Quite a lot of info...
+$pFFA->showDebugInfo();  // Quite a lot of info...
 ```
 **How about some real-world examples?**
 ```php
@@ -68,7 +68,7 @@ echo "Average Speed: ".( array_sum($pFFA->data_mesgs['record']['speed']) / count
 
 // Put HR data into a JavaScript array for use in a Chart
 echo "var chartData = [";
-    foreach( $pFFA->data_mesgs['record']['heart_rate'] as $timestamp => $hr_value ) {
+    foreach ($pFFA->data_mesgs['record']['heart_rate'] as $timestamp => $hr_value) {
         echo "[$timestamp,$hr_value],";
     }
 echo "];";
@@ -79,19 +79,17 @@ The FIT protocol makes use of enumerated data types. Where these values have bee
 A public function is available, which will return the enumerated value for a given message type. For example:
 ```php
 // Access data stored within the private class variable $enum_data
-// $pFFA->get_enum_data($type, $value)
+// $pFFA->enumData($type, $value)
 // e.g.
-echo $pFFA->get_enum_data('sport', 2));  // returns 'cycling'
-echo $pFFA->get_enum_data('manufacturer', $this->data_mesgs['device_info']['manufacturer']);  // returns 'Garmin';
-echo $pFFA->get_manufacturer();  // Short-hand for above
+echo $pFFA->enumData('sport', 2));  // returns 'cycling'
+echo $pFFA->enumData('manufacturer', $this->data_mesgs['device_info']['manufacturer']);  // returns 'Garmin';
+echo $pFFA->manufacturer();  // Short-hand for above
 ```
 In addition, public functions provide a short-hand way to access commonly used enumerated data:
 
- - get_manufacturer()
- - get_product()
- - get_sport()
- - get_sub_sport()
- - get_swim_stroke()
+ - manufacturer()
+ - product()
+ - sport()
 
 ###Optional Parameters
 There are three optional parameters that can be passed as an associative array when the phpFITFileAnalysis object is instantiated. These are:
@@ -174,8 +172,8 @@ For cadence, zeroes are inserted as it is thought that it is likely no data has 
 **Interpolation of missing data points**
 ```php
 // Do not use code, just for demonstration purposes
-var_dump( $pFFA->data_mesgs['record']['temperature'] );  // ['100'=>22, '101'=>22, '102'=>23, '103'=>23, '104'=>23];
-var_dump( $pFFA->data_mesgs['record']['distance'] );  // ['100'=>3.62, '101'=>4.01, '104'=>10.88];
+var_dump($pFFA->data_mesgs['record']['temperature']);  // ['100'=>22, '101'=>22, '102'=>23, '103'=>23, '104'=>23];
+var_dump($pFFA->data_mesgs['record']['distance']);  // ['100'=>3.62, '101'=>4.01, '104'=>10.88];
 ```
 As you can see from the trivial example above, temperature data have been recorded for each of five timestamps (100, 101, 102, 103, and 104). However, distance information has not been recorded for timestamps 102 and 103.
 
@@ -183,7 +181,7 @@ If *fix_data* includes 'distance', then the class will attempt to insert data in
 
 The result would be:
 ```php
-var_dump( $pFFA->data_mesgs['record']['distance'] );  // ['100'=>3.62, '101'=>4.01, '102'=>6.30, '103'=>8.59, '104'=>10.88];
+var_dump($pFFA->data_mesgs['record']['distance']);  // ['100'=>3.62, '101'=>4.01, '102'=>6.30, '103'=>8.59, '104'=>10.88];
 ```
 
 ####Set Units
@@ -235,7 +233,7 @@ $options = ['pace' => true];
 ```
 Pace values will be decimal minutes. To get the seconds, you may wish to do something like:
 ```php
-foreach($pFFA->data_mesgs['record']['speed'] as $key => $value) {
+foreach ($pFFA->data_mesgs['record']['speed'] as $key => $value) {
     $min = floor($value);
     $sec = round(60 * ($value - $min));
     echo "pace: $min min $sec sec<br>";
@@ -246,28 +244,28 @@ Note that if 'raw' units are requested then this parameter has no effect on the 
 ##Analysis
 The following functions return arrays of that could be used to create tables/charts:
 ```php
-$pFFA->hr_partioned_HRmaximum(195);  // Input: HRmaximum
-$pFFA->hr_partioned_HRreserve(48, 195);  // Inputs: HRmaximum and HRresting
-$pFFA->power_partioned(312);  // Input: Functional Threshold Power
-$pFFA->power_histogram();  // Input: bucket width (optional; default=25w)
+$pFFA->hrPartionedHRmaximum(195);  // Input: HRmaximum
+$pFFA->hrPartionedHRreserve(48, 195);  // Inputs: HRmaximum and HRresting
+$pFFA->powerPartioned(312);  // Input: Functional Threshold Power
+$pFFA->powerHistogram();  // Input: bucket width (optional; default=25w)
 ```
 For advanced control over these functions, or use with other sensor data (e.g. cadence or speed), use the underlying functions:
 ```php
-$pFFA->partition_data($record_field='', $thresholds=null, $percentages=true, $labels_for_keys=true);
+$pFFA->partitionData($record_field='', $thresholds=null, $percentages=true, $labels_for_keys=true);
 $pFFA->histogram($bucket_width=25, $record_field='');
 ```
 Functions exist to determine thresholds based on percentages of user-supplied data:
 ```php
-$pFFA->hr_zones_max($hr_maximum, $percentages_array=[0.60, 0.75, 0.85, 0.95]);
-$pFFA->hr_zones_reserve($hr_resting, $hr_maximum, $percentages_array=[0.60, 0.65, 0.75, 0.82, 0.89, 0.94 ]) {
-$pFFA->power_zones($functional_threshold_power, $percentages_array=[0.55, 0.75, 0.90, 1.05, 1.20, 1.50]);
+$pFFA->hrZonesMax($hr_maximum, $percentages_array=[0.60, 0.75, 0.85, 0.95]);
+$pFFA->hrZonesReserve($hr_resting, $hr_maximum, $percentages_array=[0.60, 0.65, 0.75, 0.82, 0.89, 0.94 ]) {
+$pFFA->powerZones($functional_threshold_power, $percentages_array=[0.55, 0.75, 0.90, 1.05, 1.20, 1.50]);
 ```
 ###Heart Rate
 A function exists for analysing heart rate data:
 ```php
 // hr_FT is heart rate at Functional Threshold, or Lactate Threshold Heart Rate
-$pFFA->hr_metrics($hr_resting, $hr_maximum, $hr_FT, $gender);
-// e.g. $pFFA->hr_metrics(52, 189, 172, 'male');
+$pFFA->hrMetrics($hr_resting, $hr_maximum, $hr_FT, $gender);
+// e.g. $pFFA->hrMetrics(52, 189, 172, 'male');
 ```
 **Heart Rate metrics:**
  * TRIMP (TRaining IMPulse)
@@ -276,8 +274,8 @@ $pFFA->hr_metrics($hr_resting, $hr_maximum, $hr_FT, $gender);
 ###Power
 Two functions exist for analysing power data:
 ```php
-$pFFA->power_metrics($functional_threshold_power);  // e.g. 312
-$pFFA->critical_power($time_periods);  // e.g. 300 or [300, 600, 900, 1200]
+$pFFA->powerMetrics($functional_threshold_power);  // e.g. 312
+$pFFA->criticalPower($time_periods);  // e.g. 300 or [300, 600, 900, 1200]
 ```
 **Power metrics:**
  * Average Power
@@ -289,7 +287,7 @@ $pFFA->critical_power($time_periods);  // e.g. 300 or [300, 600, 900, 1200]
 
 **Critical Power** (or Best Effort) is the highest average power sustained for a specified period of time within the activity. You can supply a single time period (in seconds), or an array or time periods.
 
-Note that ```$pFFA->critical_power``` and some power metrics (Normalised Power, Variability Index, Intensity Factor, Training Stress Score) will use the [PHP Trader](http://php.net/manual/en/book.trader.php) extension if it is loaded on the server. If the extension is not loaded then it will use the built-in Simple Moving Average algorithm, which is far less performant particularly for larger files!
+Note that ```$pFFA->criticalPower``` and some power metrics (Normalised Power, Variability Index, Intensity Factor, Training Stress Score) will use the [PHP Trader](http://php.net/manual/en/book.trader.php) extension if it is loaded on the server. If the extension is not loaded then it will use the built-in Simple Moving Average algorithm, which is far less performant particularly for larger files!
 
 
 A demo of power analysis is available [here](http://www.adriangibbons.com/phpFITFileAnalysis-demo/analysis_power.php).
