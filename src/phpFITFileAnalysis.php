@@ -14,9 +14,9 @@ namespace adriangibbons\phpFITFileAnalysis;
  * https://github.com/adriangibbons/phpFITFileAnalysis
  * http://www.thisisant.com/resources/fit
  */
- 
-define('DEFINITION_MESSAGE', 1);
-define('DATA_MESSAGE', 0);
+
+if (!defined('DEFINITION_MESSAGE')) define('DEFINITION_MESSAGE', 1);
+if (!defined('DATA_MESSAGE')) define('DATA_MESSAGE', 0);
 
 class phpFITFileAnalysis
 {
@@ -608,10 +608,10 @@ class phpFITFileAnalysis
     public function __construct($file_path, $options = null)
     {
         if (empty($file_path)) {
-            throw new Exception('phpFITFileAnalysis->__construct(): file_path is empty!');
+            throw new \Exception('phpFITFileAnalysis->__construct(): file_path is empty!');
         }
         if (!file_exists($file_path)) {
-            throw new Exception('phpFITFileAnalysis->__construct(): file \''.$file_path.'\' does not exist!');
+            throw new \Exception('phpFITFileAnalysis->__construct(): file \''.$file_path.'\' does not exist!');
         }
         $this->php_trader_ext_loaded = extension_loaded('trader');
         
@@ -642,7 +642,7 @@ class phpFITFileAnalysis
         $this->file_pointer++;
         
         if ($header_size != 12 && $header_size != 14) {
-            throw new Exception('phpFITFileAnalysis->readHeader(): not a valid header size!');
+            throw new \Exception('phpFITFileAnalysis->readHeader(): not a valid header size!');
         }
         
         $header_fields = 'C1protocol_version/' .
@@ -660,11 +660,11 @@ class phpFITFileAnalysis
         $file_extension = sprintf('%c%c%c%c', $this->file_header['data_type1'], $this->file_header['data_type2'], $this->file_header['data_type3'], $this->file_header['data_type4']);
         
         if ($file_extension != '.FIT' || $this->file_header['data_size'] <= 0) {
-            throw new Exception('phpFITFileAnalysis->readHeader(): not a valid FIT file!');
+            throw new \Exception('phpFITFileAnalysis->readHeader(): not a valid FIT file!');
         }
         
         if (strlen($this->file_contents) - $header_size - 2 !== $this->file_header['data_size']) {
-            throw new Exception('phpFITFileAnalysis->readHeader(): file_header[\'data_size\'] does not seem correct!');
+            throw new \Exception('phpFITFileAnalysis->readHeader(): file_header[\'data_size\'] does not seem correct!');
         }
     }
     
@@ -686,7 +686,7 @@ class phpFITFileAnalysis
              * Table 4-1. Normal Header Bit Field Description
              */
             if (($record_header_byte >> 7) & 1) {  // Check that it's a normal header
-                throw new Exception('phpFITFileAnalysis->readDataRecords(): this class can only handle normal headers!');
+                throw new \Exception('phpFITFileAnalysis->readDataRecords(): this class can only handle normal headers!');
             }
             $message_type = ($record_header_byte >> 6) & 1;  // 1: DEFINITION_MESSAGE; 0: DATA_MESSAGE
             $local_mesg_type = $record_header_byte & 15;  // bindec('1111') == 15
@@ -861,7 +861,7 @@ class phpFITFileAnalysis
 
         });  // Make all lower-case.
         if (count(array_intersect(['all', 'cadence', 'distance', 'heart_rate', 'lat_lon', 'speed', 'power'], $options['fixData'])) === 0) {
-            throw new Exception('phpFITFileAnalysis->fixData(): option not valid!');
+            throw new \Exception('phpFITFileAnalysis->fixData(): option not valid!');
         }
         
         $bCadence = $bDistance = $bHeartRate = $bLatitudeLongitude = $bSpeed = $bPower = false;
@@ -1097,10 +1097,10 @@ class phpFITFileAnalysis
                 if ($pace === 'true' || $pace === 'false') {
                     $bPace = $pace;
                 } else {
-                    throw new Exception('phpFITFileAnalysis->setUnits(): pace option not valid!');
+                    throw new \Exception('phpFITFileAnalysis->setUnits(): pace option not valid!');
                 }
             } else {
-                throw new Exception('phpFITFileAnalysis->setUnits(): pace option not valid!');
+                throw new \Exception('phpFITFileAnalysis->setUnits(): pace option not valid!');
             }
         }
         
@@ -1219,7 +1219,7 @@ class phpFITFileAnalysis
                 }
                 break;
             default:
-                throw new Exception('phpFITFileAnalysis->setUnits(): units option not valid!');
+                throw new \Exception('phpFITFileAnalysis->setUnits(): units option not valid!');
                 break;
         }
     }
@@ -1235,7 +1235,7 @@ class phpFITFileAnalysis
         }, $hr_maximum)) {
             return $percentages_array;
         } else {
-            throw new Exception('phpFITFileAnalysis->hrZonesMax(): cannot calculate zones, please check inputs!');
+            throw new \Exception('phpFITFileAnalysis->hrZonesMax(): cannot calculate zones, please check inputs!');
         }
     }
     
@@ -1250,7 +1250,7 @@ class phpFITFileAnalysis
         }, [$hr_resting, $hr_maximum - $hr_resting])) {
             return $percentages_array;
         } else {
-            throw new Exception('phpFITFileAnalysis->hrZonesReserve(): cannot calculate zones, please check inputs!');
+            throw new \Exception('phpFITFileAnalysis->hrZonesReserve(): cannot calculate zones, please check inputs!');
         }
     }
     
@@ -1265,7 +1265,7 @@ class phpFITFileAnalysis
         }, $functional_threshold_power)) {
             return $percentages_array;
         } else {
-            throw new Exception('phpFITFileAnalysis->powerZones(): cannot calculate zones, please check inputs!');
+            throw new \Exception('phpFITFileAnalysis->powerZones(): cannot calculate zones, please check inputs!');
         }
     }
     
@@ -1275,18 +1275,18 @@ class phpFITFileAnalysis
     public function partitionData($record_field = '', $thresholds = null, $percentages = true, $labels_for_keys = true)
     {
         if (!isset($this->data_mesgs['record'][$record_field])) {
-            throw new Exception('phpFITFileAnalysis->partitionData(): '.$record_field.' data not present in FIT file!');
+            throw new \Exception('phpFITFileAnalysis->partitionData(): '.$record_field.' data not present in FIT file!');
         }
         if (!is_array($thresholds)) {
-            throw new Exception('phpFITFileAnalysis->partitionData(): thresholds must be an array e.g. [10,20,30,40,50]!');
+            throw new \Exception('phpFITFileAnalysis->partitionData(): thresholds must be an array e.g. [10,20,30,40,50]!');
         }
         
         foreach ($thresholds as $threshold) {
             if (!is_numeric($threshold) || $threshold < 0) {
-                throw new Exception('phpFITFileAnalysis->partitionData(): '.$threshold.' not valid in thresholds!');
+                throw new \Exception('phpFITFileAnalysis->partitionData(): '.$threshold.' not valid in thresholds!');
             }
             if (isset($last_threshold) && $last_threshold >= $threshold) {
-                throw new Exception('phpFITFileAnalysis->partitionData(): error near ..., '.$last_threshold.', '.$threshold.', ... - each element in thresholds array must be greater than previous element!');
+                throw new \Exception('phpFITFileAnalysis->partitionData(): error near ..., '.$last_threshold.', '.$threshold.', ... - each element in thresholds array must be greater than previous element!');
             }
             $last_threshold = $threshold;
         }
@@ -1332,10 +1332,10 @@ class phpFITFileAnalysis
     public function histogram($bucket_width = 25, $record_field = '')
     {
         if (!isset($this->data_mesgs['record'][$record_field])) {
-            throw new Exception('phpFITFileAnalysis->histogram(): '.$record_field.' data not present in FIT file!');
+            throw new \Exception('phpFITFileAnalysis->histogram(): '.$record_field.' data not present in FIT file!');
         }
         if (!is_numeric($bucket_width) || $bucket_width <= 0) {
-            throw new Exception('phpFITFileAnalysis->histogram(): bucket width is not valid!');
+            throw new \Exception('phpFITFileAnalysis->histogram(): bucket width is not valid!');
         }
         
         foreach ($this->data_mesgs['record'][$record_field] as $value) {
@@ -1425,7 +1425,7 @@ class phpFITFileAnalysis
     public function powerMetrics($functional_threshold_power)
     {
         if (!isset($this->data_mesgs['record']['power'])) {
-            throw new Exception('phpFITFileAnalysis->powerMetrics(): power data not present in FIT file!');
+            throw new \Exception('phpFITFileAnalysis->powerMetrics(): power data not present in FIT file!');
         }
         
         $power_metrics['Average Power'] = array_sum($this->data_mesgs['record']['power']) / count($this->data_mesgs['record']['power']);
@@ -1462,17 +1462,17 @@ class phpFITFileAnalysis
     public function criticalPower($time_periods)
     {
         if (!isset($this->data_mesgs['record']['power'])) {
-            throw new Exception('phpFITFileAnalysis->criticalPower(): power data not present in FIT file!');
+            throw new \Exception('phpFITFileAnalysis->criticalPower(): power data not present in FIT file!');
         }
         
         if (is_array($time_periods)) {
             $count = count($this->data_mesgs['record']['power']);
             foreach ($time_periods as $time_period) {
                 if (!is_numeric($time_period)) {
-                    throw new Exception('phpFITFileAnalysis->criticalPower(): time periods must only contain numeric data!');
+                    throw new \Exception('phpFITFileAnalysis->criticalPower(): time periods must only contain numeric data!');
                 }
                 if ($time_period < 0) {
-                    throw new Exception('phpFITFileAnalysis->criticalPower(): time periods cannot be negative!');
+                    throw new \Exception('phpFITFileAnalysis->criticalPower(): time periods cannot be negative!');
                 }
                 if ($time_period > $count) {
                     break;
@@ -1497,7 +1497,7 @@ class phpFITFileAnalysis
             
             return $criticalPower_values;
         } else {
-            throw new Exception('phpFITFileAnalysis->criticalPower(): time periods not valid!');
+            throw new \Exception('phpFITFileAnalysis->criticalPower(): time periods not valid!');
         }
     }
     
