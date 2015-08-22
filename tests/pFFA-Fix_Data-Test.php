@@ -17,16 +17,16 @@ class FixDataTest extends PHPUnit_Framework_TestCase
     /**
      * Original road-cycling.fit before fix_data() contains:
      * 
-     * record message    | count()
+     * record message   | count()
      * -----------------+--------
      * timestamp        | 4317
-     * position_lat        | 4309 <- test
+     * position_lat     | 4309 <- test
      * position_long    | 4309 <- test
-     * distance            | 4309 <- test
-     * altitude            | 4317
+     * distance         | 4309 <- test
+     * altitude         | 4317
      * speed            | 4309 <- test
-     * heart_rate        | 4316 <- test
-     * temperature        | 4317
+     * heart_rate       | 4316 <- test
+     * temperature      | 4317
      */
     public function testFixData_before()
     {
