@@ -390,9 +390,9 @@ class phpFITFileAnalysis {
 		0	=> 255,		// 0xFF
 		1	=> 127,		// 0x7F
 		2	=> 255,		// 0xFF
-		131	=> 65535,	// 0xFFFF - manually convert uint16 to sint16 in fix_data()
+		131	=> 32767,	// 0x7FFF
 		132	=> 65535,	// 0xFFFF
-		133	=> 4294967295,	// 0xFFFFFFFF - manually convert uint32 to sint32 in fix_data()
+		133	=> 2147483647,	// 0x7FFFFFFF
 		134	=> 4294967295,	// 0xFFFFFFFF
 		7	=> 0,			// 0x00
 		136	=> 4294967295,	// 0xFFFFFFFF
@@ -804,42 +804,46 @@ class phpFITFileAnalysis {
 					// Convert uint16 to sint16
 					if($field['base_type'] === 131 && isset($this->data_mesg_info[$mesg['global_mesg_num']]['field_defns'][$field['field_definition_number']]['field_name'])) {
 						$field_name = $this->data_mesg_info[$mesg['global_mesg_num']]['field_defns'][$field['field_definition_number']]['field_name'];
-						if(is_array($this->data_mesgs[$mesg_name][$field_name])) {
-							foreach($this->data_mesgs[$mesg_name][$field_name] as &$v) {
-								if(PHP_INT_SIZE === 8 && $v > 0x7FFF) {
-									$v -= 0x10000;
-								}
-								if($v > 0x7FFF) {
-									$v = -1 * ($v - 0x7FFF);
-								}
-							}
-						}
-						else if($this->data_mesgs[$mesg_name][$field_name] > 0x7FFF) {
-							if(PHP_INT_SIZE === 8) {
-								$this->data_mesgs[$mesg_name][$field_name] -= 0x10000;
-							}
-							$this->data_mesgs[$mesg_name][$field_name] = -1 * ($this->data_mesgs[$mesg_name][$field_name] - 0x7FFF);
-						}
+                        if(isset($this->data_mesgs[$mesg_name][$field_name])) {
+                            if(is_array($this->data_mesgs[$mesg_name][$field_name])) {
+                                foreach($this->data_mesgs[$mesg_name][$field_name] as &$v) {
+                                    if(PHP_INT_SIZE === 8 && $v > 0x7FFF) {
+                                        $v -= 0x10000;
+                                    }
+                                    if($v > 0x7FFF) {
+                                        $v = -1 * ($v - 0x7FFF);
+                                    }
+                                }
+                            }
+                            else if($this->data_mesgs[$mesg_name][$field_name] > 0x7FFF) {
+                                if(PHP_INT_SIZE === 8) {
+                                    $this->data_mesgs[$mesg_name][$field_name] -= 0x10000;
+                                }
+                                $this->data_mesgs[$mesg_name][$field_name] = -1 * ($this->data_mesgs[$mesg_name][$field_name] - 0x7FFF);
+                            }
+                        }
 					}
 					// Convert uint32 to sint32
 					else if($field['base_type'] === 133 && isset($this->data_mesg_info[$mesg['global_mesg_num']]['field_defns'][$field['field_definition_number']]['field_name'])) {
 						$field_name = $this->data_mesg_info[$mesg['global_mesg_num']]['field_defns'][$field['field_definition_number']]['field_name'];
-						if(is_array($this->data_mesgs[$mesg_name][$field_name])) {
-							foreach($this->data_mesgs[$mesg_name][$field_name] as &$v) {
-								if(PHP_INT_SIZE === 8 && $v > 0x7FFFFFFF) {
-									$v -= 0x100000000;
-								}
-								if($v > 0x7FFFFFFF) {
-									$v = -1 * ($v - 0x7FFFFFFF);
-								}
-							}
-						}
-						else if($this->data_mesgs[$mesg_name][$field_name] > 0x7FFFFFFF) {
-							if(PHP_INT_SIZE === 8) {
-								$this->data_mesgs[$mesg_name][$field_name] -= 0x100000000;
-							}
-							$this->data_mesgs[$mesg_name][$field_name] = -1 * ($this->data_mesgs[$mesg_name][$field_name] - 0x7FFFFFFF);
-						}
+                        if(isset($this->data_mesgs[$mesg_name][$field_name])) {
+                            if(is_array($this->data_mesgs[$mesg_name][$field_name])) {
+                                foreach($this->data_mesgs[$mesg_name][$field_name] as &$v) {
+                                    if(PHP_INT_SIZE === 8 && $v > 0x7FFFFFFF) {
+                                        $v -= 0x100000000;
+                                    }
+                                    if($v > 0x7FFFFFFF) {
+                                        $v = -1 * ($v - 0x7FFFFFFF);
+                                    }
+                                }
+                            }
+                            else if($this->data_mesgs[$mesg_name][$field_name] > 0x7FFFFFFF) {
+                                if(PHP_INT_SIZE === 8) {
+                                    $this->data_mesgs[$mesg_name][$field_name] -= 0x100000000;
+                                }
+                                $this->data_mesgs[$mesg_name][$field_name] = -1 * ($this->data_mesgs[$mesg_name][$field_name] - 0x7FFFFFFF);
+                            }
+                        }
 					}
 				}
 			}
