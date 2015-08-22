@@ -1,7 +1,7 @@
 <?php
 error_reporting(E_ALL);
-if(!class_exists('phpFITFileAnalysis')) {
-    require __DIR__ . '/../src/php-FIT-File-Analysis.php';
+if(!class_exists('adriangibbons\phpFITFileAnalysis\phpFITFileAnalysis')) {
+    require __DIR__ . '/../src/phpFITFileAnalysis.php';
 }
 
 class BasicTest extends PHPUnit_Framework_TestCase
@@ -28,7 +28,7 @@ class BasicTest extends PHPUnit_Framework_TestCase
     {
         foreach($this->demo_files as $filename) {
 
-            $pFFA = new phpFITFileAnalysis($this->base_dir . $filename);
+            $pFFA = new adriangibbons\phpFITFileAnalysis\phpFITFileAnalysis($this->base_dir . $filename);
             
             $this->assertGreaterThan(0, $pFFA->data_mesgs['activity']['timestamp'], 'No Activity timestamp!');
 

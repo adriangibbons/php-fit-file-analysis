@@ -1,7 +1,7 @@
 <?php
 error_reporting(E_ALL);
-if(!class_exists('phpFITFileAnalysis')) {
-    require __DIR__ . '/../src/php-FIT-File-Analysis.php';
+if(!class_exists('adriangibbons\phpFITFileAnalysis\phpFITFileAnalysis')) {
+    require __DIR__ . '/../src/phpFITFileAnalysis.php';
 }
 
 class SetUnitsTest extends PHPUnit_Framework_TestCase
@@ -18,7 +18,7 @@ class SetUnitsTest extends PHPUnit_Framework_TestCase
     {
         $valid_options = ['raw', 'statute', 'metric'];
         foreach($valid_options as $valid_option) {
-            $pFFA = new phpFITFileAnalysis($this->base_dir . $this->filename, ['units' => $valid_option]);
+            $pFFA = new adriangibbons\phpFITFileAnalysis\phpFITFileAnalysis($this->base_dir . $this->filename, ['units' => $valid_option]);
             
             if($valid_option === 'raw') {
                 $this->assertEquals(1.286, reset($pFFA->data_mesgs['record']['speed']));
@@ -37,14 +37,14 @@ class SetUnitsTest extends PHPUnit_Framework_TestCase
      */
     public function testSetUnits_validate_options_fail()
     {
-        $pFFA = new phpFITFileAnalysis($this->base_dir . $this->filename, ['units' => 'INVALID']);
+        $pFFA = new adriangibbons\phpFITFileAnalysis\phpFITFileAnalysis($this->base_dir . $this->filename, ['units' => 'INVALID']);
     }
     
     public function testSetUnits_validate_pace_option_pass()
     {
         $valid_options = [true, false];
         foreach($valid_options as $valid_option) {
-            $pFFA = new phpFITFileAnalysis($this->base_dir . $this->filename, ['units' => 'raw', 'pace' => $valid_option]);
+            $pFFA = new adriangibbons\phpFITFileAnalysis\phpFITFileAnalysis($this->base_dir . $this->filename, ['units' => 'raw', 'pace' => $valid_option]);
             
             $this->assertEquals(1.286, reset($pFFA->data_mesgs['record']['speed']));
         }
@@ -55,6 +55,6 @@ class SetUnitsTest extends PHPUnit_Framework_TestCase
      */
     public function testSetUnits_validate_pace_option_fail()
     {
-        $pFFA = new phpFITFileAnalysis($this->base_dir . $this->filename, ['pace' => 'INVALID']);
+        $pFFA = new adriangibbons\phpFITFileAnalysis\phpFITFileAnalysis($this->base_dir . $this->filename, ['pace' => 'INVALID']);
     }
 }
