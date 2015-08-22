@@ -10,7 +10,7 @@
 		$file = '/fit_files/swim.fit';
 		
 		$options = [
-	//		'fix_data'	=> [],
+	//		'fixData'	=> [],
 			'units'		=> 'raw',
 	//		'pace'		=> false
 		];
@@ -24,7 +24,7 @@
 	$units = 'm';
 	$pool_length = $pFFA->data_mesgs['session']['pool_length'];
 	$total_distance = number_format(max($pFFA->data_mesgs['record']['distance']));
-	if($pFFA->enum_data('display_measure', $pFFA->data_mesgs['session']['pool_length_unit']) == 'statute') {
+	if($pFFA->enumData('display_measure', $pFFA->data_mesgs['session']['pool_length_unit']) == 'statute') {
 		$pool_length = round($pFFA->data_mesgs['session']['pool_length'] * 1.0936133);
 		$total_distance = number_format(max($pFFA->data_mesgs['record']['distance']) * 1.0936133);
 		$units = 'yd';
@@ -97,12 +97,12 @@
 					$min = floor($pFFA->data_mesgs['length']['total_timer_time'][$i] / 60);
 					$sec = number_format($pFFA->data_mesgs['length']['total_timer_time'][$i] - ($min*60), 1);
 					$dur = $min.':'.$sec;
-					if($pFFA->enum_data('length_type', $pFFA->data_mesgs['length']['length_type'][$i]) == 'active') {
+					if($pFFA->enumData('length_type', $pFFA->data_mesgs['length']['length_type'][$i]) == 'active') {
 						echo '<tr>';
 						echo '<td>'.($i+1).'</td>';
 						echo '<td>'.$dur.'</td>';
 						echo '<td>'.$pFFA->data_mesgs['length']['total_strokes'][$i].'</td>';
-						echo '<td>'.$pFFA->enum_data('swim_stroke', $pFFA->data_mesgs['length']['swim_stroke'][$i]).'</td>';
+						echo '<td>'.$pFFA->enumData('swim_stroke', $pFFA->data_mesgs['length']['swim_stroke'][$i]).'</td>';
 						echo '</tr>';
 					}
 					else {
@@ -147,7 +147,7 @@
 <?php
 	$tmp = [];
 	for($i=0; $i<$lengths; $i++) {
-		if($pFFA->enum_data('length_type', $pFFA->data_mesgs['length']['length_type'][$i]) == 'active')
+		if($pFFA->enumData('length_type', $pFFA->data_mesgs['length']['length_type'][$i]) == 'active')
 			$tmp[] = '['.$i.', '.$pFFA->data_mesgs['length']['total_timer_time'][$i].']';
 	}
 	echo implode(', ', $tmp);
@@ -164,7 +164,7 @@
 <?php
 	$tmp = [];
 	for($i=0; $i<$lengths; $i++) {
-		if($pFFA->enum_data('length_type', $pFFA->data_mesgs['length']['length_type'][$i]) == 'active')
+		if($pFFA->enumData('length_type', $pFFA->data_mesgs['length']['length_type'][$i]) == 'active')
 			$tmp[] = '['.$i.', '.$pFFA->data_mesgs['length']['total_strokes'][$i].']';
 	}
 	echo implode(', ', $tmp);

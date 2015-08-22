@@ -15,7 +15,7 @@
 		
 		$options = [
 	// Just using the defaults so no need to provide
-	//		'fix_data'	=> [],
+	//		'fixData'	=> [],
 	//		'units'		=> 'metric',
 	//		'pace'		=> false
 		];
@@ -202,7 +202,7 @@
         <h3 class="panel-title"><i class="fa fa-bug"></i> Debug Information</h3>
       </div>
       <div class="panel-body">
-        <?php $pFFA->show_debug_info(); ?>
+        <?php $pFFA->showDebugInfo(); ?>
       </div>
     </div>
   </div>

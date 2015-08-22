@@ -16,18 +16,18 @@ class HRTest extends PHPUnit_Framework_TestCase
         $this->pFFA = new phpFITFileAnalysis($this->base_dir . $this->filename, ['units' => 'raw']);
     }
     
-    public function testHR_hr_metrics()
+    public function testHR_hrMetrics()
     {
-        $hr_metrics = $this->pFFA->hr_metrics(50, 190, 170, 'male');
+        $hr_metrics = $this->pFFA->hrMetrics(50, 190, 170, 'male');
         
         $this->assertEquals(74, $hr_metrics['TRIMPexp']);
         $this->assertEquals(0.8, $hr_metrics['hrIF']);
     }
     
-    public function testHR_hr_partioned_HRmaximum()
+    public function testHR_hrPartionedHRmaximum()
     {
-        // Calls phpFITFileAnalysis::hr_zones_max()
-        $hr_partioned_HRmaximum = $this->pFFA->hr_partioned_HRmaximum(190);
+        // Calls phpFITFileAnalysis::hrZonesMax()
+        $hr_partioned_HRmaximum = $this->pFFA->hrPartionedHRmaximum(190);
         
         $this->assertEquals(19.4, $hr_partioned_HRmaximum['0-113']);
         $this->assertEquals(33.1, $hr_partioned_HRmaximum['114-142']);
@@ -36,10 +36,10 @@ class HRTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(0, $hr_partioned_HRmaximum['181+']);
     }
     
-    public function testHR_hr_partioned_HRreserve()
+    public function testHR_hrPartionedHRreserve()
     {
-        // Calls phpFITFileAnalysis::hr_zones_reserve()
-        $hr_partioned_HRreserve = $this->pFFA->hr_partioned_HRreserve(50, 190);
+        // Calls phpFITFileAnalysis::hrZonesReserve()
+        $hr_partioned_HRreserve = $this->pFFA->hrPartionedHRreserve(50, 190);
         
         $this->assertEquals(45.1, $hr_partioned_HRreserve['0-133']);
         $this->assertEquals(5.8, $hr_partioned_HRreserve['134-140']);

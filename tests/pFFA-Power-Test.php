@@ -16,10 +16,10 @@ class PowerTest extends PHPUnit_Framework_TestCase
         $this->pFFA = new phpFITFileAnalysis($this->base_dir . $this->filename, ['units' => 'raw']);
     }
     
-    public function testPower_critical_power_values()
+    public function testPower_criticalPower_values()
     {
         $time_periods = [2,5,10,60,300,600,1200,1800,3600];
-        $cps = $this->pFFA->critical_power($time_periods);
+        $cps = $this->pFFA->criticalPower($time_periods);
         
         array_walk($cps, function(&$v) { $v = round($v, 2); });
         
@@ -33,18 +33,18 @@ class PowerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(221.81, $cps[1800]);
     }
     
-    public function testPower_critical_power_time_period_max()
+    public function testPower_criticalPower_time_period_max()
     {
         // 14400 seconds is 4 hours and longer than file duration so should only get one result back (for 2 seconds)
         $time_periods = [2,14400];
-        $cps = $this->pFFA->critical_power($time_periods);
+        $cps = $this->pFFA->criticalPower($time_periods);
         
         $this->assertEquals(1, count($cps));
     }
     
-    public function testPower_power_metrics()
+    public function testPower_powerMetrics()
     {
-        $power_metrics = $this->pFFA->power_metrics(350);
+        $power_metrics = $this->pFFA->powerMetrics(350);
         
         $this->assertEquals(221, $power_metrics['Average Power']);
         $this->assertEquals(671, $power_metrics['Kilojoules']);
@@ -56,8 +56,8 @@ class PowerTest extends PHPUnit_Framework_TestCase
     
     public function testPower_power_partitioned()
     {
-        // Calls phpFITFileAnalysis::power_zones();
-        $power_partioned = $this->pFFA->power_partioned(350);
+        // Calls phpFITFileAnalysis::powerZones();
+        $power_partioned = $this->pFFA->powerPartioned(350);
         
         $this->assertEquals(45.2, $power_partioned['0-193']);
         $this->assertEquals(10.8, $power_partioned['194-263']);
@@ -68,10 +68,10 @@ class PowerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(0.4, $power_partioned['526+']);
     }
     
-    public function testPower_power_histogram()
+    public function testPower_powerHistogram()
     {
         // Calls phpFITFileAnalysis::histogram();
-        $power_histogram = $this->pFFA->power_histogram(100);
+        $power_histogram = $this->pFFA->powerHistogram(100);
         
         $this->assertEquals(374, $power_histogram[0]);
         $this->assertEquals(634, $power_histogram[100]);

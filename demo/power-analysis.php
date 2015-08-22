@@ -5,7 +5,7 @@
 		$file = '/fit_files/power-analysis.fit';
 		
 		$options = [
-	//		'fix_data' => ['all'],
+	//		'fixData' => ['all'],
 			'units' => ['metric']
 		];
 		$pFFA = new phpFITFileAnalysis(__DIR__ . $file, $options);
@@ -23,12 +23,12 @@
 		}
 		$date->setTimestamp($date_s);
 		
-		$hr_metrics = $pFFA->hr_metrics(52, 185, 172, 'male');
-		$power_metrics = $pFFA->power_metrics(312);
-		$critical_power = $pFFA->critical_power([2,3,5,10,30,60,120,300,600,1200,3600,7200,10800,18000]);
-		$power_histogram = $pFFA->power_histogram();
-		$power_table = $pFFA->power_partioned(312);
-		$power_pie_chart = $pFFA->partition_data('power', $pFFA->power_zones(312), true, false);
+		$hr_metrics = $pFFA->hrMetrics(52, 185, 172, 'male');
+		$power_metrics = $pFFA->powerMetrics(312);
+		$criticalPower = $pFFA->criticalPower([2,3,5,10,30,60,120,300,600,1200,3600,7200,10800,18000]);
+		$power_histogram = $pFFA->powerHistogram();
+		$power_table = $pFFA->powerPartioned(312);
+		$power_pie_chart = $pFFA->partitionData('power', $pFFA->powerZones(312), true, false);
 	}
 	catch(Exception $e) {
 		echo 'caught exception: '.$e->getMessage();
@@ -104,7 +104,7 @@
           <h3 class="panel-title"><i class="fa fa-line-chart"></i> Critical Power</h3></a>
         </div>
         <div class="panel-body">
-          <div id="critical_power" style="width:100%; height:300px"></div>
+          <div id="criticalPower" style="width:100%; height:300px"></div>
         </div>
       </div>
       
@@ -157,7 +157,7 @@
 <script type="text/javascript">
   $(document).ready( function() {
     
-    var critical_power_options = {
+    var criticalPower_options = {
       lines: { show: true, fill: true, fillColor: "rgba(11, 98, 164, 0.5)", lineWidth: 1 },
       points: { show: true },
       xaxis: {
@@ -189,11 +189,11 @@
       }
     };
 	
-	var critical_power = {
+	var criticalPower = {
       'color': 'rgba(11, 98, 164, 1)',
       'data': [
 <?php
-	foreach($critical_power as $key => $value) {
+	foreach($criticalPower as $key => $value) {
 		echo '['.$key.', '.$value.'], ';
 	}
 ?>
@@ -327,7 +327,7 @@
        "color": "#555"
      }).appendTo("body");
      
-     $("#critical_power").bind("plothover", function (event, pos, item) {
+     $("#criticalPower").bind("plothover", function (event, pos, item) {
        if (item) {
          var x = item.datapoint[0].toFixed(2),
          y = item.datapoint[1].toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -348,7 +348,7 @@
       }
 	});
     
-    $.plot('#critical_power', [critical_power], critical_power_options);
+    $.plot('#criticalPower', [criticalPower], criticalPower_options);
     
     var plot_pd = $.plot('#power_distribution', [power_distribution], power_distribution_options);
     var o = plot_pd.pointOffset({ x: <?php echo $power_metrics['Normalised Power']; ?>, y: plot_pd.height() });
