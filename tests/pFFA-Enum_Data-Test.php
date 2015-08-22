@@ -7,7 +7,7 @@ if(!class_exists('phpFITFileAnalysis')) {
 class EnumDataTest extends PHPUnit_Framework_TestCase
 {
     private $base_dir;
-    private $filename = 'swim_demo.fit';
+    private $filename = 'swim.fit';
     private $pFFA;
     
     public function setUp()
