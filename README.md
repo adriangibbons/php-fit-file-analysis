@@ -1,36 +1,33 @@
-# php-FIT-File-Analysis
+# phpFITFileAnalysis
 
 A PHP class for analysing FIT files created by Garmin GPS devices.
 
-[Live demonstration](http://www.adriangibbons.com/php-FIT-File-Analysis/demo/) (Right-click and Open in new tab)
+[Live demonstration](http://www.adriangibbons.com/phpFITFileAnalysis/demo/) (Right-click and Open in new tab)
 
 ##Demo Screenshots
 ![Mountain Biking](demo/img/mountain-biking.jpg)
 ![Power Analysis](demo/img/power-analysis.jpg)
 ![Swim](demo/img/swim.jpg)
 
-Please read this page in its entirety and the [FAQ](https://github.com/adriangibbons/php-FIT-File-Analysis/wiki/Frequently-Asked-Questions-(FAQ)) first if you have any questions or need support.
+Please read this page in its entirety and the [FAQ](https://github.com/adriangibbons/phpFITFileAnalysis/wiki/Frequently-Asked-Questions-(FAQ)) first if you have any questions or need support.
 
 ##What is a FIT file?
 FIT or Flexible and Interoperable Data Transfer is a file format used for GPS tracks and routes. It is used by newer Garmin fitness GPS devices, including the Edge and Forerunner series, which are popular with cyclists and runners.
 
 Visit the FAQ page within the Wiki for more information.
 
-##How do I use php-FIT-File-Analysis with my PHP-driven website?
+##How do I use phpFITFileAnalysis with my PHP-driven website?
 
 Download the class from GitHub and put it somewhere appropriate (e.g. classes/). A conscious effort has been made to keep everything in a single file.
 
 Then include the file on the PHP page where you want to use it and instantiate an object of the class:
 ```php
 <?php
-    include('classes/php-FIT-File-Analysis.php');
-    $pFFA = new phpFITFileAnalysis('fit_files/my_fit_file.fit');
+    include('classes/phpFITFileAnalysis.php');
+    $pFFA = new adriangibbons\phpFITFileAnalysis\phpFITFileAnalysis('fit_files/my_fit_file.fit');
 ?>
 ```
-Note two things:
-
- 1. The PHP class name does not have hyphens.
- 2. The only mandatory parameter required when creating an instance is the path to the FIT file that you want to load.
+Note that the only mandatory parameter required when creating an instance is the path to the FIT file that you want to load.
 
 There are more **Optional Parameters** that can be supplied. These are described in more detail further down this page.
 
@@ -295,7 +292,7 @@ $pFFA->critical_power($time_periods);  // e.g. 300 or [300, 600, 900, 1200]
 Note that ```$pFFA->critical_power``` and some power metrics (Normalised Power, Variability Index, Intensity Factor, Training Stress Score) will use the [PHP Trader](http://php.net/manual/en/book.trader.php) extension if it is loaded on the server. If the extension is not loaded then it will use the built-in Simple Moving Average algorithm, which is far less performant particularly for larger files!
 
 
-A demo of power analysis is available [here](http://www.adriangibbons.com/php-FIT-File-Analysis-demo/analysis_power.php).
+A demo of power analysis is available [here](http://www.adriangibbons.com/phpFITFileAnalysis-demo/analysis_power.php).
 
 ##Acknowledgement
 This class has been created using information available in a Software Development Kit (SDK) made available by ANT ([thisisant.com](http://www.thisisant.com/resources/fit)).
