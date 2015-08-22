@@ -24,7 +24,7 @@ A couple of choices here:
 ```JSON
 {
     "require": {
-        "adriangibbons/php-fit-file-analysis": "3.0.*",
+        "adriangibbons/php-fit-file-analysis": "3.0.*"
     }
 }
 ```
