@@ -18,7 +18,18 @@ Visit the FAQ page within the Wiki for more information.
 
 ##How do I use phpFITFileAnalysis with my PHP-driven website?
 
-Download the class from GitHub and put it somewhere appropriate (e.g. classes/). A conscious effort has been made to keep everything in a single file.
+A couple of choices here:
+
+1. Inlucde the package *adriangibbons/php-fit-file-analysis* in a composer.json file e.g.
+```JSON
+{
+    "require": {
+        "adriangibbons/php-fit-file-analysis": "3.0.*",
+    }
+}
+```
+
+2. Download the class from GitHub and put it somewhere appropriate (e.g. classes/). A conscious effort has been made to keep everything in a single file.
 
 Then include the file on the PHP page where you want to use it and instantiate an object of the class:
 ```php
