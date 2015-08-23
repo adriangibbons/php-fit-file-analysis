@@ -154,8 +154,10 @@ class phpFITFileAnalysis
             36 => 'calibration',
             42 => 'front_gear_change',
             43 => 'rear_gear_change',
+            44 => 'rider_position_change',
             45 => 'elev_high_alert',
-            46 => 'elev_low_alert'
+            46 => 'elev_low_alert',
+            47 => 'comm_timeout'
         ],
         'event_type' => [
             0 => 'start',
