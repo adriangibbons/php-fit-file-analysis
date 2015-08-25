@@ -904,9 +904,9 @@ class phpFITFileAnalysis
      */
     private function readDataRecords()
     {
-        $record_header_byte;
-        $message_type;
-        $local_mesg_type;
+        $record_header_byte = 0;
+        $message_type = 0;
+        $local_mesg_type = 0;
         
         while ($this->file_header['header_size'] + $this->file_header['data_size'] > $this->file_pointer) {
             $record_header_byte = ord(substr($this->file_contents, $this->file_pointer, 1));
@@ -1202,8 +1202,6 @@ class phpFITFileAnalysis
         }
         
         $num_points = 2;
-        $prev_value;
-        $next_value;
         
         $min_key = min(array_keys($array));
         $max_key = max(array_keys($array));
@@ -1219,11 +1217,11 @@ class phpFITFileAnalysis
                     continue;
                 }
                 
-                reset($array);
+                $prev_value = $next_value = reset($array);
                 
                 while ($missing_keys[$i] > key($array)) {
                     $prev_value = current($array);
-                    next($array);
+                    $next_value = next($array);
                 }
                 for ($j=$i+1; $j<count($missing_keys); ++$j) {
                     if ($missing_keys[$j] < key($array)) {
@@ -1232,7 +1230,7 @@ class phpFITFileAnalysis
                         break;
                     }
                 }
-                $next_value = current($array);
+                
                 $gap = ($next_value - $prev_value) / $num_points;
                 
                 for ($k=0; $k<=$num_points-2; ++$k) {
