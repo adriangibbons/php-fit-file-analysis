@@ -14,7 +14,7 @@ try {
     //		'fixData' => ['all'],
         'units' => ['metric']
     ];
-    $pFFA = new adriangibbons\phpFITFileAnalysis\phpFITFileAnalysis(__DIR__ . $file, $options);
+    $pFFA = new adriangibbons\phpFITFileAnalysis(__DIR__ . $file, $options);
         
     // Google Time Zone API
     $date = new DateTime("1989-12-31", new DateTimeZone("UTC"));  // timestamp[s]: seconds since UTC 00:00:00 Dec 31 1989

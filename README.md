@@ -30,13 +30,15 @@ A couple of choices here:
 ```
 Run ```composer update``` from the command line.
 
+The composer.json file should autoload the ```phpFITFileAnalysis``` class, so as long as you ```<?php require __DIR__ . '/vendor/autoload.php'; ?>``` in your PHP file (assuming it is in your project's root folder), you should be able to instantiate the class with ```<?php $pFFA = new adriangibbons\phpFITFileAnalysis('fit_files/my_fit_file.fit'); ?>```
+
 **The more manual way:** Download the ZIP from GitHub and put PHP class file from the /src directory somewhere appropriate (e.g. classes/). A conscious effort has been made to keep everything in a single file.
 
 Then include the file on the PHP page where you want to use it and instantiate an object of the class:
 ```php
 <?php
     include('classes/phpFITFileAnalysis.php');
-    $pFFA = new adriangibbons\phpFITFileAnalysis\phpFITFileAnalysis('fit_files/my_fit_file.fit');
+    $pFFA = new adriangibbons\phpFITFileAnalysis('fit_files/my_fit_file.fit');
 ?>
 ```
 Note that the only mandatory parameter required when creating an instance is the path to the FIT file that you want to load.
@@ -117,7 +119,7 @@ $options = [
     'units'     => 'statute',
     'pace'      => true
 ];
-$pFFA = new adriangibbons\phpFITFileAnalysis\phpFITFileAnalysis('my_fit_file.fit', $options);
+$pFFA = new adriangibbons\phpFITFileAnalysis('my_fit_file.fit', $options);
 ````
 The optional parameters are described in more detail below.
 ####"Fix" the Data

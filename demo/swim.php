@@ -14,7 +14,7 @@ try {
         'units'         => 'raw',
     //		'pace'		=> false
     ];
-    $pFFA = new adriangibbons\phpFITFileAnalysis\phpFITFileAnalysis(__DIR__ . $file, $options);
+    $pFFA = new adriangibbons\phpFITFileAnalysis(__DIR__ . $file, $options);
 } catch (Exception $e) {
     echo 'caught exception: '.$e->getMessage();
     die();
