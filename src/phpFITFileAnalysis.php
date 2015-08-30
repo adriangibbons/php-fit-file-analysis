@@ -1788,6 +1788,55 @@ class phpFITFileAnalysis
     }
     
     /**
+     * Returns array of booleans using timestamp as key.
+     * true == timer paused (e.g. autopause)
+     */
+    public function isPaused()
+    {
+        /**
+         * Event enumerated values of interest
+         * 0 = timer
+         */
+        $tek = array_keys($this->data_mesgs['event']['event'], 0);  // timer event keys
+        
+        $timer_start = [];
+        $timer_stop = [];
+        foreach ($tek as $v) {
+            if ($this->data_mesgs['event']['event_type'][$v] === 0) {
+                $timer_start[$v] = $this->data_mesgs['event']['timestamp'][$v];
+            }
+            elseif ($this->data_mesgs['event']['event_type'][$v] === 4) {
+                $timer_stop[$v] = $this->data_mesgs['event']['timestamp'][$v];
+            }
+        }
+        
+        $first_ts = min($this->data_mesgs['record']['timestamp']);  // first timestamp
+        $last_ts = max($this->data_mesgs['record']['timestamp']);  // last timestamp
+        
+        reset($timer_start);
+        $cur_start = next($timer_start);
+        $cur_stop = reset($timer_stop);
+        
+        $is_paused = [];
+        $bPaused = false;
+        
+        for ($i = $first_ts; $i < $last_ts; ++$i) {
+            if ($i == $cur_stop) {
+                $bPaused = true;
+                $cur_stop = next($timer_stop);
+            }
+            elseif ($i == $cur_start) {
+                $bPaused = false;
+                $cur_start = next($timer_start);
+            }
+            $is_paused[$i] = $bPaused;
+        }
+        $is_paused[$last_ts] = end($this->data_mesgs['record']['speed']) == 0 ? true : false;
+        
+        return $is_paused;
+    }
+    
+    /**
      * Outputs tables of information being listened for and found within the processed FIT file.
      */
     public function showDebugInfo()

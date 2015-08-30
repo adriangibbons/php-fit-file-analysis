@@ -303,8 +303,10 @@ $pFFA->criticalPower($time_periods);  // e.g. 300 or [300, 600, 900, 1200]
 
 Note that ```$pFFA->criticalPower``` and some power metrics (Normalised Power, Variability Index, Intensity Factor, Training Stress Score) will use the [PHP Trader](http://php.net/manual/en/book.trader.php) extension if it is loaded on the server. If the extension is not loaded then it will use the built-in Simple Moving Average algorithm, which is far less performant particularly for larger files!
 
-
 A demo of power analysis is available [here](http://www.adriangibbons.com/php-fit-file-analysis/demo/power-analysis.php).
+
+##Other methods
+```isPaused()``` - Returns array of booleans using timestamp as key. true == timer paused (e.g. autopause).
 
 ##Acknowledgement
 This class has been created using information available in a Software Development Kit (SDK) made available by ANT ([thisisant.com](http://www.thisisant.com/resources/fit)).
