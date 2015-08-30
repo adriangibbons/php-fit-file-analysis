@@ -557,17 +557,9 @@ class phpFITFileAnalysis
         
         2 => [
             'mesg_name' => 'device_settings', 'field_defns' => [
-                0 => ['field_name' => 'device_index',       'scale' => 1,   'offset' => 0, 'units' => ''],
-                1 => ['field_name' => 'device_type',        'scale' => 1,   'offset' => 0, 'units' => ''],
-                2 => ['field_name' => 'manufacturer',       'scale' => 1,   'offset' => 0, 'units' => ''],
-                3 => ['field_name' => 'serial_number',      'scale' => 1,   'offset' => 0, 'units' => ''],
-                4 => ['field_name' => 'product',            'scale' => 1,   'offset' => 0, 'units' => ''],
-                5 => ['field_name' => 'software_version',   'scale' => 100, 'offset' => 0, 'units' => ''],
-                10 => ['field_name' => 'battery_voltage',   'scale' => 256, 'offset' => 0, 'units' => 'V'],
-                11 => ['field_name' => 'battery_status',    'scale' => 1,   'offset' => 0, 'units' => ''],
-                18 => ['field_name' => 'sensor_position',   'scale' => 1,   'offset' => 0, 'units' => ''],
-                21 => ['field_name' => 'ant_device_number', 'scale' => 1,   'offset' => 0, 'units' => ''],
-                22 => ['field_name' => 'ant_network',       'scale' => 1,   'offset' => 0, 'units' => ''],
+                0 => ['field_name' => 'active_time_zone', 'scale' => 1, 'offset' => 0, 'units' => ''],
+                1 => ['field_name' => 'utc_offset', 'scale' => 1, 'offset' => 0, 'units' => ''],
+                5 => ['field_name' => 'time_zone_offset', 'scale' => 4, 'offset' => 0, 'units' => 'hr'],
             ]
         ],
         
