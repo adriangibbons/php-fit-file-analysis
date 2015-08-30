@@ -1821,7 +1821,7 @@ class phpFITFileAnalysis
         foreach ($this->data_mesg_info as $key => $val) {
             echo '<h4>'.$val['mesg_name'].' ('.$key.')</h4>';
             echo '<table class=\'table table-condensed table-striped\'>';
-            echo '<thead><th>ID</th><th>Name</th><th>Type</th><th>Scale</th><th>Offset</th><th>Units</th></thead><tbody>';
+            echo '<thead><th>ID</th><th>Name</th><th>Scale</th><th>Offset</th><th>Units</th></thead><tbody>';
             foreach ($val['field_defns'] as $key2 => $val2) {
                 echo '<tr><td>'.$key2.'</td><td>'.$val2['field_name'].'</td><td>'.$val2['scale'].'</td><td>'.$val2['offset'].'</td><td>'.$val2['units'].'</td></tr>';
             }
