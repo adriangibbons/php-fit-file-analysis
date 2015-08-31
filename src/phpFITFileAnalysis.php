@@ -596,6 +596,14 @@ class phpFITFileAnalysis
             ]
         ],
         
+        12 => [
+            'mesg_name' => 'sport', 'field_defns' => [
+                0 => ['field_name' => 'sport',     'scale' => 1, 'offset' => 0, 'units' => ''],
+                1 => ['field_name' => 'sub_sport', 'scale' => 1, 'offset' => 0, 'units' => ''],
+                3 => ['field_name' => 'name',      'scale' => 1, 'offset' => 0, 'units' => ''],
+            ]
+        ],
+        
         18 => [
             'mesg_name' => 'session', 'field_defns' => [
                 0 => ['field_name' => 'event',                            'scale' => 1,         'offset' => 0, 'units' => ''],
@@ -642,6 +650,7 @@ class phpFITFileAnalysis
                 46 => ['field_name' => 'pool_length_unit',                'scale' => 1,         'offset' => 0, 'units' => ''],
                 47 => ['field_name' => 'num_active_lengths',              'scale' => 1,         'offset' => 0, 'units' => 'lengths'],
                 48 => ['field_name' => 'total_work',                      'scale' => 1,         'offset' => 0, 'units' => 'J'],
+                65 => ['field_name' => 'time_in_hr_zone',                 'scale' => 1000,      'offset' => 0, 'units' => 's'],
                 68 => ['field_name' => 'time_in_power_zone',              'scale' => 1000,      'offset' => 0, 'units' => 's'],
                 89 => ['field_name' => 'avg_vertical_oscillation',        'scale' => 10,        'offset' => 0, 'units' => 'mm'],
                 90 => ['field_name' => 'avg_stance_time_percent',         'scale' => 100,       'offset' => 0, 'units' => 'percent'],
@@ -710,7 +719,9 @@ class phpFITFileAnalysis
                 39 => ['field_name' => 'sub_sport',                      'scale' => 1,         'offset' => 0, 'units' => ''],
                 40 => ['field_name' => 'num_active_lengths',             'scale' => 1,         'offset' => 0, 'units' => 'lengths'],
                 41 => ['field_name' => 'total_work',                     'scale' => 1,         'offset' => 0, 'units' => 'J'],
+                57 => ['field_name' => 'time_in_hr_zone',                'scale' => 1000,      'offset' => 0, 'units' => 's'],
                 60 => ['field_name' => 'time_in_power_zone',             'scale' => 1000,      'offset' => 0, 'units' => 's'],
+                71 => ['field_name' => 'wkt_step_index',                 'scale' => 1,         'offset' => 0, 'units' => ''],
                 77 => ['field_name' => 'avg_vertical_oscillation',       'scale' => 10,        'offset' => 0, 'units' => 'mm'],
                 78 => ['field_name' => 'avg_stance_time_percent',        'scale' => 100,       'offset' => 0, 'units' => 'percent'],
                 79 => ['field_name' => 'avg_stance_time',                'scale' => 10,        'offset' => 0, 'units' => 'ms'],
@@ -771,19 +782,21 @@ class phpFITFileAnalysis
         
         23 => [
             'mesg_name' => 'device_info', 'field_defns' => [
-                0 => ['field_name' => 'device_index',       'scale' => 1, 'offset' => 0, 'units' => ''],
-                1 => ['field_name' => 'device_type',        'scale' => 1, 'offset' => 0, 'units' => ''],
-                2 => ['field_name' => 'manufacturer',       'scale' => 1, 'offset' => 0, 'units' => ''],
-                3 => ['field_name' => 'serial_number',      'scale' => 1, 'offset' => 0, 'units' => ''],
-                4 => ['field_name' => 'product',            'scale' => 1, 'offset' => 0, 'units' => ''],
-                5 => ['field_name' => 'software_version',   'scale' => 1, 'offset' => 0, 'units' => ''],
-                6 => ['field_name' => 'hardware_version',   'scale' => 1, 'offset' => 0, 'units' => ''],
-                7 => ['field_name' => 'cum_operating_time', 'scale' => 1, 'offset' => 0, 'units' => ''],
-                10 => ['field_name' => 'battery_voltage',   'scale' => 1, 'offset' => 0, 'units' => ''],
-                11 => ['field_name' => 'battery_status',    'scale' => 1, 'offset' => 0, 'units' => ''],
-                22 => ['field_name' => 'ant_network',       'scale' => 1, 'offset' => 0, 'units' => ''],
-                25 => ['field_name' => 'source_type',       'scale' => 1, 'offset' => 0, 'units' => ''],
-                253 => ['field_name' => 'timestamp',        'scale' => 1, 'offset' => 0, 'units' => 's']
+                0 => ['field_name' => 'device_index',           'scale' => 1, 'offset' => 0, 'units' => ''],
+                1 => ['field_name' => 'device_type',            'scale' => 1, 'offset' => 0, 'units' => ''],
+                2 => ['field_name' => 'manufacturer',           'scale' => 1, 'offset' => 0, 'units' => ''],
+                3 => ['field_name' => 'serial_number',          'scale' => 1, 'offset' => 0, 'units' => ''],
+                4 => ['field_name' => 'product',                'scale' => 1, 'offset' => 0, 'units' => ''],
+                5 => ['field_name' => 'software_version',       'scale' => 1, 'offset' => 0, 'units' => ''],
+                6 => ['field_name' => 'hardware_version',       'scale' => 1, 'offset' => 0, 'units' => ''],
+                7 => ['field_name' => 'cum_operating_time',     'scale' => 1, 'offset' => 0, 'units' => ''],
+                10 => ['field_name' => 'battery_voltage',       'scale' => 1, 'offset' => 0, 'units' => ''],
+                11 => ['field_name' => 'battery_status',        'scale' => 1, 'offset' => 0, 'units' => ''],
+                20 => ['field_name' => 'ant_transmission_type', 'scale' => 1, 'offset' => 0, 'units' => ''],
+                21 => ['field_name' => 'ant_device_number',     'scale' => 1, 'offset' => 0, 'units' => ''],
+                22 => ['field_name' => 'ant_network',           'scale' => 1, 'offset' => 0, 'units' => ''],
+                25 => ['field_name' => 'source_type',           'scale' => 1, 'offset' => 0, 'units' => ''],
+                253 => ['field_name' => 'timestamp',            'scale' => 1, 'offset' => 0, 'units' => 's']
             ]
         ],
         
