@@ -1684,7 +1684,7 @@ class phpFITFileAnalysis
         $count = count($array);
         
         for ($i=0; $i<$count-$time_period; ++$i) {
-            $sma_data[] = array_sum(array_slice($array, $i, $time_period)) / $time_period;
+            $sma_data[] = array_sum(array_slice($data, $i, $time_period)) / $time_period;
         }
         
         return $sma_data;
