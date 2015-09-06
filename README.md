@@ -2,7 +2,7 @@
 
 A PHP class for analysing FIT files created by Garmin GPS devices.
 
-[Live demonstration](http://www.adriangibbons.com/php-fit-file-analysis/demo/) (Right-click and Open in new tab)
+[Live demonstration](http://adriangibbons.com/php-fit-file-analysis/demo/) (Right-click and Open in new tab)
 
 ##Demo Screenshots
 ![Mountain Biking](demo/img/mountain-biking.jpg)
@@ -307,7 +307,7 @@ Note that ```$pFFA->criticalPower``` and some power metrics (Normalised Power, V
 **Quadrant Analysis** provides insight into the neuromuscular demands of a bike ride through comparing pedal velocity with force by looking at cadence and power.
 ![Mountain Biking](demo/img/quadrant-analysis.jpg)
 
-A demo of power analysis is available [here](http://www.adriangibbons.com/php-fit-file-analysis/demo/power-analysis.php).
+A demo of power analysis is available [here](http://adriangibbons.com/php-fit-file-analysis/demo/power-analysis.php).
 
 ##Other methods
 ```isPaused()``` - Returns array of booleans using timestamp as key. true == timer paused (e.g. autopause).
