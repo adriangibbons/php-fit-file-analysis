@@ -7,6 +7,7 @@ A PHP class for analysing FIT files created by Garmin GPS devices.
 ##Demo Screenshots
 ![Mountain Biking](demo/img/mountain-biking.jpg)
 ![Power Analysis](demo/img/power-analysis.jpg)
+![Quadrant Analysis](demo/img/quadrant-analysis.jpg)
 ![Swim](demo/img/swim.jpg)
 
 Please read this page in its entirety and the [FAQ](https://github.com/adriangibbons/php-fit-file-analysis/wiki/Frequently-Asked-Questions-(FAQ)) first if you have any questions or need support.
@@ -305,7 +306,6 @@ $pFFA->quadrantAnalysis($crank_length, $ftp, $selected_cadence);  // Crank lengt
 Note that ```$pFFA->criticalPower``` and some power metrics (Normalised Power, Variability Index, Intensity Factor, Training Stress Score) will use the [PHP Trader](http://php.net/manual/en/book.trader.php) extension if it is loaded on the server. If the extension is not loaded then it will use the built-in Simple Moving Average algorithm, which is far less performant particularly for larger files!
 
 **Quadrant Analysis** provides insight into the neuromuscular demands of a bike ride through comparing pedal velocity with force by looking at cadence and power.
-![Mountain Biking](demo/img/quadrant-analysis.jpg)
 
 A demo of power analysis is available [here](http://adriangibbons.com/php-fit-file-analysis/demo/power-analysis.php).
 
