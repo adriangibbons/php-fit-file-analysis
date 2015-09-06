@@ -286,10 +286,11 @@ $pFFA->hrMetrics($hr_resting, $hr_maximum, $hr_FT, $gender);
  * Intensity Factor
 
 ###Power
-Two functions exist for analysing power data:
+Three functions exist for analysing power data:
 ```php
 $pFFA->powerMetrics($functional_threshold_power);  // e.g. 312
 $pFFA->criticalPower($time_periods);  // e.g. 300 or [300, 600, 900, 1200]
+$pFFA->quadrantAnalysis($crank_length, $ftp, $selected_cadence);  // Crank length in metres; cadence defaults to 90rpm if not supplied
 ```
 **Power metrics:**
  * Average Power
@@ -302,6 +303,9 @@ $pFFA->criticalPower($time_periods);  // e.g. 300 or [300, 600, 900, 1200]
 **Critical Power** (or Best Effort) is the highest average power sustained for a specified period of time within the activity. You can supply a single time period (in seconds), or an array or time periods.
 
 Note that ```$pFFA->criticalPower``` and some power metrics (Normalised Power, Variability Index, Intensity Factor, Training Stress Score) will use the [PHP Trader](http://php.net/manual/en/book.trader.php) extension if it is loaded on the server. If the extension is not loaded then it will use the built-in Simple Moving Average algorithm, which is far less performant particularly for larger files!
+
+**Quadrant Analysis** provides insight into the neuromuscular demands of a bike ride through comparing pedal velocity with force by looking at cadence and power.
+![Mountain Biking](demo/img/quadrant-analysis.jpg)
 
 A demo of power analysis is available [here](http://www.adriangibbons.com/php-fit-file-analysis/demo/power-analysis.php).
 

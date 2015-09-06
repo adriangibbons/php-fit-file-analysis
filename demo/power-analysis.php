@@ -11,8 +11,8 @@ try {
     $file = '/fit_files/power-analysis.fit';
         
     $options = [
-    //		'fixData' => ['all'],
-        'units' => ['metric']
+    //	  'fixData' => ['all'],
+    //    'units' => ['metric']
     ];
     $pFFA = new adriangibbons\phpFITFileAnalysis(__DIR__ . $file, $options);
         
@@ -28,13 +28,15 @@ try {
         $date_s = $date_s + $json_tz->rawOffset + $json_tz->dstOffset;
     }
     $date->setTimestamp($date_s);
-        
+    
+    $ftp = 329;
     $hr_metrics = $pFFA->hrMetrics(52, 185, 172, 'male');
-    $power_metrics = $pFFA->powerMetrics(312);
+    $power_metrics = $pFFA->powerMetrics($ftp);
     $criticalPower = $pFFA->criticalPower([2,3,5,10,30,60,120,300,600,1200,3600,7200,10800,18000]);
     $power_histogram = $pFFA->powerHistogram();
-    $power_table = $pFFA->powerPartioned(312);
-    $power_pie_chart = $pFFA->partitionData('power', $pFFA->powerZones(312), true, false);
+    $power_table = $pFFA->powerPartioned($ftp);
+    $power_pie_chart = $pFFA->partitionData('power', $pFFA->powerZones($ftp), true, false);
+    $quad_plot = $pFFA->quadrantAnalysis(0.175, $ftp);
 } catch (Exception $e) {
     echo 'caught exception: '.$e->getMessage();
     die();
@@ -152,6 +154,16 @@ try {
           </div>
         </div>
       </div>
+      
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title"><i class="fa fa-line-chart"></i> Quadrant Analysis <small>Circumferential Pedal Velocity (x-axis) vs Average Effective Pedal Force (y-axis)</small></h3>
+        </div>
+        <div class="panel-body">
+          <div id="quadrant_analysis" style="width:100%; height:600px"></div>
+        </div>
+      </div>
+      
     </div>
   </div>
 </div>
@@ -370,6 +382,108 @@ foreach ($power_histogram as $key => $value) {
       $("#power_zones_table tr").removeClass("danger");
       $("#" + obj.series.data[0][1].toFixed(1).toString().replace(/\./g, '-') ).addClass("danger");
     });
+    
+var quad = [<?php    
+$plottmp = [];
+foreach ($quad_plot['plot'] as $v) {
+	$plottmp[] = '[' . $v[0] . ', ' . $v[1] . ']';
+}
+echo implode(', ', $plottmp); ?>];
+    
+    var lo = [<?php
+unset ($plottmp);
+$plottmp = [];
+foreach ($quad_plot['ftp-25w'] as $v) {
+    $plottmp[] = '[' . $v[0] . ', ' . $v[1] . ']';
+}
+echo implode(', ', $plottmp); ?>];
+
+    var at = [<?php
+unset ($plottmp);
+$plottmp = [];
+foreach ($quad_plot['ftp'] as $v) {
+    $plottmp[] = '[' . $v[0] . ', ' . $v[1] . ']';
+}
+echo implode(', ', $plottmp); ?>];
+    var hi = [<?php
+unset ($plottmp);
+$plottmp = [];
+foreach ($quad_plot['ftp+25w'] as $v) {
+    $plottmp[] = '[' . $v[0] . ', ' . $v[1] . ']';
+}
+echo implode(', ', $plottmp); ?>];
+    
+    var markings = [
+      {
+        color: "black",
+        lineWidth: 1,
+        xaxis: {
+          from: <?php echo $quad_plot['cpv_threshold']; ?>,
+          to: <?php echo $quad_plot['cpv_threshold']; ?>
+        }
+      },
+      {
+        color: "black",
+        lineWidth: 1,
+        yaxis: {
+          from: <?php echo $quad_plot['aepf_threshold']; ?>,
+          to: <?php echo $quad_plot['aepf_threshold']; ?>
+        }
+      }
+    ];
+    
+    var quadrant_analysis_options = {
+      xaxis: {
+        label: 'circumferential pedal velocity',
+        tickFormatter: function(label, series) { return label + ' m/s'; }
+      },
+      yaxis: {
+        max: 400,
+        label: 'average effective pedal force',
+        tickSize: 50,
+        tickFormatter: function(label, series) {
+          if(label == 0) return "";
+          return label + ' N';
+        }
+      },
+      grid: {
+        borderWidth: {
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0
+        },
+        markings: markings
+      },
+      legend: { show: false }
+    };
+    
+    var plot_qa = $.plot($("#quadrant_analysis"), [
+        {
+            data : quad,
+            points : { show: true, radius: 0.25, fill : true, fillColor: "#058DC7" }
+        },
+        {
+            data : at,
+            color: "blue",
+            lines: { show: true, lineWidth: 0.5 }
+        },
+        {
+            data : lo,
+            color: "red",
+            lines: { show: true, lineWidth: 0.5 }
+        },
+        {
+            data : hi,
+            color: "green",
+            lines: { show: true, lineWidth: 0.5 }
+        }
+    ], quadrant_analysis_options);
+    
+    $("#quadrant_analysis").append("<span style='background-color: #fafafa; top: " + (plot_qa.height() / 2 - 40) + "px; color: #333; text-align: center; font-size: 12px; border: 1px solid #ddd; border-radius: 5px; padding: 3px 7px; position: absolute; left: " + (plot_qa.width() - 140) + "px'><strong>High Force / High Velocity</strong><br><?php echo $quad_plot['quad_percent']['hf_hv']; ?> %</span>");
+    $("#quadrant_analysis").append("<span style='background-color: #fafafa; top: " + (plot_qa.height() / 2 - 40) + "px; color: #333; text-align: center; font-size: 12px; border: 1px solid #ddd; border-radius: 5px; padding: 3px 7px; position: absolute; left: 50px'><strong>High Force / Low Velocity</strong><br><?php echo $quad_plot['quad_percent']['hf_lv']; ?> %</span>");
+    $("#quadrant_analysis").append("<span style='background-color: #fafafa; top: " + (plot_qa.height() / 2 + 15) + "px; color: #333; text-align: center; font-size: 12px; border: 1px solid #ddd; border-radius: 5px; padding: 3px 7px; position: absolute; left: 50px'><strong>Low Force / Low Velocity</strong><br><?php echo $quad_plot['quad_percent']['lf_lv']; ?> %</span>");
+    $("#quadrant_analysis").append("<span style='background-color: #fafafa; top: " + (plot_qa.height() / 2 + 15) + "px; color: #333; text-align: center; font-size: 12px; border: 1px solid #ddd; border-radius: 5px; padding: 3px 7px; position: absolute; left: " + (plot_qa.width() - 140) + "px'><strong>Low Force / High Velocity</strong><br><?php echo $quad_plot['quad_percent']['lf_hv']; ?> %</span>");
   });
 </script>
 </body>

@@ -8,8 +8,9 @@ namespace adriangibbons;
  * Adrian Gibbons, 2015
  * Adrian.GitHub@gmail.com
  *
- * G Frogley edits, June 2016
- * Added code to generate TRIMPexp and hrIF (Intensity Factor) value to measure session if Power is not present
+ * G Frogley edits:
+ * Added code to generate TRIMPexp and hrIF (Intensity Factor) value to measure session if Power is not present (June 2015).
+ * Added code to generate Quadrant Analysis data (September 2015).
  *
  * https://github.com/adriangibbons/phpFITFileAnalysis
  * http://www.thisisant.com/resources/fit
@@ -1849,6 +1850,75 @@ class phpFITFileAnalysis
         $is_paused[$last_ts] = end($this->data_mesgs['record']['speed']) == 0 ? true : false;
         
         return $is_paused;
+    }
+    
+    /**
+     * Returns an array that can be used to plot Circumferential Pedal Velocity (x-axis) vs Average Effective Pedal Force (y-axis).
+     * NB Crank length is in metres.
+     */
+    public function quadrantAnalysis($crank_length, $ftp, $selected_cadence = 90)
+    {
+        if (!isset($this->data_mesgs['record']['power'])) {
+            throw new \Exception('phpFITFileAnalysis->quadrantAnalysis(): power data not present in FIT file!');
+        }
+        if (!isset($this->data_mesgs['record']['cadence'])) {
+            throw new \Exception('phpFITFileAnalysis->quadrantAnalysis(): cadence data not present in FIT file!');
+        }
+        
+        $quadrant_plot = [];
+        $quadrant_plot['selected_cadence'] = $selected_cadence;
+        $quadrant_plot['aepf_threshold'] = round(($ftp * 60) / ($selected_cadence * 2 * pi() * $crank_length), 3);
+        $quadrant_plot['cpv_threshold'] = round(($selected_cadence * $crank_length * 2 * pi()) / 60, 3);
+        
+        // Used to calculate percentage of points in each quadrant
+        $quad_percent = ['hf_hv' => 0, 'hf_lv' => 0, 'lf_lv' => 0, 'lf_hv' => 0];
+        
+        // Filter zeroes from cadence array (otherwise !div/0 error for AEPF)
+        $cadence = array_filter($this->data_mesgs['record']['cadence']);
+        $cpv = $aepf = 0.0;
+        
+        foreach ($cadence as $k => $c) {
+            $p = isset($this->data_mesgs['record']['power'][$k]) ? $this->data_mesgs['record']['power'][$k] : 0;
+            
+            // Circumferential Pedal Velocity (CPV, m/s) = (Cadence × Crank Length × 2 × Pi) / 60
+            $cpv = round(($c * $crank_length * 2 * pi()) / 60, 3);
+            
+            // Average Effective Pedal Force (AEPF, N) = (Power × 60) / (Cadence × 2 × Pi × Crank Length)
+            $aepf = round(($p * 60) / ($c * 2 * pi() * $crank_length), 3);
+            
+            $quadrant_plot['plot'][] = [$cpv, $aepf];
+            
+            if ($aepf > $quadrant_plot['aepf_threshold']) {  // high force
+                if ($cpv > $quadrant_plot['cpv_threshold']) {  // high velocity
+                    $quad_percent['hf_hv']++;
+                } else {
+                    $quad_percent['hf_lv']++;
+                }
+            } else {  // low force
+                if ($cpv > $quadrant_plot['cpv_threshold']) {  // high velocity
+                    $quad_percent['lf_hv']++;
+                } else {
+                    $quad_percent['lf_lv']++;
+                }
+            }
+        }
+        
+        // Convert to percentages and add to array that will be returned by the function
+        $sum = array_sum($quad_percent);
+        foreach ($quad_percent as $k => $v) {
+            $quad_percent[$k] = round($v / $sum * 100, 2);
+        }
+        $quadrant_plot['quad_percent'] = $quad_percent;
+        
+        // Calculate CPV and AEPF for cadences between 20 and 150rpm at and near to FTP
+        for ($c = 20; $c <= 150; $c += 5) {
+            $cpv = round((($c * $crank_length * 2 * pi()) / 60), 3);
+            $quadrant_plot['ftp-25w'][] = [$cpv, round((($ftp - 25) * 60) / ($c * 2 * pi() * $crank_length), 3)];
+            $quadrant_plot['ftp'][] = [$cpv, round(($ftp * 60) / ($c * 2 * pi() * $crank_length), 3)];
+            $quadrant_plot['ftp+25w'][] = [$cpv, round((($ftp + 25) * 60) / ($c * 2 * pi() * $crank_length), 3)];
+        }
+        
+        return $quadrant_plot;
     }
     
     /**
