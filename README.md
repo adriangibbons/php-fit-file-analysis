@@ -31,9 +31,10 @@ A couple of choices here:
 ```
 Run ```composer update``` from the command line.
 
-The composer.json file should autoload the ```phpFITFileAnalysis``` class, so as long as you ```<?php require __DIR__ . '/vendor/autoload.php'; ?>``` in your PHP file (assuming it is in your project's root folder), you should be able to instantiate the class with:
+The composer.json file should autoload the ```phpFITFileAnalysis``` class, so as long as you include the autoload file in your PHP file, you should be able to instantiate the class with:
 ```php
 <?php
+    require __DIR__ . '/vendor/autoload.php';  // this file is in the project's root folder
     $pFFA = new adriangibbons\phpFITFileAnalysis('fit_files/my_fit_file.fit');
 ?>
 ```
