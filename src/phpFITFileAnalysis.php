@@ -16,8 +16,12 @@ namespace adriangibbons;
  * http://www.thisisant.com/resources/fit
  */
 
-if (!defined('DEFINITION_MESSAGE')) define('DEFINITION_MESSAGE', 1);
-if (!defined('DATA_MESSAGE')) define('DATA_MESSAGE', 0);
+if (!defined('DEFINITION_MESSAGE')) {
+    define('DEFINITION_MESSAGE', 1);
+}
+if (!defined('DATA_MESSAGE')) {
+    define('DATA_MESSAGE', 0);
+}
 
 class phpFITFileAnalysis
 {
@@ -987,7 +991,6 @@ class phpFITFileAnalysis
                                 // Check if it's an invalid value for the type
                                 $tmp_value = unpack($this->types[$field_defn['base_type']], substr($this->file_contents, $this->file_pointer, $field_defn['size']))['tmp'];
                                 if ($tmp_value !== $this->invalid_values[$field_defn['base_type']]) {
-                                
                                     // If it's a Record data message, store all the pieces in the temporary array as the timestamp may not be first...
                                     if ($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20) {
                                         $tmp_record_array[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']] = $tmp_value / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale'] - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
@@ -1390,7 +1393,6 @@ class phpFITFileAnalysis
         foreach ($messages as $message) {
             switch ($units) {
                 case 'statute':
-                    
                     // convert from celsius to fahrenheit
                     foreach ($c_fields as $field) {
                         if (isset($this->data_mesgs[$message][$field])) {
@@ -1470,7 +1472,6 @@ class phpFITFileAnalysis
                     // Do nothing - leave values as read from file.
                     break;
                 case 'metric':
-                    
                     // convert from meters to kilometers
                     foreach ($m_fields as $field) {
                         if (isset($this->data_mesgs[$message][$field])) {
@@ -1820,8 +1821,7 @@ class phpFITFileAnalysis
         foreach ($tek as $v) {
             if ($this->data_mesgs['event']['event_type'][$v] === 0) {
                 $timer_start[$v] = $this->data_mesgs['event']['timestamp'][$v];
-            }
-            elseif ($this->data_mesgs['event']['event_type'][$v] === 4) {
+            } elseif ($this->data_mesgs['event']['event_type'][$v] === 4) {
                 $timer_stop[$v] = $this->data_mesgs['event']['timestamp'][$v];
             }
         }
@@ -1840,8 +1840,7 @@ class phpFITFileAnalysis
             if ($i == $cur_stop) {
                 $bPaused = true;
                 $cur_stop = next($timer_stop);
-            }
-            elseif ($i == $cur_start) {
+            } elseif ($i == $cur_start) {
                 $bPaused = false;
                 $cur_start = next($timer_start);
             }
