@@ -1858,7 +1858,7 @@ class phpFITFileAnalysis
      */
     public function quadrantAnalysis($crank_length, $ftp, $selected_cadence = 90, $use_timestamps = false)
     {
-        if ($crank_length === null || $ftp === null || $selected_cadence === null || $use_timestamps === null) {
+        if ($crank_length === null || $ftp === null) {
             return [];
         }
         if (!isset($this->data_mesgs['record']['power'])) {
@@ -1931,14 +1931,14 @@ class phpFITFileAnalysis
     /**
      * Create a JSON object that contains available record message information and CPV/AEPF if requested/available.
      */
-    public function getJSONObject($crank_length = null, $ftp = null, $selected_cadence = null, $use_timestamps = null)
+    public function getJSONObject($crank_length = null, $ftp = null, $selected_cadence = 90)
     {
         $for_json = [];
         $for_json['fix_data'] = isset($this->options['fix_data']) ? $this->options['fix_data'] : null;
         $for_json['units'] = isset($this->options['units']) ? $this->options['units'] : null;
         $for_json['pace'] = isset($this->options['pace']) ? $this->options['pace'] : null;
         
-        $quadrant_plot = $this->quadrantAnalysis($crank_length, $ftp, $selected_cadence, $use_timestamps)['plot'];
+        $quadrant_plot = $this->quadrantAnalysis($crank_length, $ftp, $selected_cadence, true)['plot'];
         
         $lap = 1;
         $data = [];
