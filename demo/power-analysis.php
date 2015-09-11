@@ -11,7 +11,7 @@ try {
     $file = '/fit_files/power-analysis.fit';
         
     $options = [
-    //	  'fixData' => ['all'],
+    //	  'fix_data' => ['all'],
     //    'units' => ['metric']
     ];
     $pFFA = new adriangibbons\phpFITFileAnalysis(__DIR__ . $file, $options);

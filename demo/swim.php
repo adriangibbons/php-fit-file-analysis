@@ -10,7 +10,7 @@ try {
     $file = '/fit_files/swim.fit';
         
     $options = [
-    //		'fixData'	=> [],
+    //		'fix_data'	=> [],
         'units'         => 'raw',
     //		'pace'		=> false
     ];

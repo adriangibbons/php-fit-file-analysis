@@ -16,7 +16,7 @@ try {
         
     $options = [
     // Just using the defaults so no need to provide
-    //		'fixData'	=> [],
+    //		'fix_data'	=> [],
     //		'units'		=> 'metric',
     //		'pace'		=> false
     ];

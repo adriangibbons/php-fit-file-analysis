@@ -1095,21 +1095,20 @@ class phpFITFileAnalysis
         }
         
         // Return if no option set
-        if (empty($options['fixData'])) {
+        if (empty($options['fix_data'])) {
             return;
         }
         
         // Check if valid option(s) provided
-        array_walk($options['fixData'], function (&$value) {
+        array_walk($options['fix_data'], function (&$value) {
             $value = strtolower($value);
-
         });  // Make all lower-case.
-        if (count(array_intersect(['all', 'cadence', 'distance', 'heart_rate', 'lat_lon', 'speed', 'power'], $options['fixData'])) === 0) {
+        if (count(array_intersect(['all', 'cadence', 'distance', 'heart_rate', 'lat_lon', 'speed', 'power'], $options['fix_data'])) === 0) {
             throw new \Exception('phpFITFileAnalysis->fixData(): option not valid!');
         }
         
         $bCadence = $bDistance = $bHeartRate = $bLatitudeLongitude = $bSpeed = $bPower = false;
-        if (in_array('all', $options['fixData'])) {
+        if (in_array('all', $options['fix_data'])) {
             $bCadence = isset($this->data_mesgs['record']['cadence']);
             $bDistance = isset($this->data_mesgs['record']['distance']);
             $bHeartRate = isset($this->data_mesgs['record']['heart_rate']);
@@ -1120,23 +1119,23 @@ class phpFITFileAnalysis
             if (isset($this->data_mesgs['record']['timestamp'])) {
                 $count_timestamp = count($this->data_mesgs['record']['timestamp']);  // No point try to insert missing values if we know there aren't any.
                 if (isset($this->data_mesgs['record']['cadence'])) {
-                    $bCadence = (count($this->data_mesgs['record']['cadence']) === $count_timestamp) ? false : in_array('cadence', $options['fixData']);
+                    $bCadence = (count($this->data_mesgs['record']['cadence']) === $count_timestamp) ? false : in_array('cadence', $options['fix_data']);
                 }
                 if (isset($this->data_mesgs['record']['distance'])) {
-                    $bDistance = (count($this->data_mesgs['record']['distance']) === $count_timestamp) ? false : in_array('distance', $options['fixData']);
+                    $bDistance = (count($this->data_mesgs['record']['distance']) === $count_timestamp) ? false : in_array('distance', $options['fix_data']);
                 }
                 if (isset($this->data_mesgs['record']['heart_rate'])) {
-                    $bHeartRate = (count($this->data_mesgs['record']['heart_rate']) === $count_timestamp) ? false : in_array('heart_rate', $options['fixData']);
+                    $bHeartRate = (count($this->data_mesgs['record']['heart_rate']) === $count_timestamp) ? false : in_array('heart_rate', $options['fix_data']);
                 }
                 if (isset($this->data_mesgs['record']['position_lat']) && isset($this->data_mesgs['record']['position_long'])) {
                     $bLatitudeLongitude = (count($this->data_mesgs['record']['position_lat']) === $count_timestamp
-                        && count($this->data_mesgs['record']['position_long']) === $count_timestamp) ? false : in_array('lat_lon', $options['fixData']);
+                        && count($this->data_mesgs['record']['position_long']) === $count_timestamp) ? false : in_array('lat_lon', $options['fix_data']);
                 }
                 if (isset($this->data_mesgs['record']['speed'])) {
-                    $bSpeed = (count($this->data_mesgs['record']['speed']) === $count_timestamp) ? false : in_array('speed', $options['fixData']);
+                    $bSpeed = (count($this->data_mesgs['record']['speed']) === $count_timestamp) ? false : in_array('speed', $options['fix_data']);
                 }
                 if (isset($this->data_mesgs['record']['power'])) {
-                    $bPower = (count($this->data_mesgs['record']['power']) === $count_timestamp) ? false : in_array('power', $options['fixData']);
+                    $bPower = (count($this->data_mesgs['record']['power']) === $count_timestamp) ? false : in_array('power', $options['fix_data']);
                 }
             }
         }
@@ -1935,7 +1934,7 @@ class phpFITFileAnalysis
     public function getJSONObject($crank_length = null, $ftp = null, $selected_cadence = null, $use_timestamps = null)
     {
         $for_json = [];
-        $for_json['fix_data'] = isset($this->options['fixData']) ? $this->options['fixData'] : null;
+        $for_json['fix_data'] = isset($this->options['fix_data']) ? $this->options['fix_data'] : null;
         $for_json['units'] = isset($this->options['units']) ? $this->options['units'] : null;
         $for_json['pace'] = isset($this->options['pace']) ? $this->options['pace'] : null;
         

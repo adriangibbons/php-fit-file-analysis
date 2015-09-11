@@ -55,7 +55,7 @@ class FixDataTest extends PHPUnit_Framework_TestCase
     
     public function testFixData_after()
     {
-        $pFFA = new adriangibbons\phpFITFileAnalysis($this->base_dir . $this->filename, ['fixData' => ['all']]);
+        $pFFA = new adriangibbons\phpFITFileAnalysis($this->base_dir . $this->filename, ['fix_data' => ['all']]);
         
         $this->assertEquals(4317, count($pFFA->data_mesgs['record']['position_lat']));
         $this->assertEquals(4317, count($pFFA->data_mesgs['record']['position_long']));
@@ -72,7 +72,7 @@ class FixDataTest extends PHPUnit_Framework_TestCase
      */
     public function testFixData_hr_missing_key_fixed()
     {
-        $pFFA = new adriangibbons\phpFITFileAnalysis($this->base_dir . $this->filename, ['fixData' => ['heart_rate']]);
+        $pFFA = new adriangibbons\phpFITFileAnalysis($this->base_dir . $this->filename, ['fix_data' => ['heart_rate']]);
         
         $this->assertEquals(117.5, $pFFA->data_mesgs['record']['heart_rate'][805987192]);
     }
@@ -82,7 +82,7 @@ class FixDataTest extends PHPUnit_Framework_TestCase
         // Positive testing
         $valid_options = ['all', 'cadence', 'distance', 'heart_rate', 'lat_lon', 'speed', 'power'];
         foreach($valid_options as $valid_option) {
-            $pFFA = new adriangibbons\phpFITFileAnalysis($this->base_dir . $this->filename, ['fixData' => [$valid_option]]);    
+            $pFFA = new adriangibbons\phpFITFileAnalysis($this->base_dir . $this->filename, ['fix_data' => [$valid_option]]);    
         }
     }
     
@@ -91,6 +91,6 @@ class FixDataTest extends PHPUnit_Framework_TestCase
      */
     public function testFixData_validate_options_fail()
     {
-        $pFFA = new adriangibbons\phpFITFileAnalysis($this->base_dir . $this->filename, ['fixData' => ['INVALID']]);
+        $pFFA = new adriangibbons\phpFITFileAnalysis($this->base_dir . $this->filename, ['fix_data' => ['INVALID']]);
     }
 }
