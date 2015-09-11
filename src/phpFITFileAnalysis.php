@@ -1857,8 +1857,11 @@ class phpFITFileAnalysis
      * Returns an array that can be used to plot Circumferential Pedal Velocity (x-axis) vs Average Effective Pedal Force (y-axis).
      * NB Crank length is in metres.
      */
-    public function quadrantAnalysis($crank_length, $ftp, $selected_cadence = 90)
+    public function quadrantAnalysis($crank_length, $ftp, $selected_cadence = 90, $use_timestamps = false)
     {
+        if ($crank_length === null || $ftp === null || $selected_cadence === null || $use_timestamps === null) {
+            return [];
+        }
         if (!isset($this->data_mesgs['record']['power'])) {
             throw new \Exception('phpFITFileAnalysis->quadrantAnalysis(): power data not present in FIT file!');
         }
@@ -1887,7 +1890,11 @@ class phpFITFileAnalysis
             // Average Effective Pedal Force (AEPF, N) = (Power × 60) / (Cadence × 2 × Pi × Crank Length)
             $aepf = round(($p * 60) / ($c * 2 * pi() * $crank_length), 3);
             
-            $quadrant_plot['plot'][] = [$cpv, $aepf];
+            if ($use_timestamps === true) {
+                $quadrant_plot['plot'][$k] = [$cpv, $aepf];
+            } else {
+                $quadrant_plot['plot'][] = [$cpv, $aepf];
+            }
             
             if ($aepf > $quadrant_plot['aepf_threshold']) {  // high force
                 if ($cpv > $quadrant_plot['cpv_threshold']) {  // high velocity
@@ -1925,12 +1932,14 @@ class phpFITFileAnalysis
     /**
      * Create a JSON object
      */
-    public function getJSONObject()
+    public function getJSONObject($crank_length = null, $ftp = null, $selected_cadence = null, $use_timestamps = null)
     {
         $for_json = [];
         $for_json['fix_data'] = isset($this->options['fixData']) ? $this->options['fixData'] : null;
         $for_json['units'] = isset($this->options['units']) ? $this->options['units'] : null;
         $for_json['pace'] = isset($this->options['pace']) ? $this->options['pace'] : null;
+        
+        $quadrant_plot = $this->quadrantAnalysis($crank_length, $ftp, $selected_cadence, $use_timestamps)['plot'];
         
         $lap = 1;
         $data = [];
@@ -1947,6 +1956,11 @@ class phpFITFileAnalysis
                 if (isset($value[$ts])) {
                     $tmp[$key] = $value[$ts];
                 }
+            }
+            
+            if (isset($quadrant_plot[$ts])) {
+                $tmp['cpv'] = $quadrant_plot[$ts][0];
+                $tmp['aepf'] = $quadrant_plot[$ts][1];
             }
             
             $data[] = $tmp;
