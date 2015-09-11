@@ -1,5 +1,5 @@
-# phpFITFileAnalysis
-[![Build Status](https://travis-ci.org/adriangibbons/php-fit-file-analysis.svg?branch=master)](https://travis-ci.org/adriangibbons/php-fit-file-analysis)
+# phpFITFileAnalysis [![Build Status](https://travis-ci.org/adriangibbons/php-fit-file-analysis.svg?branch=master)](https://travis-ci.org/adriangibbons/php-fit-file-analysis)
+
 A PHP class for analysing FIT files created by Garmin GPS devices.
 
 [Live demonstration](http://adriangibbons.com/php-fit-file-analysis/demo/) (Right-click and Open in new tab)
