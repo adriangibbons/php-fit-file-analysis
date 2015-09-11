@@ -27,6 +27,7 @@ class phpFITFileAnalysis
 {
     public $data_mesgs = [];  // Used to store the data read from the file in associative arrays.
     
+    private $options = null;                 // Options provided to __construct().
     private $file_contents = '';             // FIT file is read-in to memory as a string, split into an array, and reversed. See __construct().
     private $file_pointer = 0;               // Points to the location in the file that shall be read next.
     private $defn_mesgs = [];                // Array of FIT 'Definition Messages', which describe the architecture, format, and fields of 'Data Messages'.
@@ -854,6 +855,7 @@ class phpFITFileAnalysis
         if (!file_exists($file_path)) {
             throw new \Exception('phpFITFileAnalysis->__construct(): file \''.$file_path.'\' does not exist!');
         }
+        $this->options = $options;
         $this->php_trader_ext_loaded = extension_loaded('trader');
         
         /**
@@ -869,8 +871,8 @@ class phpFITFileAnalysis
         $this->oneElementArrays();
         
         // Handle options.
-        $this->fixData($options);
-        $this->setUnits($options);
+        $this->fixData($this->options);
+        $this->setUnits($this->options);
     }
     
     /**
@@ -1918,6 +1920,39 @@ class phpFITFileAnalysis
         }
         
         return $quadrant_plot;
+    }
+    
+    /**
+     * Create a JSON object
+     */
+    public function getJSONObject()
+    {
+        $for_json = [];
+        $for_json['fix_data'] = isset($this->options['fixData']) ? $this->options['fixData'] : null;
+        $for_json['units'] = isset($this->options['units']) ? $this->options['units'] : null;
+        $for_json['pace'] = isset($this->options['pace']) ? $this->options['pace'] : null;
+        
+        $lap = 1;
+        $data = [];
+        
+        foreach ($this->data_mesgs['record']['timestamp'] as $ts) {
+            $tmp = [];
+            $tmp['timestamp'] = $ts;
+            $tmp['lap'] = $lap;
+            
+            foreach ($this->data_mesgs['record'] as $key => $value) {
+                if (isset($value[$ts])) {
+                    $tmp[$key] = $value[$ts];
+                }
+            }
+            
+            $data[] = $tmp;
+            unset($tmp);
+        }
+        
+        $for_json['data'] = $data;
+        
+        return json_encode($for_json);
     }
     
     /**
