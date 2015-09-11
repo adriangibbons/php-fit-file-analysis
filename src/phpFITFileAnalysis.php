@@ -1930,7 +1930,7 @@ class phpFITFileAnalysis
     }
     
     /**
-     * Create a JSON object
+     * Create a JSON object that contains available record message information and CPV/AEPF if requested/available.
      */
     public function getJSONObject($crank_length = null, $ftp = null, $selected_cadence = null, $use_timestamps = null)
     {
