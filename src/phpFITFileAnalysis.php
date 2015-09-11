@@ -1941,6 +1941,7 @@ class phpFITFileAnalysis
         $lap = 1;
         $data = [];
         $quadrant_plot = $this->quadrantAnalysis($crank_length, $ftp, $selected_cadence, true)['plot'];
+        $is_paused = $this->isPaused();
         
         foreach ($this->data_mesgs['record']['timestamp'] as $ts) {
             if (is_array($this->data_mesgs['lap']) && $ts >= $this->data_mesgs['lap']['timestamp'][$lap - 1]) {
@@ -1951,13 +1952,17 @@ class phpFITFileAnalysis
             $tmp['lap'] = $lap;
             
             foreach ($this->data_mesgs['record'] as $key => $value) {
-                $tmp[$key] = isset($value[$ts]) ? $value[$ts] : null;
+                if ($key !== 'timestamp') {
+                    $tmp[$key] = isset($value[$ts]) ? $value[$ts] : null;
+                }
             }
             
             if (!empty($quadrant_plot)) {
                 $tmp['cpv'] = isset($quadrant_plot[$ts]) ? $quadrant_plot[$ts][0] : null;
                 $tmp['aepf'] = isset($quadrant_plot[$ts]) ? $quadrant_plot[$ts][1] : null;
             }
+            
+            $tmp['paused'] = $is_paused[$ts];
             
             $data[] = $tmp;
             unset($tmp);
