@@ -1931,17 +1931,16 @@ class phpFITFileAnalysis
     /**
      * Create a JSON object that contains available record message information and CPV/AEPF if requested/available.
      */
-    public function getJSONObject($crank_length = null, $ftp = null, $selected_cadence = 90)
+    public function getJSON($crank_length = null, $ftp = null, $selected_cadence = 90)
     {
         $for_json = [];
         $for_json['fix_data'] = isset($this->options['fix_data']) ? $this->options['fix_data'] : null;
         $for_json['units'] = isset($this->options['units']) ? $this->options['units'] : null;
         $for_json['pace'] = isset($this->options['pace']) ? $this->options['pace'] : null;
         
-        $quadrant_plot = $this->quadrantAnalysis($crank_length, $ftp, $selected_cadence, true)['plot'];
-        
         $lap = 1;
         $data = [];
+        $quadrant_plot = $this->quadrantAnalysis($crank_length, $ftp, $selected_cadence, true)['plot'];
         
         foreach ($this->data_mesgs['record']['timestamp'] as $ts) {
             if (is_array($this->data_mesgs['lap']) && $ts >= $this->data_mesgs['lap']['timestamp'][$lap - 1]) {
