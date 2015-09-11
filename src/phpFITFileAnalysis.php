@@ -1951,14 +1951,12 @@ class phpFITFileAnalysis
             $tmp['lap'] = $lap;
             
             foreach ($this->data_mesgs['record'] as $key => $value) {
-                if (isset($value[$ts])) {
-                    $tmp[$key] = $value[$ts];
-                }
+                $tmp[$key] = isset($value[$ts]) ? $value[$ts] : null;
             }
             
-            if (isset($quadrant_plot[$ts])) {
-                $tmp['cpv'] = $quadrant_plot[$ts][0];
-                $tmp['aepf'] = $quadrant_plot[$ts][1];
+            if (!empty($quadrant_plot)) {
+                $tmp['cpv'] = isset($quadrant_plot[$ts]) ? $quadrant_plot[$ts][0] : null;
+                $tmp['aepf'] = isset($quadrant_plot[$ts]) ? $quadrant_plot[$ts][1] : null;
             }
             
             $data[] = $tmp;
