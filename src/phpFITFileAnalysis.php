@@ -1940,8 +1940,13 @@ class phpFITFileAnalysis
         
         $lap = 1;
         $data = [];
-        $quadrant_plot = $this->quadrantAnalysis($crank_length, $ftp, $selected_cadence, true)['plot'];
+        $quadrant_plot = $this->quadrantAnalysis($crank_length, $ftp, $selected_cadence, true);
         $is_paused = $this->isPaused();
+        
+        if (!empty($quadrant_plot)) {
+            $for_json['aepf_threshold'] = $quadrant_plot['aepf_threshold'];
+            $for_json['cpv_threshold'] = $quadrant_plot['cpv_threshold'];
+        }
         
         foreach ($this->data_mesgs['record']['timestamp'] as $ts) {
             if (is_array($this->data_mesgs['lap']) && $ts >= $this->data_mesgs['lap']['timestamp'][$lap - 1]) {
@@ -1958,8 +1963,8 @@ class phpFITFileAnalysis
             }
             
             if (!empty($quadrant_plot)) {
-                $tmp['cpv'] = isset($quadrant_plot[$ts]) ? $quadrant_plot[$ts][0] : null;
-                $tmp['aepf'] = isset($quadrant_plot[$ts]) ? $quadrant_plot[$ts][1] : null;
+                $tmp['cpv'] = isset($quadrant_plot['plot'][$ts]) ? $quadrant_plot['plot'][$ts][0] : null;
+                $tmp['aepf'] = isset($quadrant_plot['plot'][$ts]) ? $quadrant_plot['plot'][$ts][1] : null;
             }
             
             $tmp['paused'] = $is_paused[$ts];
