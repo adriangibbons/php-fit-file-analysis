@@ -1936,6 +1936,9 @@ class phpFITFileAnalysis
         $data = [];
         
         foreach ($this->data_mesgs['record']['timestamp'] as $ts) {
+            if (is_array($this->data_mesgs['lap']) && $ts >= $this->data_mesgs['lap']['timestamp'][$lap - 1]) {
+                $lap++;
+            }
             $tmp = [];
             $tmp['timestamp'] = $ts;
             $tmp['lap'] = $lap;
