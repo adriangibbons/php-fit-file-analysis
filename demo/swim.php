@@ -10,9 +10,9 @@ try {
     $file = '/fit_files/swim.fit';
         
     $options = [
-    //		'fix_data'	=> [],
-        'units'         => 'raw',
-    //		'pace'		=> false
+    //  'fix_data'    => [],
+      'units'       => 'raw',
+    //  'pace'        => false
     ];
     $pFFA = new adriangibbons\phpFITFileAnalysis(__DIR__ . $file, $options);
 } catch (Exception $e) {
@@ -91,7 +91,8 @@ if ($pFFA->enumData('display_measure', $pFFA->data_mesgs['session']['pool_length
           </thead>
           <tbody>
             <?php
-                $lengths = count($pFFA->data_mesgs['length']['timestamp']);
+            $lengths = count($pFFA->data_mesgs['length']['total_timer_time']);
+            $active_length = 0;
             for ($i=0; $i<$lengths; $i++) {
                 $min = floor($pFFA->data_mesgs['length']['total_timer_time'][$i] / 60);
                 $sec = number_format($pFFA->data_mesgs['length']['total_timer_time'][$i] - ($min*60), 1);
@@ -101,8 +102,10 @@ if ($pFFA->enumData('display_measure', $pFFA->data_mesgs['session']['pool_length
                     echo '<td>'.($i+1).'</td>';
                     echo '<td>'.$dur.'</td>';
                     echo '<td>'.$pFFA->data_mesgs['length']['total_strokes'][$i].'</td>';
-                    echo '<td>'.$pFFA->enumData('swim_stroke', $pFFA->data_mesgs['length']['swim_stroke'][$i]).'</td>';
+                    echo '<td>'.$pFFA->enumData('swim_stroke', $pFFA->data_mesgs['length']['swim_stroke'][$active_length]).'</td>';
+                    echo '<td></td>';
                     echo '</tr>';
+                    $active_length++;
                 } else {
                     echo '<tr class="danger">';
                     echo '<td>'.($i+1).'</td>';
@@ -128,8 +131,8 @@ if ($pFFA->enumData('display_measure', $pFFA->data_mesgs['session']['pool_length
       xaxis: {
         show: false
       },
-	  yaxes: [ { transform: function (v) { return -v; }, inverseTransform: function (v) { return -v; }, tickFormatter: function(label, series) { return label + ' s'; } },
-	           { alignTicksWithAxis: 1, position: "right", } ],
+      yaxes: [ { transform: function (v) { return -v; }, inverseTransform: function (v) { return -v; }, tickFormatter: function(label, series) { return label + ' s'; } },
+               { alignTicksWithAxis: 1, position: "right", } ],
       grid: {
         borderWidth: {
           top: 0,
@@ -139,7 +142,7 @@ if ($pFFA->enumData('display_measure', $pFFA->data_mesgs['session']['pool_length
         }
       }
     };
-	var lap_times = {
+    var lap_times = {
       'color': 'rgba(255, 0, 0, 1)',
       'label': 'Lap Time',
       'data': [
@@ -157,9 +160,9 @@ for ($i=0; $i<$lengths; $i++) {
       points: { show: false }
     };
     
-	var num_strokes = {
+    var num_strokes = {
       'color': 'rgba(11, 98, 164, 0.5)',
-	  'label': 'Number of Strokes',
+      'label': 'Number of Strokes',
       'data': [
 <?php
     $tmp = [];
@@ -173,9 +176,9 @@ for ($i=0; $i<$lengths; $i++) {
       ],
       bars: { show: true, fill: true, fillColor: "rgba(11, 98, 164, 0.3)", lineWidth: 1 },
       points: { show: false },
-	  yaxis: 2
+      yaxis: 2
     };
-        	
+            
     $.plot('#lap_times', [lap_times, num_strokes], chart_options);
   });
 </script>
