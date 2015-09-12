@@ -1861,11 +1861,8 @@ class phpFITFileAnalysis
         if ($crank_length === null || $ftp === null) {
             return [];
         }
-        if (!isset($this->data_mesgs['record']['power'])) {
-            throw new \Exception('phpFITFileAnalysis->quadrantAnalysis(): power data not present in FIT file!');
-        }
-        if (!isset($this->data_mesgs['record']['cadence'])) {
-            throw new \Exception('phpFITFileAnalysis->quadrantAnalysis(): cadence data not present in FIT file!');
+        if (empty($this->data_mesgs['record']['power']) || empty($this->data_mesgs['record']['cadence'])) {
+            return [];
         }
         
         $quadrant_plot = [];
