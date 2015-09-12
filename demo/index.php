@@ -37,6 +37,16 @@
   <div class="col-md-4">
     <div class="panel panel-default">
       <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-file-code-o"></i> Quadrant Analysis</h3>
+      </div>
+      <div class="panel-body text-center">
+        <a href="quadrant-analysis.php"><img src="img/quadrant-analysis.jpg" alt="Quadrant Analysis"></a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">
         <h3 class="panel-title"><i class="fa fa-file-code-o"></i> Swim</h3>
       </div>
       <div class="panel-body text-center">
