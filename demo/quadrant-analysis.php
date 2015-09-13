@@ -220,13 +220,14 @@ $(function(){
         hrBarChart  = dc.barChart("#hr-bar-chart");
     
     var ndx,
-        latlngDim, qaDim, lapDim, cadDim, hrDim,
-        latlngGrp, qaGrp, lapGrp, cadGrp, hrGrp;
+        tsDim, latlngDim, qaDim, lapDim, cadDim, hrDim,
+                          qaGrp, lapGrp, cadGrp, hrGrp;
     
     ndx = crossfilter(ride_data.data);
     
+    tsDim = ndx.dimension(function(d) {return d.timestamp;});
+    
     latlngDim = ndx.dimension(function(d) {return [d.position_lat, d.position_long];});
-    latlngGrp = latlngDim.group();
     
     qaDim = ndx.dimension(function(d) {return [d.cpv, d.aepf, d.lap];});
     qaGrp = qaDim.group().reduceSum(function(d) { return d.lap; });
@@ -319,7 +320,7 @@ $(function(){
     dc.renderAll();
     
     lapRowChart.on('filtered', function(chart, filter){
-        updateOverlay(latlngDim.top(Infinity));
+        updateOverlay(tsDim.top(Infinity));
     });
     
     qaScatterChart.on('renderlet', function(chart) {
