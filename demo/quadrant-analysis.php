@@ -320,7 +320,7 @@ $(function(){
     dc.renderAll();
     
     lapRowChart.on('filtered', function(chart, filter){
-        updateOverlay(tsDim.top(Infinity));
+        updateOverlay(tsDim.bottom(Infinity));
     });
     
     qaScatterChart.on('renderlet', function(chart) {
