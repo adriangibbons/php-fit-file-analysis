@@ -120,14 +120,14 @@ There are three optional parameters that can be passed as an associative array w
  - pace
 
 For example:
-````php
+```php
 $options = [
     'fix_data'  => ['cadence', 'distance'],
     'units'     => 'statute',
     'pace'      => true
 ];
 $pFFA = new adriangibbons\phpFITFileAnalysis('my_fit_file.fit', $options);
-````
+```
 The optional parameters are described in more detail below.
 ####"Fix" the Data
 FIT files have been observed where some data points are missing for one sensor (e.g. cadence/foot pod), where information has been collected for other sensors (e.g. heart rate) at the same instant. The cause is unknown and typically only a relatively small number of data points are missing. Fixing the issue is probably unnecessary, as each datum is indexed using a timestamp. However, it may be important for your project to have the exact same number of data points for each type of data.
@@ -265,27 +265,27 @@ Note that if 'raw' units are requested then this parameter has no effect on the 
 ##Analysis
 The following functions return arrays of that could be used to create tables/charts:
 ```php
-$pFFA->hrPartionedHRmaximum(195);  // Input: HRmaximum
-$pFFA->hrPartionedHRreserve(48, 195);  // Inputs: HRmaximum and HRresting
-$pFFA->powerPartioned(312);  // Input: Functional Threshold Power
-$pFFA->powerHistogram();  // Input: bucket width (optional; default=25w)
+array $pFFA->hrPartionedHRmaximum(int $hr_maximum);
+array $pFFA->hrPartionedHRreserve(int $hr_resting, int $hr_maximum);
+array $pFFA->powerPartioned(int $functional_threshold_power);
+array $pFFA->powerHistogram(int $bucket_width = 25);
 ```
 For advanced control over these functions, or use with other sensor data (e.g. cadence or speed), use the underlying functions:
 ```php
-$pFFA->partitionData($record_field='', $thresholds=null, $percentages=true, $labels_for_keys=true);
-$pFFA->histogram($bucket_width=25, $record_field='');
+array $pFFA->partitionData(string $record_field='', $thresholds=null, bool $percentages = true, bool $labels_for_keys = true);
+array $pFFA->histogram(int $bucket_width=25, string $record_field='');
 ```
 Functions exist to determine thresholds based on percentages of user-supplied data:
 ```php
-$pFFA->hrZonesMax($hr_maximum, $percentages_array=[0.60, 0.75, 0.85, 0.95]);
-$pFFA->hrZonesReserve($hr_resting, $hr_maximum, $percentages_array=[0.60, 0.65, 0.75, 0.82, 0.89, 0.94 ]) {
-$pFFA->powerZones($functional_threshold_power, $percentages_array=[0.55, 0.75, 0.90, 1.05, 1.20, 1.50]);
+array $pFFA->hrZonesMax(int $hr_maximum, array $percentages_array=[0.60, 0.75, 0.85, 0.95]);
+array $pFFA->hrZonesReserve(int $hr_resting, int $hr_maximum, array $percentages_array=[0.60, 0.65, 0.75, 0.82, 0.89, 0.94 ]) {
+array $pFFA->powerZones(int $functional_threshold_power, array $percentages_array=[0.55, 0.75, 0.90, 1.05, 1.20, 1.50]);
 ```
 ###Heart Rate
 A function exists for analysing heart rate data:
 ```php
 // hr_FT is heart rate at Functional Threshold, or Lactate Threshold Heart Rate
-$pFFA->hrMetrics($hr_resting, $hr_maximum, $hr_FT, $gender);
+array $pFFA->hrMetrics(int $hr_resting, int $hr_maximum, string $hr_FT, $gender);
 // e.g. $pFFA->hrMetrics(52, 189, 172, 'male');
 ```
 **Heart Rate metrics:**
@@ -295,9 +295,9 @@ $pFFA->hrMetrics($hr_resting, $hr_maximum, $hr_FT, $gender);
 ###Power
 Three functions exist for analysing power data:
 ```php
-$pFFA->powerMetrics($functional_threshold_power);  // e.g. 312
-$pFFA->criticalPower($time_periods);  // e.g. 300 or [300, 600, 900, 1200]
-$pFFA->quadrantAnalysis($crank_length, $ftp, $selected_cadence);  // Crank length in metres; cadence defaults to 90rpm if not supplied
+array $pFFA->powerMetrics(int $functional_threshold_power);
+array $pFFA->criticalPower(int or array $time_periods);  // e.g. 300 or [600, 900]
+array $pFFA->quadrantAnalysis(float $crank_length, int $ftp, int $selected_cadence = 90, bool $use_timestamps = false);  // Crank length in metres
 ```
 **Power metrics:**
  * Average Power
@@ -309,14 +309,25 @@ $pFFA->quadrantAnalysis($crank_length, $ftp, $selected_cadence);  // Crank lengt
 
 **Critical Power** (or Best Effort) is the highest average power sustained for a specified period of time within the activity. You can supply a single time period (in seconds), or an array or time periods.
 
-Note that ```$pFFA->criticalPower``` and some power metrics (Normalised Power, Variability Index, Intensity Factor, Training Stress Score) will use the [PHP Trader](http://php.net/manual/en/book.trader.php) extension if it is loaded on the server. If the extension is not loaded then it will use the built-in Simple Moving Average algorithm, which is far less performant particularly for larger files!
-
 **Quadrant Analysis** provides insight into the neuromuscular demands of a bike ride through comparing pedal velocity with force by looking at cadence and power.
+
+Note that ```$pFFA->criticalPower``` and some power metrics (Normalised Power, Variability Index, Intensity Factor, Training Stress Score) will use the [PHP Trader](http://php.net/manual/en/book.trader.php) extension if it is loaded on the server. If the extension is not loaded then it will use the built-in Simple Moving Average algorithm, which is far less performant particularly for larger files!
 
 A demo of power analysis is available [here](http://adriangibbons.com/php-fit-file-analysis/demo/power-analysis.php).
 
 ##Other methods
-```isPaused()``` - Returns array of booleans using timestamp as key. true == timer paused (e.g. autopause).
+Returns array of booleans using timestamp as key. true == timer paused (e.g. autopause):
+```php
+array isPaused()
+```
+Returns a JSON object with requested ride data:
+```php
+array getJSON(float $crank_length = null, int $ftp = null, array $data_required = ['all'], int $selected_cadence = 90)
+/**
+ * $data_required can be ['all'] or a combination of:
+ * ['timestamp', 'paused', 'temperature', 'lap', 'position_lat', 'position_long', 'distance', 'altitude', 'speed', 'heart_rate', 'cadence', 'power', 'quadrant-analysis']
+ */
+```
 
 ##Acknowledgement
 This class has been created using information available in a Software Development Kit (SDK) made available by ANT ([thisisant.com](http://www.thisisant.com/resources/fit)).
