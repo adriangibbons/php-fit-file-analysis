@@ -1928,49 +1928,87 @@ class phpFITFileAnalysis
     /**
      * Create a JSON object that contains available record message information and CPV/AEPF if requested/available.
      */
-    public function getJSON($crank_length = null, $ftp = null, $selected_cadence = 90)
+    public function getJSON($crank_length = null, $ftp = null, $data_required = ['all'], $selected_cadence = 90)
     {
+        if (!is_array($data_required)) {
+            $data_required = [$data_required];
+        }
+        foreach ($data_required as &$datum) {
+            $datum = strtolower($datum);
+        }
+        
+        $all = in_array('all', $data_required);
+        $timestamp         = ($all || in_array('timestamp', $data_required));
+        $paused            = ($all || in_array('paused', $data_required));
+        $temperature       = ($all || in_array('temperature', $data_required));
+        $lap               = ($all || in_array('lap', $data_required));
+        $position_lat      = ($all || in_array('position_lat', $data_required));
+        $position_long     = ($all || in_array('position_long', $data_required));
+        $distance          = ($all || in_array('distance', $data_required));
+        $altitude          = ($all || in_array('altitude', $data_required));
+        $speed             = ($all || in_array('speed', $data_required));
+        $heart_rate        = ($all || in_array('heart_rate', $data_required));
+        $cadence           = ($all || in_array('cadence', $data_required));
+        $power             = ($all || in_array('power', $data_required));
+        $quadrant_analysis = ($all || in_array('quadrant-analysis', $data_required));
+        
         $for_json = [];
         $for_json['fix_data'] = isset($this->options['fix_data']) ? $this->options['fix_data'] : null;
         $for_json['units'] = isset($this->options['units']) ? $this->options['units'] : null;
         $for_json['pace'] = isset($this->options['pace']) ? $this->options['pace'] : null;
         
-        $lap = 1;
+        $lap_count = 1;
         $data = [];
-        $quadrant_plot = $this->quadrantAnalysis($crank_length, $ftp, $selected_cadence, true);
-        $is_paused = $this->isPaused();
-        
-        if (!empty($quadrant_plot)) {
-            $for_json['aepf_threshold'] = $quadrant_plot['aepf_threshold'];
-            $for_json['cpv_threshold'] = $quadrant_plot['cpv_threshold'];
+        if ($quadrant_analysis) {
+            $quadrant_plot = $this->quadrantAnalysis($crank_length, $ftp, $selected_cadence, true);
+            if (!empty($quadrant_plot)) {
+                $for_json['aepf_threshold'] = $quadrant_plot['aepf_threshold'];
+                $for_json['cpv_threshold'] = $quadrant_plot['cpv_threshold'];
+            }
         }
-        
+        if ($paused) {
+            $is_paused = $this->isPaused();
+        }
+                
         foreach ($this->data_mesgs['record']['timestamp'] as $ts) {
-            if (is_array($this->data_mesgs['lap']['timestamp']) && $ts >= $this->data_mesgs['lap']['timestamp'][$lap - 1]) {
-                $lap++;
+            if ($lap && is_array($this->data_mesgs['lap']['timestamp']) && $ts >= $this->data_mesgs['lap']['timestamp'][$lap_count - 1]) {
+                $lap_count++;
             }
             $tmp = [];
-            $tmp['timestamp'] = $ts;
-            $tmp['lap'] = $lap;
+            if ($timestamp) {
+                $tmp['timestamp'] = $ts;
+            }
+            if ($lap) {
+                $tmp['lap'] = $lap;
+            }
             
             foreach ($this->data_mesgs['record'] as $key => $value) {
                 if ($key !== 'timestamp') {
-                    $tmp[$key] = isset($value[$ts]) ? $value[$ts] : null;
+                    if ($$key) {
+                        $tmp[$key] = isset($value[$ts]) ? $value[$ts] : null;
+                    }
                 }
             }
             
-            if (!empty($quadrant_plot)) {
-                $tmp['cpv'] = isset($quadrant_plot['plot'][$ts]) ? $quadrant_plot['plot'][$ts][0] : null;
-                $tmp['aepf'] = isset($quadrant_plot['plot'][$ts]) ? $quadrant_plot['plot'][$ts][1] : null;
+            if ($quadrant_analysis) {
+                if (!empty($quadrant_plot)) {
+                    $tmp['cpv'] = isset($quadrant_plot['plot'][$ts]) ? $quadrant_plot['plot'][$ts][0] : null;
+                    $tmp['aepf'] = isset($quadrant_plot['plot'][$ts]) ? $quadrant_plot['plot'][$ts][1] : null;
+                }
             }
             
-            $tmp['paused'] = $is_paused[$ts];
+            if ($paused) {
+                $tmp['paused'] = $is_paused[$ts];
+            }
             
             $data[] = $tmp;
             unset($tmp);
         }
         
         $for_json['data'] = $data;
+        
+        var_dump($for_json['data'][0]);
+        die();
         
         return json_encode($for_json);
     }
