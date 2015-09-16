@@ -2007,9 +2007,6 @@ class phpFITFileAnalysis
         
         $for_json['data'] = $data;
         
-        var_dump($for_json['data'][0]);
-        die();
-        
         return json_encode($for_json);
     }
     
