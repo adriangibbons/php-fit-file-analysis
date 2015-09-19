@@ -1979,7 +1979,7 @@ class phpFITFileAnalysis
                 $tmp['timestamp'] = $ts;
             }
             if ($lap) {
-                $tmp['lap'] = $lap;
+                $tmp['lap'] = $lap_count;
             }
             
             foreach ($this->data_mesgs['record'] as $key => $value) {
