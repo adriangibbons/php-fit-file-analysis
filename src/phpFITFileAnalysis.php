@@ -1749,6 +1749,9 @@ class phpFITFileAnalysis
         $power_metrics['Intensity Factor'] = $power_metrics['Normalised Power'] / $functional_threshold_power;
         $power_metrics['Training Stress Score'] = (count($this->data_mesgs['record']['power']) * $power_metrics['Normalised Power'] * $power_metrics['Intensity Factor']) / ($functional_threshold_power * 36);
         
+        // TSS is IF^2*100*Ride Duration in hours.
+        $power_metrics['Training Stress Score'] = round(($power_metrics['Intensity Factor'] * $power_metrics['Intensity Factor']) * 100 * (count($this->data_mesgs['record']['power']) / 3600));
+        
         // Round the values to make them something sensible.
         $power_metrics['Average Power'] = (int)round($power_metrics['Average Power']);
         $power_metrics['Kilojoules'] = (int)round($power_metrics['Kilojoules']);
