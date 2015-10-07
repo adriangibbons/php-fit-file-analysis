@@ -114,18 +114,20 @@ In addition, public functions provide a short-hand way to access commonly used e
  - sport()
 
 ###Optional Parameters
-There are three optional parameters that can be passed as an associative array when the phpFITFileAnalysis object is instantiated. These are:
+There are four optional parameters that can be passed as an associative array when the phpFITFileAnalysis object is instantiated. These are:
 
  - fix_data
  - units
  - pace
+ - garmin_timestamps
 
 For example:
 ```php
 $options = [
-    'fix_data'  => ['cadence', 'distance'],
-    'units'     => 'statute',
-    'pace'      => true
+    'fix_data'          => ['cadence', 'distance'],
+    'units'             => 'statute',
+    'pace'              => true,
+    'garmin_timestamps' => true
 ];
 $pFFA = new adriangibbons\phpFITFileAnalysis('my_fit_file.fit', $options);
 ```
@@ -262,6 +264,18 @@ foreach ($pFFA->data_mesgs['record']['speed'] as $key => $value) {
 }
 ```
 Note that if 'raw' units are requested then this parameter has no effect on the speed data, as it is left untouched from what was read-in from the file.
+
+####Timestamps
+Unix time is the number of seconds since UTC 00:00:00 Jan 01 1970, however the FIT standard specifies that fields of type date_time and local_date_time (e.g. timestamps) are unsigned long integers representing seconds since UTC 00:00 Dec 31 1989.
+
+The difference (in seconds) between FIT and Unix timestamps is 631,065,600:
+```php
+$date_FIT = new DateTime('1989-12-31 00:00:00', new DateTimeZone('UTC'));
+$date_UNIX = new DateTime('1970-01-01 00:00:00', new DateTimeZone('UTC'));
+$diff = $date_FIT->getTimestamp() - $date_UNIX->getTimestamp();
+echo 'The difference (in seconds) between FIT and Unix timestamps is '. number_format($diff);
+```
+By default, fields of type date_time and local_date_time read from FIT files will have this delta added to them so that they can be treated as Unix time. If the FIT timestamp is required, the 'garmin_timestamps' option can be set to true.
 
 ##Analysis
 The following functions return arrays of that could be used to create tables/charts:

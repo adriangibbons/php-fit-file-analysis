@@ -56,8 +56,8 @@ do {
     
     
     // Google Time Zone API
-    $date = new DateTime('1989-12-31', new DateTimeZone('UTC'));  // FIT timestamps are seconds since UTC 00:00:00 Dec 31 1989, source FIT SDK
-    $date_s = $date->getTimestamp() + $pFFA->data_mesgs['session']['start_time'];
+    $date = new DateTime('now', new DateTimeZone('UTC'));
+    $date_s = $pFFA->data_mesgs['session']['start_time'];
     
     $url_tz = 'https://maps.googleapis.com/maps/api/timezone/json?location='.$LatLng_start.'&timestamp='.$date_s.'&key=AIzaSyDlPWKTvmHsZ-X6PGsBPAvo0nm1-WdwuYE';
     

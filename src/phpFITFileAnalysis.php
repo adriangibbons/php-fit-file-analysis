@@ -23,6 +23,15 @@ if (!defined('DATA_MESSAGE')) {
     define('DATA_MESSAGE', 0);
 }
 
+/*
+ * This is the number of seconds difference between FIT and Unix timestamps.
+ * FIT timestamps are seconds since UTC 00:00:00 Dec 31 1989 (source FIT SDK)
+ * Unix time is the number of seconds since UTC 00:00:00 Jan 01 1970
+ */
+if (!defined('FIT_UNIX_TS_DIFF')) {
+    define('FIT_UNIX_TS_DIFF', 631065600);
+}
+
 class phpFITFileAnalysis
 {
     public $data_mesgs = [];  // Used to store the data read from the file in associative arrays.
@@ -35,6 +44,7 @@ class phpFITFileAnalysis
     private $file_header = [];               // Contains information about the FIT file such as the Protocol version, Profile version, and Data Size.
     private $php_trader_ext_loaded = false;  // Is the PHP Trader extension loaded? Use $this->sma() algorithm if not available.
     private $types = null;                   // Set by $endianness depending on architecture in Definition Message.
+    private $garmin_timestamps = false;      // By default the constant FIT_UNIX_TS_DIFF will be added to timestamps.
     
     // Enumerated data looked up by enumData().
     // Values from 'Profile.xls' contained within the FIT SDK.
@@ -856,6 +866,9 @@ class phpFITFileAnalysis
             throw new \Exception('phpFITFileAnalysis->__construct(): file \''.$file_path.'\' does not exist!');
         }
         $this->options = $options;
+        if (isset($options['garmin_timestamps']) && $options['garmin_timestamps'] == true) {
+            $this->garmin_timestamps = true;
+        }
         $this->php_trader_ext_loaded = extension_loaded('trader');
         
         /**
@@ -993,6 +1006,11 @@ class phpFITFileAnalysis
                                 // Check if it's an invalid value for the type
                                 $tmp_value = unpack($this->types[$field_defn['base_type']], substr($this->file_contents, $this->file_pointer, $field_defn['size']))['tmp'];
                                 if ($tmp_value !== $this->invalid_values[$field_defn['base_type']]) {
+                                    // If it's a timestamp, compensate between different in FIT and Unix timestamp epochs
+                                    if ($field_defn['field_definition_number'] === 253 && !$this->garmin_timestamps) {
+                                        $tmp_value += FIT_UNIX_TS_DIFF;
+                                    }
+                                    
                                     // If it's a Record data message, store all the pieces in the temporary array as the timestamp may not be first...
                                     if ($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20) {
                                         $tmp_record_array[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']] = $tmp_value / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale'] - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
@@ -1035,6 +1053,45 @@ class phpFITFileAnalysis
      */
     private function fixData($options)
     {
+        // By default the constant FIT_UNIX_TS_DIFF will be added to timestamps, which have field type of date_time (or local_date_time).
+        // Timestamp fields (field number == 253) converted after being unpacked in $this->readDataRecords().
+        if (!$this->garmin_timestamps) {
+            $date_times = [
+                    ['message_name' => 'activity', 'field_name' => 'local_timestamp'],
+                    ['message_name' => 'course_point', 'field_name' => 'timestamp'],
+                    ['message_name' => 'file_id', 'field_name' => 'time_created'],
+                    ['message_name' => 'goal', 'field_name' => 'end_date'],
+                    ['message_name' => 'goal', 'field_name' => 'start_date'],
+                    ['message_name' => 'lap', 'field_name' => 'start_time'],
+                    ['message_name' => 'length', 'field_name' => 'start_time'],
+                    ['message_name' => 'monitoring', 'field_name' => 'local_timestamp'],
+                    ['message_name' => 'monitoring_info', 'field_name' => 'local_timestamp'],
+                    ['message_name' => 'obdii_data', 'field_name' => 'start_timestamp'],
+                    ['message_name' => 'schedule', 'field_name' => 'scheduled_time'],
+                    ['message_name' => 'schedule', 'field_name' => 'time_created'],
+                    ['message_name' => 'segment_lap', 'field_name' => 'start_time'],
+                    ['message_name' => 'session', 'field_name' => 'start_time'],
+                    ['message_name' => 'timestamp_correlation', 'field_name' => 'local_timestamp'],
+                    ['message_name' => 'timestamp_correlation', 'field_name' => 'system_timestamp'],
+                    ['message_name' => 'training_file', 'field_name' => 'time_created'],
+                    ['message_name' => 'video_clip', 'field_name' => 'end_timestamp'],
+                    ['message_name' => 'video_clip', 'field_name' => 'start_timestamp']
+                ];
+            
+            foreach ($date_times as $date_time) {
+                if (isset($this->data_mesgs[$date_time['message_name']][$date_time['field_name']])) {
+                    if (is_array($this->data_mesgs[$date_time['message_name']][$date_time['field_name']])) {
+                        foreach ($this->data_mesgs[$date_time['message_name']][$date_time['field_name']] as &$element) {
+                            $element += FIT_UNIX_TS_DIFF;
+                        }
+                    } else {
+                        $this->data_mesgs[$date_time['message_name']][$date_time['field_name']] += FIT_UNIX_TS_DIFF;
+                    }
+                }
+            }
+        }
+
+        
         // Find messages that have been unpacked as unsigned integers that should be signed integers.
         // http://php.net/manual/en/function.pack.php - signed integers endianness is always machine dependent.
         // 131    s    signed short (always 16 bit, machine byte order)

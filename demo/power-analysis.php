@@ -17,8 +17,8 @@ try {
     $pFFA = new adriangibbons\phpFITFileAnalysis(__DIR__ . $file, $options);
         
     // Google Time Zone API
-    $date = new DateTime("1989-12-31", new DateTimeZone("UTC"));  // timestamp[s]: seconds since UTC 00:00:00 Dec 31 1989
-    $date_s = $date->getTimestamp() + $pFFA->data_mesgs['session']['start_time'];
+    $date = new DateTime('now', new DateTimeZone('UTC'));
+    $date_s = $pFFA->data_mesgs['session']['start_time'];
         
     $url_tz = "https://maps.googleapis.com/maps/api/timezone/json?location=".reset($pFFA->data_mesgs['record']['position_lat']).','.reset($pFFA->data_mesgs['record']['position_long'])."&timestamp=".$date_s."&key=AIzaSyDlPWKTvmHsZ-X6PGsBPAvo0nm1-WdwuYE";
         
