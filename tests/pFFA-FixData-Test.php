@@ -74,7 +74,7 @@ class FixDataTest extends PHPUnit_Framework_TestCase
     {
         $pFFA = new adriangibbons\phpFITFileAnalysis($this->base_dir . $this->filename, ['fix_data' => ['heart_rate']]);
         
-        $this->assertEquals(117.5, $pFFA->data_mesgs['record']['heart_rate'][805987192]);
+        $this->assertEquals(117.5, $pFFA->data_mesgs['record']['heart_rate'][1437052792]);
     }
     
     public function testFixData_validate_options_pass()
