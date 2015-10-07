@@ -50,7 +50,7 @@ class FixDataTest extends PHPUnit_Framework_TestCase
         $pFFA = new adriangibbons\phpFITFileAnalysis($this->base_dir . $this->filename);
         
         $hr_missing_key = array_diff($pFFA->data_mesgs['record']['timestamp'], array_keys($pFFA->data_mesgs['record']['heart_rate']));
-        $this->assertEquals([3036 => 805987192], $hr_missing_key);
+        $this->assertEquals([3036 => 1437052792], $hr_missing_key);
     }
     
     public function testFixData_after()
