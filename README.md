@@ -266,7 +266,7 @@ foreach ($pFFA->data_mesgs['record']['speed'] as $key => $value) {
 Note that if 'raw' units are requested then this parameter has no effect on the speed data, as it is left untouched from what was read-in from the file.
 
 ####Timestamps
-Unix time is the number of seconds since **UTC 00:00:00 Jan 01 1970**, however the FIT standard specifies that timestamps (i.e. fields of type date_time and local_date_time) represent seconds since **UTC 00:00 Dec 31 1989**.
+Unix time is the number of seconds since **UTC 00:00:00 Jan 01 1970**, however the FIT standard specifies that timestamps (i.e. fields of type date_time and local_date_time) represent seconds since **UTC 00:00:00 Dec 31 1989**.
 
 The difference (in seconds) between FIT and Unix timestamps is 631,065,600:
 ```php
