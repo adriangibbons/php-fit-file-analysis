@@ -81,4 +81,77 @@ class PowerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(66, $power_histogram[500]);
         $this->assertEquals(4, $power_histogram[600]);
     }
+    
+    /**
+     * @expectedException Exception
+     */
+    public function testPower_criticalPower_no_power()
+    {
+        $pFFA = new adriangibbons\phpFITFileAnalysis($this->base_dir . 'road-cycling.fit');
+        
+        $time_periods = [2,14400];
+        $cps = $pFFA->criticalPower($time_periods);
+    }
+    
+    /**
+     * @expectedException Exception
+     */
+    public function testPower_powerMetrics_no_power()
+    {
+        $pFFA = new adriangibbons\phpFITFileAnalysis($this->base_dir . 'road-cycling.fit');
+        
+        $power_metrics = $pFFA->powerMetrics(350);
+    }
+    
+    /**
+     * @expectedException Exception
+     */
+    public function testPower_powerHistogram_no_power()
+    {
+        $pFFA = new adriangibbons\phpFITFileAnalysis($this->base_dir . 'road-cycling.fit');
+        
+        $power_metrics = $pFFA->powerHistogram(100);
+    }
+    
+    /**
+     * @expectedException Exception
+     */
+    public function testPower_powerHistogram_invalid_bucket_width()
+    {
+        $power_histogram = $this->pFFA->powerHistogram('INVALID');
+    }
+    
+    /**
+     * @expectedException Exception
+     */
+    public function testPower_power_partitioned_no_power()
+    {
+        $pFFA = new adriangibbons\phpFITFileAnalysis($this->base_dir . 'road-cycling.fit');
+        
+        $power_partioned = $pFFA->powerPartioned(350);
+    }
+    
+    /**
+     * @expectedException Exception
+     */
+    public function testPower_power_partitioned_not_array()
+    {
+        $power_histogram = $this->pFFA->partitionData('power', 123456);
+    }
+    
+    /**
+     * @expectedException Exception
+     */
+    public function testPower_power_partitioned_not_numeric()
+    {
+        $power_histogram = $this->pFFA->partitionData('power', [200, 400, 'INVALID']);
+    }
+    
+    /**
+     * @expectedException Exception
+     */
+    public function testPower_power_partitioned_not_ascending()
+    {
+        $power_histogram = $this->pFFA->partitionData('power', [400, 200]);
+    }
 }
