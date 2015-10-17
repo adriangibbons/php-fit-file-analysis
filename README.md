@@ -114,9 +114,10 @@ In addition, public functions provide a short-hand way to access commonly used e
  - sport()
 
 ###Optional Parameters
-There are four optional parameters that can be passed as an associative array when the phpFITFileAnalysis object is instantiated. These are:
+There are five optional parameters that can be passed as an associative array when the phpFITFileAnalysis object is instantiated. These are:
 
  - fix_data
+ - data_every_second
  - units
  - pace
  - garmin_timestamps
@@ -125,6 +126,7 @@ For example:
 ```php
 $options = [
     'fix_data'          => ['cadence', 'distance'],
+    'data_every_second' => true
     'units'             => 'statute',
     'pace'              => true,
     'garmin_timestamps' => true
@@ -207,6 +209,21 @@ The result would be:
 ```php
 var_dump($pFFA->data_mesgs['record']['distance']);  // ['100'=>3.62, '101'=>4.01, '102'=>6.30, '103'=>8.59, '104'=>10.88];
 ```
+
+####Data Every Second
+Some of Garmin's Fitness devices offer the choice of Smart Recording or Every Second Recording.
+
+Smart Recording records key points where the fitness device changes direction, speed, heart rate or elevation. This recording type records less track points and will potentially have gaps between timestamps of greater than one second.
+
+You can force timestamps to be regular one second intervals by setting the option:
+```php
+$options = ['data_every_second' => true];
+```
+Missing timestamps will have data interpolated as per the ```fix_data``` option above.
+
+If the ```fix_data``` option is not specified in conjunction with ```data_every_second``` then ```'fix_data' => ['all']``` is assumed.
+
+*Note that you may experience degraded performance using the ```fix_data``` option. Improving the performance will be explored - it is likely the ```interpolateMissingData()``` function is sub-optimal.*
 
 ####Set Units
 By default, **metric** units (identified in the table below) are assumed.

@@ -1152,8 +1152,23 @@ class phpFITFileAnalysis
         }
         
         // Return if no option set
-        if (empty($options['fix_data'])) {
+        if (empty($options['fix_data']) && empty($options['data_every_second'])) {
             return;
+        }
+        
+        // If $options['data_every_second'], then create timestamp array for every second from min to max
+        if (!empty($options['data_every_second']) && !(is_string($options['data_every_second']) && strtolower($options['data_every_second']) === 'false')) {
+            // If user has not specified the data to be fixed, assume all
+            if (empty($options['fix_data'])) {
+                $options['fix_data'] = ['all'];
+            }
+            
+            $min_ts = min($this->data_mesgs['record']['timestamp']);
+            $max_ts = max($this->data_mesgs['record']['timestamp']);
+            unset($this->data_mesgs['record']['timestamp']);
+            for ($i=$min_ts; $i<=$max_ts; ++$i) {
+                $this->data_mesgs['record']['timestamp'][] = $i;
+            }
         }
         
         // Check if valid option(s) provided
