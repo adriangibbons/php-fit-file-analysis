@@ -1289,8 +1289,9 @@ class phpFITFileAnalysis
         
         $min_key = min(array_keys($array));
         $max_key = max(array_keys($array));
+        $count = count($missing_keys);
         
-        for ($i=0; $i<count($missing_keys); ++$i) {
+        for ($i=0; $i<$count; ++$i) {
             if ($missing_keys[$i] !== 0) {
                 // Interpolating outside recorded range is impossible - use edge values instead
                 if ($missing_keys[$i] > $max_key) {
@@ -1307,7 +1308,7 @@ class phpFITFileAnalysis
                     $prev_value = current($array);
                     $next_value = next($array);
                 }
-                for ($j=$i+1; $j<count($missing_keys); ++$j) {
+                for ($j=$i+1; $j<$count; ++$j) {
                     if ($missing_keys[$j] < key($array)) {
                         $num_points++;
                     } else {
@@ -1671,7 +1672,8 @@ class phpFITFileAnalysis
         
         foreach ($this->data_mesgs['record'][$record_field] as $value) {
             $key = 0;
-            for ($key; $key<count($thresholds); ++$key) {
+            $count = count($thresholds);
+            for ($key; $key<$count; ++$key) {
                 if ($value < $thresholds[$key]) {
                     $result[$key]++;
                     goto loop_end;
@@ -1685,7 +1687,8 @@ class phpFITFileAnalysis
         $keys = [];
         
         if ($labels_for_keys === true) {
-            for ($i=0; $i<count($thresholds); ++$i) {
+            $count = count($thresholds);
+            for ($i=0; $i<$count; ++$i) {
                 $keys[] = $thresholds[$i] . (isset($thresholds[$i+1]) ? '-'.($thresholds[$i+1] - 1) : '+');
             }
             $result = array_combine($keys, $result);
