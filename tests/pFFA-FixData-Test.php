@@ -94,6 +94,18 @@ class FixDataTest extends PHPUnit_Framework_TestCase
         }
     }
     
+    public function testFixData_data_every_second()
+    {
+        $options = [
+        		'fix_data'          => ['speed'],
+                'data_every_second'	=> true,
+        		'units'             => 'raw',
+        ];
+        $pFFA = new adriangibbons\phpFITFileAnalysis($this->base_dir . $this->filename, $options);
+        
+        $this->assertEquals(6847, count($pFFA->data_mesgs['record']['speed']));
+    }
+    
     /**
      * @expectedException Exception
      */
