@@ -360,6 +360,11 @@ array getJSON(float $crank_length = null, int $ftp = null, array $data_required 
  * ['timestamp', 'paused', 'temperature', 'lap', 'position_lat', 'position_long', 'distance', 'altitude', 'speed', 'heart_rate', 'cadence', 'power', 'quadrant-analysis']
  */
 ```
+Returns array of gear change information (if present, e.g. using Shimano D-Fly Wireless Di2 Transmitter):
+```php
+// By default, time spent in a gear whilst the timer is paused (e.g. autopause) is ignored. Set to false to include.
+array gearChanges($bIgnoreTimerPaused = true)
+```
 
 ##Acknowledgement
 This class has been created using information available in a Software Development Kit (SDK) made available by ANT ([thisisant.com](http://www.thisisant.com/resources/fit)).
