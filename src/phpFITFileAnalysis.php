@@ -768,21 +768,27 @@ class phpFITFileAnalysis
         
         20 => [
             'mesg_name' => 'record', 'field_defns' => [
-                0 => ['field_name' => 'position_lat',          'scale' => 1,    'offset' => 0,        'units' => 'semicircles'],
-                1 => ['field_name' => 'position_long',         'scale' => 1,    'offset' => 0,        'units' => 'semicircles'],
-                2 => ['field_name' => 'altitude',              'scale' => 5,    'offset' => 500,    'units' => 'm'],
-                3 => ['field_name' => 'heart_rate',            'scale' => 1,    'offset' => 0,        'units' => 'bpm'],
-                4 => ['field_name' => 'cadence',               'scale' => 1,    'offset' => 0,        'units' => 'rpm'],
-                5 => ['field_name' => 'distance',              'scale' => 100,  'offset' => 0,        'units' => 'm'],
-                6 => ['field_name' => 'speed',                 'scale' => 1000, 'offset' => 0,        'units' => 'm/s'],
-                7 => ['field_name' => 'power',                 'scale' => 1,    'offset' => 0,        'units' => 'watts'],
-                9 => ['field_name' => 'grade',                 'scale' => 100,  'offset' => 0,        'units' => 'percent'],
-                10 => ['field_name' => 'resistance',           'scale' => 1,    'offset' => 0,        'units' => ''],
-                13 => ['field_name' => 'temperature',          'scale' => 1,    'offset' => 0,        'units' => 'C'],
-                39 => ['field_name' => 'vertical_oscillation', 'scale' => 10,   'offset' => 0,        'units' => 'mm'],
-                40 => ['field_name' => 'stance_time_percent',  'scale' => 100,  'offset' => 0,        'units' => 'percent'],
-                53 => ['field_name' => 'fractional_cadence',   'scale' => 128,  'offset' => 0,        'units' => 'rpm'],
-                253 => ['field_name' => 'timestamp',           'scale' => 1,    'offset' => 0,        'units' => 's']
+                0 => ['field_name' => 'position_lat',                'scale' => 1,    'offset' => 0,   'units' => 'semicircles'],
+                1 => ['field_name' => 'position_long',               'scale' => 1,    'offset' => 0,   'units' => 'semicircles'],
+                2 => ['field_name' => 'altitude',                    'scale' => 5,    'offset' => 500, 'units' => 'm'],
+                3 => ['field_name' => 'heart_rate',                  'scale' => 1,    'offset' => 0,   'units' => 'bpm'],
+                4 => ['field_name' => 'cadence',                     'scale' => 1,    'offset' => 0,   'units' => 'rpm'],
+                5 => ['field_name' => 'distance',                    'scale' => 100,  'offset' => 0,   'units' => 'm'],
+                6 => ['field_name' => 'speed',                       'scale' => 1000, 'offset' => 0,   'units' => 'm/s'],
+                7 => ['field_name' => 'power',                       'scale' => 1,    'offset' => 0,   'units' => 'watts'],
+                9 => ['field_name' => 'grade',                       'scale' => 100,  'offset' => 0,   'units' => 'percent'],
+                10 => ['field_name' => 'resistance',                 'scale' => 1,    'offset' => 0,   'units' => ''],
+                13 => ['field_name' => 'temperature',                'scale' => 1,    'offset' => 0,   'units' => 'C'],
+                29 => ['field_name' => 'accumulated_power',          'scale' => 1,    'offset' => 0,   'units' => 'watts'],
+                39 => ['field_name' => 'vertical_oscillation',       'scale' => 10,   'offset' => 0,   'units' => 'mm'],
+                40 => ['field_name' => 'stance_time_percent',        'scale' => 100,  'offset' => 0,   'units' => 'percent'],
+                43 => ['field_name' => 'left_torque_effectiveness',  'scale' => 2,    'offset' => 0,   'units' => 'percent'],
+                44 => ['field_name' => 'right_torque_effectiveness', 'scale' => 2,    'offset' => 0,   'units' => 'percent'],
+                45 => ['field_name' => 'left_pedal_smoothness',      'scale' => 2,    'offset' => 0,   'units' => 'percent'],
+                46 => ['field_name' => 'right_pedal_smoothness',     'scale' => 2,    'offset' => 0,   'units' => 'percent'],
+                47 => ['field_name' => 'combined_pedal_smoothness',  'scale' => 2,    'offset' => 0,   'units' => 'percent'],
+                53 => ['field_name' => 'fractional_cadence',         'scale' => 128,  'offset' => 0,   'units' => 'rpm'],
+                253 => ['field_name' => 'timestamp',                 'scale' => 1,    'offset' => 0,   'units' => 's']
             ]
         ],
         
@@ -836,6 +842,12 @@ class phpFITFileAnalysis
             ]
         ],
         
+        78 => [
+            'mesg_name' => 'hrv', 'field_defns' => [
+                0 => ['field_name' => 'time', 'scale' => 1000, 'offset' => 0, 'units' => 's']
+            ]
+        ],
+        
         101 => [
             'mesg_name' => 'length', 'field_defns' => [
                 0 => ['field_name' => 'event',                'scale' => 1,    'offset' => 0, 'units' => ''],
@@ -852,6 +864,72 @@ class phpFITFileAnalysis
                 12 => ['field_name' => 'length_type',         'scale' => 1,    'offset' => 0, 'units' => ''],
                 253 => ['field_name' => 'timestamp',          'scale' => 1,    'offset' => 0, 'units' => 's'],
                 254 => ['field_name' => 'message_index',      'scale' => 1,    'offset' => 0, 'units' => '']
+            ]
+        ],
+        
+        142 => [
+            'mesg_name' => 'segment_lap', 'field_defns' => [
+                0 => ['field_name' => 'event',                           'scale' => 1,         'offset' => 0, 'units' => ''],
+                1 => ['field_name' => 'event_type',                      'scale' => 1,         'offset' => 0, 'units' => ''],
+                2 => ['field_name' => 'start_time',                      'scale' => 1,         'offset' => 0, 'units' => ''],
+                3 => ['field_name' => 'start_position_lat',              'scale' => 1,         'offset' => 0, 'units' => 'semicircles'],
+                4 => ['field_name' => 'start_position_long',             'scale' => 1,         'offset' => 0, 'units' => 'semicircles'],
+                5 => ['field_name' => 'end_position_lat',                'scale' => 1,         'offset' => 0, 'units' => 'semicircles'],
+                6 => ['field_name' => 'end_position_long',               'scale' => 1,         'offset' => 0, 'units' => 'semicircles'],
+                7 => ['field_name' => 'total_elapsed_time',              'scale' => 1000,      'offset' => 0, 'units' => 's'],
+                8 => ['field_name' => 'total_timer_time',                'scale' => 1000,      'offset' => 0, 'units' => 's'],
+                9 => ['field_name' => 'total_distance',                  'scale' => 100,       'offset' => 0, 'units' => 'm'],
+                10 => ['field_name' => 'total_cycles',                   'scale' => 1,         'offset' => 0, 'units' => 'cycles'],
+                11 => ['field_name' => 'total_calories',                 'scale' => 1,         'offset' => 0, 'units' => 'kcal'],
+                12 => ['field_name' => 'total_fat_calories',             'scale' => 1,         'offset' => 0, 'units' => 'kcal'],
+                13 => ['field_name' => 'avg_speed',                      'scale' => 1000,      'offset' => 0, 'units' => 'm/s'],
+                14 => ['field_name' => 'max_speed',                      'scale' => 1000,      'offset' => 0, 'units' => 'm/s'],
+                15 => ['field_name' => 'avg_heart_rate',                 'scale' => 1,         'offset' => 0, 'units' => 'bpm'],
+                16 => ['field_name' => 'max_heart_rate',                 'scale' => 1,         'offset' => 0, 'units' => 'bpm'],
+                17 => ['field_name' => 'avg_cadence',                    'scale' => 1,         'offset' => 0, 'units' => 'rpm'],
+                18 => ['field_name' => 'max_cadence',                    'scale' => 1,         'offset' => 0, 'units' => 'rpm'],
+                19 => ['field_name' => 'avg_power',                      'scale' => 1,         'offset' => 0, 'units' => 'watts'],
+                20 => ['field_name' => 'max_power',                      'scale' => 1,         'offset' => 0, 'units' => 'watts'],
+                21 => ['field_name' => 'total_ascent',                   'scale' => 1,         'offset' => 0, 'units' => 'm'],
+                22 => ['field_name' => 'total_descent',                  'scale' => 1,         'offset' => 0, 'units' => 'm'],
+                23 => ['field_name' => 'sport',                          'scale' => 1,         'offset' => 0, 'units' => ''],
+                24 => ['field_name' => 'event_group',                    'scale' => 1,         'offset' => 0, 'units' => ''],
+                25 => ['field_name' => 'nec_lat',                        'scale' => 1,         'offset' => 0, 'units' => 'semicircles'],
+                26 => ['field_name' => 'nec_long',                       'scale' => 1,         'offset' => 0, 'units' => 'semicircles'],
+                27 => ['field_name' => 'swc_lat',                        'scale' => 1,         'offset' => 0, 'units' => 'semicircles'],
+                28 => ['field_name' => 'swc_long',                       'scale' => 1,         'offset' => 0, 'units' => 'semicircles'],
+                29 => ['field_name' => 'name',                           'scale' => 1,         'offset' => 0, 'units' => ''],
+                30 => ['field_name' => 'normalized_power',               'scale' => 1,         'offset' => 0, 'units' => 'watts'],
+                31 => ['field_name' => 'left_right_balance',             'scale' => 1,         'offset' => 0, 'units' => ''],
+                32 => ['field_name' => 'sub_sport',                      'scale' => 1,         'offset' => 0, 'units' => ''],
+                33 => ['field_name' => 'total_work',                     'scale' => 1,         'offset' => 0, 'units' => 'J'],
+                58 => ['field_name' => 'sport_event',                    'scale' => 1,         'offset' => 0, 'units' => ''],
+                59 => ['field_name' => 'avg_left_torque_effectiveness',  'scale' => 2,         'offset' => 0, 'units' => 'percent'],
+                60 => ['field_name' => 'avg_right_torque_effectiveness', 'scale' => 2,         'offset' => 0, 'units' => 'percent'],
+                61 => ['field_name' => 'avg_left_pedal_smoothness',      'scale' => 2,         'offset' => 0, 'units' => 'percent'],
+                62 => ['field_name' => 'avg_right_pedal_smoothness',     'scale' => 2,         'offset' => 0, 'units' => 'percent'],
+                63 => ['field_name' => 'avg_combined_pedal_smoothness',  'scale' => 2,         'offset' => 0, 'units' => 'percent'],
+                64 => ['field_name' => 'status',                         'scale' => 1,         'offset' => 0, 'units' => ''],
+                65 => ['field_name' => 'uuid',                           'scale' => 1,         'offset' => 0, 'units' => ''],
+                66 => ['field_name' => 'avg_fractional_cadence',         'scale' => 128,       'offset' => 0, 'units' => 'rpm'],
+                67 => ['field_name' => 'max_fractional_cadence',         'scale' => 128,       'offset' => 0, 'units' => 'rpm'],
+                68 => ['field_name' => 'total_fractional_cycles',        'scale' => 128,       'offset' => 0, 'units' => 'cycles'],
+                69 => ['field_name' => 'front_gear_shift_count',         'scale' => 1,         'offset' => 0, 'units' => ''],
+                70 => ['field_name' => 'rear_gear_shift_count',          'scale' => 1,         'offset' => 0, 'units' => ''],
+                71 => ['field_name' => 'time_standing',                  'scale' => 1000,      'offset' => 0, 'units' => 's'],
+                72 => ['field_name' => 'stand_count',                    'scale' => 1,         'offset' => 0, 'units' => ''],
+                73 => ['field_name' => 'avg_left_pco',                   'scale' => 1,         'offset' => 0, 'units' => 'mm'],
+                74 => ['field_name' => 'avg_right_pco',                  'scale' => 1,         'offset' => 0, 'units' => 'mm'],
+                75 => ['field_name' => 'avg_left_power_phase',           'scale' => 0.7111111, 'offset' => 0, 'units' => 'degrees'],
+                76 => ['field_name' => 'avg_left_power_phase_peak',      'scale' => 0.7111111, 'offset' => 0, 'units' => 'degrees'],
+                77 => ['field_name' => 'avg_right_power_phase',          'scale' => 0.7111111, 'offset' => 0, 'units' => 'degrees'],
+                78 => ['field_name' => 'avg_right_power_phase_peak',     'scale' => 0.7111111, 'offset' => 0, 'units' => 'degrees'],
+                79 => ['field_name' => 'avg_power_position',             'scale' => 1,         'offset' => 0, 'units' => 'watts'],
+                80 => ['field_name' => 'max_power_position',             'scale' => 1,         'offset' => 0, 'units' => 'watts'],
+                81 => ['field_name' => 'avg_cadence_position',           'scale' => 1,         'offset' => 0, 'units' => 'rpm'],
+                82 => ['field_name' => 'max_cadence_position',           'scale' => 1,         'offset' => 0, 'units' => 'rpm'],
+                253 => ['field_name' => 'timestamp',                     'scale' => 1,         'offset' => 0, 'units' => 's'],
+                254 => ['field_name' => 'message_index',                 'scale' => 1,         'offset' => 0, 'units' => '']
             ]
         ]
     ];
@@ -1419,7 +1497,7 @@ class phpFITFileAnalysis
         }
         
         // Set units for all messages
-        $messages = ['session', 'lap', 'record'];
+        $messages = ['session', 'lap', 'record', 'segment_lap'];
         $c_fields = [
                 'avg_temperature',
                 'max_temperature',
