@@ -511,7 +511,7 @@ class phpFITFileAnalysis
             132 => 'vtmp',  // uint16
             133 => 'Vtmp',  // sint32 - manually convert uint32 to sint32 in fixData()
             134 => 'Vtmp',  // uint32
-            7   => 'Ctmp',  // string
+            7   => 'a*tmp', // string
             136 => 'ftmp',  // float32
             137 => 'dtmp',  // float64
             10  => 'Ctmp',  // uint8z
@@ -527,7 +527,7 @@ class phpFITFileAnalysis
             132 => 'ntmp',  // uint16
             133 => 'Ntmp',  // sint32 - manually convert uint32 to sint32 in fixData()
             134 => 'Ntmp',  // uint32
-            7   => 'Ctmp',  // string
+            7   => 'a*tmp', // string
             136 => 'ftmp',  // float32
             137 => 'dtmp',  // float64
             10  => 'Ctmp',  // uint8z
@@ -1093,7 +1093,11 @@ class phpFITFileAnalysis
                                     if ($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20) {
                                         $tmp_record_array[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']] = $tmp_value / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale'] - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
                                     } else {
-                                        $this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][] = $tmp_value / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale'] - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
+                                        if ($field_defn['base_type'] === 7) {  // Handle strings appropriately
+                                            $this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][] = filter_var($tmp_value, FILTER_SANITIZE_STRING);
+                                        } else {
+                                            $this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][] = $tmp_value / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale'] - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
+                                        }
                                     }
                                 }
                             }
