@@ -496,7 +496,7 @@ class phpFITFileAnalysis
     ];
     
     /**
-     * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
+     * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 2.2.pdf
      * Table 4-6. FIT Base Types and Invalid Values
      *
      * $types array holds a string used by the PHP unpack() function to format binary data.
@@ -518,6 +518,9 @@ class phpFITFileAnalysis
             139 => 'vtmp',  // uint16z
             140 => 'Vtmp',  // uint32z
             13  => 'Ctmp',  // byte
+            142 => 'Ptmp',  // sint64 - manually convert uint64 to sint64 in fixData()
+            143 => 'Ptmp',  // uint64
+            144 => 'Ptmp'   // uint64z
         ],
         1 => [  // Big Endianness
             0   => 'Ctmp',  // enum
@@ -534,6 +537,9 @@ class phpFITFileAnalysis
             139 => 'ntmp',  // uint16z
             140 => 'Ntmp',  // uint32z
             13  => 'Ctmp',  // byte
+            142 => 'Jtmp',  // sint64 - manually convert uint64 to sint64 in fixData()
+            143 => 'Jtmp',  // uint64
+            144 => 'Jtmp'   // uint64z
         ]
     ];
     
@@ -552,6 +558,9 @@ class phpFITFileAnalysis
         139 => 0,                    // 0x0000
         140 => 0,                    // 0x00000000
         13  => 255,                  // 0xFF
+        142 => 9223372036854775807,  // 0x7FFFFFFFFFFFFFFF
+        143 => 18446744073709551615, // 0xFFFFFFFFFFFFFFFF
+        144 => 0                     // 0x0000000000000000
     ];
     
     /**
@@ -1178,6 +1187,7 @@ class phpFITFileAnalysis
         // http://php.net/manual/en/function.pack.php - signed integers endianness is always machine dependent.
         // 131    s    signed short (always 16 bit, machine byte order)
         // 133    l    signed long (always 32 bit, machine byte order)
+        // 142    q    signed long long (always 64 bit, machine byte order)
         foreach ($this->defn_mesgs_all as $mesg) {
             if (isset($this->data_mesg_info[$mesg['global_mesg_num']])) {
                 $mesg_name = $this->data_mesg_info[$mesg['global_mesg_num']]['mesg_name'];
@@ -1221,6 +1231,26 @@ class phpFITFileAnalysis
                                     $this->data_mesgs[$mesg_name][$field_name] -= 0x100000000;
                                 }
                                 $this->data_mesgs[$mesg_name][$field_name] = -1 * ($this->data_mesgs[$mesg_name][$field_name] - 0x7FFFFFFF);
+                            }
+                        }
+                    } // Convert uint64 to sint64
+                    elseif ($field['base_type'] === 142 && isset($this->data_mesg_info[$mesg['global_mesg_num']]['field_defns'][$field['field_definition_number']]['field_name'])) {
+                        $field_name = $this->data_mesg_info[$mesg['global_mesg_num']]['field_defns'][$field['field_definition_number']]['field_name'];
+                        if (isset($this->data_mesgs[$mesg_name][$field_name])) {
+                            if (is_array($this->data_mesgs[$mesg_name][$field_name])) {
+                                foreach ($this->data_mesgs[$mesg_name][$field_name] as &$v) {
+                                    if (PHP_INT_SIZE === 8 && $v > 0x7FFFFFFFFFFFFFFF) {
+                                        $v -= 0x10000000000000000;
+                                    }
+                                    if ($v > 0x7FFFFFFFFFFFFFFF) {
+                                        $v = -1 * ($v - 0x7FFFFFFFFFFFFFFF);
+                                    }
+                                }
+                            } elseif ($this->data_mesgs[$mesg_name][$field_name] > 0x7FFFFFFFFFFFFFFF) {
+                                if (PHP_INT_SIZE === 8) {
+                                    $this->data_mesgs[$mesg_name][$field_name] -= 0x10000000000000000;
+                                }
+                                $this->data_mesgs[$mesg_name][$field_name] = -1 * ($this->data_mesgs[$mesg_name][$field_name] - 0x7FFFFFFFFFFFFFFF);
                             }
                         }
                     }
