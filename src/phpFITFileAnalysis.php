@@ -940,6 +940,35 @@ class phpFITFileAnalysis
                 253 => ['field_name' => 'timestamp',                     'scale' => 1,         'offset' => 0, 'units' => 's'],
                 254 => ['field_name' => 'message_index',                 'scale' => 1,         'offset' => 0, 'units' => '']
             ]
+        ],
+        
+        206 => [
+            'mesg_name' => 'field_description', 'field_defns' => [
+                0 => ['field_name' => 'developer_data_index',    'scale' => 1, 'offset' => 0, 'units' => ''],
+                1 => ['field_name' => 'field_definition_number', 'scale' => 1, 'offset' => 0, 'units' => ''],
+                2 => ['field_name' => 'fit_base_type_id',        'scale' => 1, 'offset' => 0, 'units' => ''],
+                3 => ['field_name' => 'field_name',              'scale' => 1, 'offset' => 0, 'units' => ''],
+                4 => ['field_name' => 'array',                   'scale' => 1, 'offset' => 0, 'units' => ''],
+                5 => ['field_name' => 'components',              'scale' => 1, 'offset' => 0, 'units' => ''],
+                6 => ['field_name' => 'scale',                   'scale' => 1, 'offset' => 0, 'units' => ''],
+                7 => ['field_name' => 'offset',                  'scale' => 1, 'offset' => 0, 'units' => ''],
+                8 => ['field_name' => 'units',                   'scale' => 1, 'offset' => 0, 'units' => ''],
+                9 => ['field_name' => 'bits',                    'scale' => 1, 'offset' => 0, 'units' => ''],
+                10 => ['field_name' => 'accumulate',             'scale' => 1, 'offset' => 0, 'units' => ''],
+                13 => ['field_name' => 'fit_base_unit_id',       'scale' => 1, 'offset' => 0, 'units' => ''],
+                14 => ['field_name' => 'native_mesg_num',        'scale' => 1, 'offset' => 0, 'units' => ''],
+                15 => ['field_name' => 'native_field_num',       'scale' => 1, 'offset' => 0, 'units' => '']
+            ]
+        ],
+        
+        207 => [
+            'mesg_name' => 'developer_data_id', 'field_defns' => [
+                0 => ['field_name' => 'developer_id',         'scale' => 1, 'offset' => 0, 'units' => ''],
+                1 => ['field_name' => 'application_id',       'scale' => 1, 'offset' => 0, 'units' => ''],
+                2 => ['field_name' => 'manufacturer_id',      'scale' => 1, 'offset' => 0, 'units' => ''],
+                3 => ['field_name' => 'developer_data_index', 'scale' => 1, 'offset' => 0, 'units' => ''],
+                4 => ['field_name' => 'application_version',  'scale' => 1, 'offset' => 0, 'units' => '']
+            ]
         ]
     ];
 
