@@ -393,7 +393,7 @@ class phpFITFileAnalysis
             1497 => 'Edge 800',                 // 'edge800_korea',
             1499 => 'swim',
             1537 => 'Forerunner 910XT',         // 'fr910xt_china',
-            1551 => 'fenix',
+            1551 => 'Fenix',                    // fenix
             1555 => 'edge200_taiwan',
             1561 => 'Edge 510',                 // 'edge510',
             1567 => 'Edge 810',                 // 'edge810',
@@ -421,12 +421,70 @@ class phpFITFileAnalysis
             1929 => 'Forerunner 620',           // 'fr620_china',
             1930 => 'Forerunner 220',           // 'fr220_japan',
             1931 => 'Forerunner 220',           // 'fr220_china',
-            1967 => 'fenix2',
-            10007 => 'sdm4',
+            1967 => 'Fenix 2',                  // fenix2
+            1988 => 'epix',
+            2050 => 'Fenix 3',                  // fenix3
+            2052 => 'Edge 1000',                // edge1000_taiwan
+            2053 => 'Edge 1000',                // edge1000_japan
+            2061 => 'Forerunner 15',            // fr15_japan
+            2067 => 'Edge 520',                 // edge520
+            2070 => 'Edge 1000',                // edge1000_china
+            2072 => 'Forerunner 620',           // fr620_russia
+            2073 => 'Forerunner 220',           // fr220_russia
+            2079 => 'vector_s',
+            2100 => 'Edge 1000',                // edge1000_korea
+            2130 => 'Forerunner 920',           // fr920xt_taiwan
+            2131 => 'Forerunner 920',           // fr920xt_china
+            2132 => 'Forerunner 920',           // fr920xt_japan
+            2134 => 'virbx',
+            2135 => 'vivo_smart_apac',
+            2140 => 'etrex_touch',
+            2147 => 'Edge 25',                  // edge25
+            2148 => 'Forerunner 25',            // fr25
+            2150 => 'vivo_fit2',
+            2153 => 'Forerunner 225',           // fr225
+            2156 => 'Forerunner 630',           // fr630
+            2157 => 'Forerunner 230',           // fr230
+            2160 => 'vivo_active_apac',
+            2161 => 'vector_2',
+            2162 => 'vector_2s',
+            2172 => 'virbxe',
+            2173 => 'Forerunner 620',           // fr620_taiwan
+            2174 => 'Forerunner 220',           // fr220_taiwan
+            2175 => 'truswing',
+            2188 => 'Fenix 3',                  // fenix3_china
+            2189 => 'Fenix 3',                  // fenix3_twn
+            2192 => 'varia_headlight',
+            2193 => 'varia_taillight_old',
+            2204 => 'Edge Explore 1000',        // edge_explore_1000
+            2219 => 'Forerunner 225',           // fr225_asia
+            2225 => 'varia_radar_taillight',
+            2226 => 'varia_radar_display',
+            2238 => 'Edge 20',                  // edge20
+            2262 => 'd2_bravo',
+            2266 => 'approach_s20',
+            2276 => 'varia_remote',
+            2327 => 'hrm4_run',
+            2337 => 'vivo_active_hr',
+            2347 => 'vivo_smart_gps_hr',
+            2348 => 'vivo_smart_hr',
+            2368 => 'vivo_move',
+            2398 => 'varia_vision',
+            2406 => 'vivo_fit3',
+            2413 => 'Fenix 3 HR',               // fenix3_hr
+            2429 => 'index_smart_scale',
+            2431 => 'Forerunner 235',           // fr235
+            2441 => 'oregon7xx',
+            2444 => 'rino7xx',
+            2496 => 'nautix',
+            2530 => 'Edge 820',                 // edge_820
+            2531 => 'Edge Explore 820',         // edge_explore_820
+            10007 => 'SDM4 footpod',            // sdm4
             10014 => 'edge_remote',
             20119 => 'training_center',
+            65531 => 'connectiq_simulator',
             65532 => 'android_antplus_plugin',
-            65534 => 'connect'
+            65534 => 'Garmin Connect website'   // connect
         ],
         'sport' => [  // Have capitalised and replaced underscores with spaces.
             0 => 'Generic',
@@ -496,7 +554,7 @@ class phpFITFileAnalysis
     ];
     
     /**
-     * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
+     * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 2.2.pdf
      * Table 4-6. FIT Base Types and Invalid Values
      *
      * $types array holds a string used by the PHP unpack() function to format binary data.
@@ -518,6 +576,9 @@ class phpFITFileAnalysis
             139 => 'vtmp',  // uint16z
             140 => 'Vtmp',  // uint32z
             13  => 'Ctmp',  // byte
+            142 => 'Ptmp',  // sint64 - manually convert uint64 to sint64 in fixData()
+            143 => 'Ptmp',  // uint64
+            144 => 'Ptmp'   // uint64z
         ],
         1 => [  // Big Endianness
             0   => 'Ctmp',  // enum
@@ -534,6 +595,9 @@ class phpFITFileAnalysis
             139 => 'ntmp',  // uint16z
             140 => 'Ntmp',  // uint32z
             13  => 'Ctmp',  // byte
+            142 => 'Jtmp',  // sint64 - manually convert uint64 to sint64 in fixData()
+            143 => 'Jtmp',  // uint64
+            144 => 'Jtmp'   // uint64z
         ]
     ];
     
@@ -552,6 +616,9 @@ class phpFITFileAnalysis
         139 => 0,                    // 0x0000
         140 => 0,                    // 0x00000000
         13  => 255,                  // 0xFF
+        142 => 9223372036854775807,  // 0x7FFFFFFFFFFFFFFF
+        143 => 18446744073709551615, // 0xFFFFFFFFFFFFFFFF
+        144 => 0                     // 0x0000000000000000
     ];
     
     /**
@@ -931,6 +998,35 @@ class phpFITFileAnalysis
                 253 => ['field_name' => 'timestamp',                     'scale' => 1,         'offset' => 0, 'units' => 's'],
                 254 => ['field_name' => 'message_index',                 'scale' => 1,         'offset' => 0, 'units' => '']
             ]
+        ],
+        
+        206 => [
+            'mesg_name' => 'field_description', 'field_defns' => [
+                0 => ['field_name' => 'developer_data_index',    'scale' => 1, 'offset' => 0, 'units' => ''],
+                1 => ['field_name' => 'field_definition_number', 'scale' => 1, 'offset' => 0, 'units' => ''],
+                2 => ['field_name' => 'fit_base_type_id',        'scale' => 1, 'offset' => 0, 'units' => ''],
+                3 => ['field_name' => 'field_name',              'scale' => 1, 'offset' => 0, 'units' => ''],
+                4 => ['field_name' => 'array',                   'scale' => 1, 'offset' => 0, 'units' => ''],
+                5 => ['field_name' => 'components',              'scale' => 1, 'offset' => 0, 'units' => ''],
+                6 => ['field_name' => 'scale',                   'scale' => 1, 'offset' => 0, 'units' => ''],
+                7 => ['field_name' => 'offset',                  'scale' => 1, 'offset' => 0, 'units' => ''],
+                8 => ['field_name' => 'units',                   'scale' => 1, 'offset' => 0, 'units' => ''],
+                9 => ['field_name' => 'bits',                    'scale' => 1, 'offset' => 0, 'units' => ''],
+                10 => ['field_name' => 'accumulate',             'scale' => 1, 'offset' => 0, 'units' => ''],
+                13 => ['field_name' => 'fit_base_unit_id',       'scale' => 1, 'offset' => 0, 'units' => ''],
+                14 => ['field_name' => 'native_mesg_num',        'scale' => 1, 'offset' => 0, 'units' => ''],
+                15 => ['field_name' => 'native_field_num',       'scale' => 1, 'offset' => 0, 'units' => '']
+            ]
+        ],
+        
+        207 => [
+            'mesg_name' => 'developer_data_id', 'field_defns' => [
+                0 => ['field_name' => 'developer_id',         'scale' => 1, 'offset' => 0, 'units' => ''],
+                1 => ['field_name' => 'application_id',       'scale' => 1, 'offset' => 0, 'units' => ''],
+                2 => ['field_name' => 'manufacturer_id',      'scale' => 1, 'offset' => 0, 'units' => ''],
+                3 => ['field_name' => 'developer_data_index', 'scale' => 1, 'offset' => 0, 'units' => ''],
+                4 => ['field_name' => 'application_version',  'scale' => 1, 'offset' => 0, 'units' => '']
+            ]
         ]
     ];
 
@@ -1009,6 +1105,7 @@ class phpFITFileAnalysis
     {
         $record_header_byte = 0;
         $message_type = 0;
+        $developer_data_flag = 0;
         $local_mesg_type = 0;
         
         while ($this->file_header['header_size'] + $this->file_header['data_size'] > $this->file_pointer) {
@@ -1016,13 +1113,14 @@ class phpFITFileAnalysis
             $this->file_pointer++;
             
             /**
-             * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
+             * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 2.2.pdf
              * Table 4-1. Normal Header Bit Field Description
              */
             if (($record_header_byte >> 7) & 1) {  // Check that it's a normal header
                 throw new \Exception('phpFITFileAnalysis->readDataRecords(): this class can only handle normal headers!');
             }
             $message_type = ($record_header_byte >> 6) & 1;  // 1: DEFINITION_MESSAGE; 0: DATA_MESSAGE
+            $developer_data_flag = ($record_header_byte >> 5) & 1;  // 1: DEFINITION_MESSAGE; 0: DATA_MESSAGE
             $local_mesg_type = $record_header_byte & 15;  // bindec('1111') == 15
             
             switch ($message_type) {
@@ -1058,16 +1156,39 @@ class phpFITFileAnalysis
                         $total_size += $size;
                     }
                     
+                    $num_dev_fields = 0;
+                    $dev_field_definitions = [];
+                    if ($developer_data_flag === 1) {
+                        $num_dev_fields = ord(substr($this->file_contents, $this->file_pointer, 1));
+                        $this->file_pointer++;
+                        
+                        for ($i=0; $i<$num_dev_fields; ++$i) {
+                            $field_definition_number = ord(substr($this->file_contents, $this->file_pointer, 1));
+                            $this->file_pointer++;
+                            $size = ord(substr($this->file_contents, $this->file_pointer, 1));
+                            $this->file_pointer++;
+                            $developer_data_index = ord(substr($this->file_contents, $this->file_pointer, 1));
+                            $this->file_pointer++;
+                            
+                            $dev_field_definitions[] = ['field_definition_number' => $field_definition_number, 'size' => $size, 'developer_data_index' => $developer_data_index];
+                            $total_size += $size;
+                        }
+                    }
+                    
                     $this->defn_mesgs[$local_mesg_type] = [
                             'global_mesg_num' => $global_mesg_num,
                             'num_fields' => $num_fields,
                             'field_defns' => $field_definitions,
+                            'num_dev_fields' => $num_dev_fields,
+                            'dev_field_definitions' => $dev_field_definitions,
                             'total_size' => $total_size
                         ];
                     $this->defn_mesgs_all[] = [
                             'global_mesg_num' => $global_mesg_num,
                             'num_fields' => $num_fields,
                             'field_defns' => $field_definitions,
+                            'num_dev_fields' => $num_dev_fields,
+                            'dev_field_definitions' => $dev_field_definitions,
                             'total_size' => $total_size
                         ];
                     break;
@@ -1101,6 +1222,11 @@ class phpFITFileAnalysis
                                     }
                                 }
                             }
+                            $this->file_pointer += $field_defn['size'];
+                        }
+                        
+                        // TODO: process Developer Data correctly - just skipping over it at the moment
+                        foreach ($this->defn_mesgs[$local_mesg_type]['dev_field_definitions'] as $field_defn) {
                             $this->file_pointer += $field_defn['size'];
                         }
                         
@@ -1178,6 +1304,7 @@ class phpFITFileAnalysis
         // http://php.net/manual/en/function.pack.php - signed integers endianness is always machine dependent.
         // 131    s    signed short (always 16 bit, machine byte order)
         // 133    l    signed long (always 32 bit, machine byte order)
+        // 142    q    signed long long (always 64 bit, machine byte order)
         foreach ($this->defn_mesgs_all as $mesg) {
             if (isset($this->data_mesg_info[$mesg['global_mesg_num']])) {
                 $mesg_name = $this->data_mesg_info[$mesg['global_mesg_num']]['mesg_name'];
@@ -1221,6 +1348,26 @@ class phpFITFileAnalysis
                                     $this->data_mesgs[$mesg_name][$field_name] -= 0x100000000;
                                 }
                                 $this->data_mesgs[$mesg_name][$field_name] = -1 * ($this->data_mesgs[$mesg_name][$field_name] - 0x7FFFFFFF);
+                            }
+                        }
+                    } // Convert uint64 to sint64
+                    elseif ($field['base_type'] === 142 && isset($this->data_mesg_info[$mesg['global_mesg_num']]['field_defns'][$field['field_definition_number']]['field_name'])) {
+                        $field_name = $this->data_mesg_info[$mesg['global_mesg_num']]['field_defns'][$field['field_definition_number']]['field_name'];
+                        if (isset($this->data_mesgs[$mesg_name][$field_name])) {
+                            if (is_array($this->data_mesgs[$mesg_name][$field_name])) {
+                                foreach ($this->data_mesgs[$mesg_name][$field_name] as &$v) {
+                                    if (PHP_INT_SIZE === 8 && $v > 0x7FFFFFFFFFFFFFFF) {
+                                        $v -= 0x10000000000000000;
+                                    }
+                                    if ($v > 0x7FFFFFFFFFFFFFFF) {
+                                        $v = -1 * ($v - 0x7FFFFFFFFFFFFFFF);
+                                    }
+                                }
+                            } elseif ($this->data_mesgs[$mesg_name][$field_name] > 0x7FFFFFFFFFFFFFFF) {
+                                if (PHP_INT_SIZE === 8) {
+                                    $this->data_mesgs[$mesg_name][$field_name] -= 0x10000000000000000;
+                                }
+                                $this->data_mesgs[$mesg_name][$field_name] = -1 * ($this->data_mesgs[$mesg_name][$field_name] - 0x7FFFFFFFFFFFFFFF);
                             }
                         }
                     }
