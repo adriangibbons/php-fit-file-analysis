@@ -1047,6 +1047,7 @@ class phpFITFileAnalysis
     {
         $record_header_byte = 0;
         $message_type = 0;
+        $developer_data_flag = 0;
         $local_mesg_type = 0;
         
         while ($this->file_header['header_size'] + $this->file_header['data_size'] > $this->file_pointer) {
@@ -1054,13 +1055,14 @@ class phpFITFileAnalysis
             $this->file_pointer++;
             
             /**
-             * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
+             * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 2.2.pdf
              * Table 4-1. Normal Header Bit Field Description
              */
             if (($record_header_byte >> 7) & 1) {  // Check that it's a normal header
                 throw new \Exception('phpFITFileAnalysis->readDataRecords(): this class can only handle normal headers!');
             }
             $message_type = ($record_header_byte >> 6) & 1;  // 1: DEFINITION_MESSAGE; 0: DATA_MESSAGE
+            $developer_data_flag = ($record_header_byte >> 5) & 1;  // 1: DEFINITION_MESSAGE; 0: DATA_MESSAGE
             $local_mesg_type = $record_header_byte & 15;  // bindec('1111') == 15
             
             switch ($message_type) {
@@ -1096,16 +1098,39 @@ class phpFITFileAnalysis
                         $total_size += $size;
                     }
                     
+                    $num_dev_fields = 0;
+                    $dev_field_definitions = [];
+                    if ($developer_data_flag === 1) {
+                        $num_dev_fields = ord(substr($this->file_contents, $this->file_pointer, 1));
+                        $this->file_pointer++;
+                        
+                        for ($i=0; $i<$num_dev_fields; ++$i) {
+                            $field_definition_number = ord(substr($this->file_contents, $this->file_pointer, 1));
+                            $this->file_pointer++;
+                            $size = ord(substr($this->file_contents, $this->file_pointer, 1));
+                            $this->file_pointer++;
+                            $developer_data_index = ord(substr($this->file_contents, $this->file_pointer, 1));
+                            $this->file_pointer++;
+                            
+                            $dev_field_definitions[] = ['field_definition_number' => $field_definition_number, 'size' => $size, 'developer_data_index' => $developer_data_index];
+                            $total_size += $size;
+                        }
+                    }
+                    
                     $this->defn_mesgs[$local_mesg_type] = [
                             'global_mesg_num' => $global_mesg_num,
                             'num_fields' => $num_fields,
                             'field_defns' => $field_definitions,
+                            'num_dev_fields' => $num_dev_fields,
+                            'dev_field_definitions' => $dev_field_definitions,
                             'total_size' => $total_size
                         ];
                     $this->defn_mesgs_all[] = [
                             'global_mesg_num' => $global_mesg_num,
                             'num_fields' => $num_fields,
                             'field_defns' => $field_definitions,
+                            'num_dev_fields' => $num_dev_fields,
+                            'dev_field_definitions' => $dev_field_definitions,
                             'total_size' => $total_size
                         ];
                     break;
@@ -1139,6 +1164,11 @@ class phpFITFileAnalysis
                                     }
                                 }
                             }
+                            $this->file_pointer += $field_defn['size'];
+                        }
+                        
+                        // TODO: process Developer Data correctly - just skipping over it at the moment
+                        foreach ($this->defn_mesgs[$local_mesg_type]['dev_field_definitions'] as $field_defn) {
                             $this->file_pointer += $field_defn['size'];
                         }
                         
