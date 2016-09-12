@@ -846,7 +846,13 @@ class phpFITFileAnalysis
                 9 => ['field_name' => 'grade',                       'scale' => 100,  'offset' => 0,   'units' => 'percent'],
                 10 => ['field_name' => 'resistance',                 'scale' => 1,    'offset' => 0,   'units' => ''],
                 13 => ['field_name' => 'temperature',                'scale' => 1,    'offset' => 0,   'units' => 'C'],
+                18 => ['field_name' => 'cycles',                     'scale' => 1,    'offset' => 0,   'units' => 'cycles'],
+                19 => ['field_name' => 'total_cycles',               'scale' => 1,    'offset' => 0,   'units' => 'cycles'],
                 29 => ['field_name' => 'accumulated_power',          'scale' => 1,    'offset' => 0,   'units' => 'watts'],
+                30 => ['field_name' => 'left_right_balance',         'scale' => 1,    'offset' => 0,   'units' => ''],
+                31 => ['field_name' => 'gps_accuracy',               'scale' => 1,    'offset' => 0,   'units' => 'm'],
+                32 => ['field_name' => 'vertical_speed',             'scale' => 1000, 'offset' => 0,   'units' => 'm/s'],
+                33 => ['field_name' => 'calories',                   'scale' => 1,    'offset' => 0,   'units' => 'kcal'],
                 39 => ['field_name' => 'vertical_oscillation',       'scale' => 10,   'offset' => 0,   'units' => 'mm'],
                 40 => ['field_name' => 'stance_time_percent',        'scale' => 100,  'offset' => 0,   'units' => 'percent'],
                 43 => ['field_name' => 'left_torque_effectiveness',  'scale' => 2,    'offset' => 0,   'units' => 'percent'],
@@ -855,6 +861,8 @@ class phpFITFileAnalysis
                 46 => ['field_name' => 'right_pedal_smoothness',     'scale' => 2,    'offset' => 0,   'units' => 'percent'],
                 47 => ['field_name' => 'combined_pedal_smoothness',  'scale' => 2,    'offset' => 0,   'units' => 'percent'],
                 53 => ['field_name' => 'fractional_cadence',         'scale' => 128,  'offset' => 0,   'units' => 'rpm'],
+                73 => ['field_name' => 'enhanced_speed',             'scale' => 1000, 'offset' => 0,   'units' => 'm/s'],
+                78 => ['field_name' => 'enhanced_altitude',          'scale' => 5,    'offset' => 500, 'units' => 'm'],
                 253 => ['field_name' => 'timestamp',                 'scale' => 1,    'offset' => 0,   'units' => 's']
             ]
         ],
