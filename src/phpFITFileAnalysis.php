@@ -342,6 +342,7 @@ class phpFITFileAnalysis
             263 => 'favero_electronics',
             264 => 'dynovelo',
             265 => 'Strava',
+            267 => 'Bryton',
             5759 => 'actigraphcorp'
         ],
         'pwr_zone_calc' => [0 => 'custom', 1 => 'percent_ftp'],
@@ -392,6 +393,7 @@ class phpFITFileAnalysis
             1482 => 'Forerunner 10',            // 'fr10',
             1497 => 'Edge 800',                 // 'edge800_korea',
             1499 => 'swim',
+            1505 => 'Rider 310',
             1537 => 'Forerunner 910XT',         // 'fr910xt_china',
             1551 => 'Fenix',                    // fenix
             1555 => 'edge200_taiwan',
@@ -833,7 +835,7 @@ class phpFITFileAnalysis
             ]
         ],
         
-        20 => [
+       20 => [
             'mesg_name' => 'record', 'field_defns' => [
                 0 => ['field_name' => 'position_lat',                'scale' => 1,    'offset' => 0,   'units' => 'semicircles'],
                 1 => ['field_name' => 'position_long',               'scale' => 1,    'offset' => 0,   'units' => 'semicircles'],
@@ -1115,21 +1117,33 @@ class phpFITFileAnalysis
         $message_type = 0;
         $developer_data_flag = 0;
         $local_mesg_type = 0;
+        $previousTS = 0;
+        
         
         while ($this->file_header['header_size'] + $this->file_header['data_size'] > $this->file_pointer) {
             $record_header_byte = ord(substr($this->file_contents, $this->file_pointer, 1));
             $this->file_pointer++;
             
+            $compressedTimestamp = false;
+            $tsOffset = 0;
             /**
              * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 2.2.pdf
              * Table 4-1. Normal Header Bit Field Description
              */
             if (($record_header_byte >> 7) & 1) {  // Check that it's a normal header
-                throw new \Exception('phpFITFileAnalysis->readDataRecords(): this class can only handle normal headers!');
+                // Header with compressed timestamp
+                $message_type = 0;  //always 0: DATA_MESSAGE
+                $developer_data_flag = 0;  // always 0: DATA_MESSAGE
+                $local_mesg_type = ($record_header_byte >> 5) & 3;  // bindec('0011') == 3
+                $tsOffset = $record_header_byte & 31;
+                $compressedTimestamp = true;
+            } 
+            else {
+                //Normal header
+                $message_type = ($record_header_byte >> 6) & 1;  // 1: DEFINITION_MESSAGE; 0: DATA_MESSAGE
+                $developer_data_flag = ($record_header_byte >> 5) & 1;  // 1: DEFINITION_MESSAGE; 0: DATA_MESSAGE
+                $local_mesg_type = $record_header_byte & 15;  // bindec('1111') == 15
             }
-            $message_type = ($record_header_byte >> 6) & 1;  // 1: DEFINITION_MESSAGE; 0: DATA_MESSAGE
-            $developer_data_flag = ($record_header_byte >> 5) & 1;  // 1: DEFINITION_MESSAGE; 0: DATA_MESSAGE
-            $local_mesg_type = $record_header_byte & 15;  // bindec('1111') == 15
             
             switch ($message_type) {
                 case DEFINITION_MESSAGE:
@@ -1137,7 +1151,6 @@ class phpFITFileAnalysis
                      * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
                      * Table 4-1. Normal Header Bit Field Description
                      */
-                    
                     $this->file_pointer++;  // Reserved - IGNORED
                     $architecture = ord(substr($this->file_contents, $this->file_pointer, 1));  // Architecture
                     $this->file_pointer++;
@@ -1146,7 +1159,7 @@ class phpFITFileAnalysis
                     
                     $global_mesg_num = ($architecture === 0) ? unpack('v1tmp', substr($this->file_contents, $this->file_pointer, 2))['tmp'] : unpack('n1tmp', substr($this->file_contents, $this->file_pointer, 2))['tmp'];
                     $this->file_pointer += 2;
-                    
+
                     $num_fields = ord(substr($this->file_contents, $this->file_pointer, 1));
                     $this->file_pointer++;
                     
@@ -1241,12 +1254,30 @@ class phpFITFileAnalysis
                         // Process the temporary array and load values into the public data messages array
                         if (!empty($tmp_record_array)) {
                             $timestamp = isset($this->data_mesgs['record']['timestamp']) ? max($this->data_mesgs['record']['timestamp']) + 1 : 0;
-                            
-                            if (isset($tmp_record_array['timestamp'])) {
-                                if ($tmp_record_array['timestamp'] > 0) {
-                                    $timestamp = $tmp_record_array['timestamp'];
+                            if ($compressedTimestamp) {
+                                if ($previousTS === 0) {
+                                    // This should not happen! Throw exception?
+                                } else {
+                                    $previousTS -= FIT_UNIX_TS_DIFF; // back to FIT timestamps epoch
+                                    $fiveLsb = $previousTS & 0x1F;
+                                    if ($tsOffset >= $fiveLsb) {
+                                        // No rollover
+                                        $timestamp = $previousTS - $fiveLsb + $tsOffset;
+                                    }  else {
+                                        // Rollover
+                                        $timestamp = $previousTS - $fiveLsb  + $tsOffset + 32;
+                                    }
+                                    $timestamp += FIT_UNIX_TS_DIFF; // back to Unix timestamps epoch
+                                    $previousTS += FIT_UNIX_TS_DIFF;
                                 }
-                                unset($tmp_record_array['timestamp']);
+                            } else {
+                                if (isset($tmp_record_array['timestamp'])) {
+                                    if ($tmp_record_array['timestamp'] > 0) {
+                                        $timestamp = $tmp_record_array['timestamp'];
+                                        $previousTS = $timestamp;
+                                    }
+                                    unset($tmp_record_array['timestamp']);
+                                }
                             }
                             
                             $this->data_mesgs['record']['timestamp'][] = $timestamp;
