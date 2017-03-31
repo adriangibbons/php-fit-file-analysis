@@ -12,6 +12,9 @@ namespace adriangibbons;
  * Added code to generate TRIMPexp and hrIF (Intensity Factor) value to measure session if Power is not present (June 2015).
  * Added code to generate Quadrant Analysis data (September 2015).
  *
+ * Rafael Nájera edits:
+ * Added code to support compressed timestamps (March 2017).
+ *
  * https://github.com/adriangibbons/phpFITFileAnalysis
  * http://www.thisisant.com/resources/fit
  */
