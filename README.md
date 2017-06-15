@@ -13,12 +13,12 @@ A PHP class for analysing FIT files created by Garmin GPS devices.
 
 Please read this page in its entirety and the [FAQ](https://github.com/adriangibbons/php-fit-file-analysis/wiki/Frequently-Asked-Questions-(FAQ)) first if you have any questions or need support.
 
-##What is a FIT file?
+## What is a FIT file?
 FIT or Flexible and Interoperable Data Transfer is a file format used for GPS tracks and routes. It is used by newer Garmin fitness GPS devices, including the Edge and Forerunner series, which are popular with cyclists and runners.
 
 Visit the FAQ page within the Wiki for more information.
 
-##How do I use phpFITFileAnalysis with my PHP-driven website?
+## How do I use phpFITFileAnalysis with my PHP-driven website?
 
 A couple of choices here:
 
@@ -55,7 +55,7 @@ There are more **Optional Parameters** that can be supplied. These are described
 
 The object will automatically load the FIT file and iterate through its contents. It will store any data it finds in arrays, which are accessible via the public data variable.
 
-###Accessing the Data
+### Accessing the Data
 Data read by the class are stored in associative arrays, which are accessible via the public data variable:
 ```php
 $pFFA->data_mesgs
@@ -113,7 +113,7 @@ In addition, public functions provide a short-hand way to access commonly used e
  - product()
  - sport()
 
-###Optional Parameters
+### Optional Parameters
 There are five optional parameters that can be passed as an associative array when the phpFITFileAnalysis object is instantiated. These are:
 
  - fix_data
@@ -134,7 +134,7 @@ $options = [
 $pFFA = new adriangibbons\phpFITFileAnalysis('my_fit_file.fit', $options);
 ```
 The optional parameters are described in more detail below.
-####"Fix" the Data
+#### "Fix" the Data
 FIT files have been observed where some data points are missing for one sensor (e.g. cadence/foot pod), where information has been collected for other sensors (e.g. heart rate) at the same instant. The cause is unknown and typically only a relatively small number of data points are missing. Fixing the issue is probably unnecessary, as each datum is indexed using a timestamp. However, it may be important for your project to have the exact same number of data points for each type of data.
 
 **Recognised values:** 'all', 'cadence', 'distance', 'heart_rate', 'lat_lon', 'power', 'speed'
@@ -210,7 +210,7 @@ The result would be:
 var_dump($pFFA->data_mesgs['record']['distance']);  // ['100'=>3.62, '101'=>4.01, '102'=>6.30, '103'=>8.59, '104'=>10.88];
 ```
 
-####Data Every Second
+#### Data Every Second
 Some of Garmin's Fitness devices offer the choice of Smart Recording or Every Second Recording.
 
 Smart Recording records key points where the fitness device changes direction, speed, heart rate or elevation. This recording type records less track points and will potentially have gaps between timestamps of greater than one second.
@@ -225,7 +225,7 @@ If the ```fix_data``` option is not specified in conjunction with ```data_every_
 
 *Note that you may experience degraded performance using the ```fix_data``` option. Improving the performance will be explored - it is likely the ```interpolateMissingData()``` function is sub-optimal.*
 
-####Set Units
+#### Set Units
 By default, **metric** units (identified in the table below) are assumed.
 
 <table>
@@ -265,7 +265,7 @@ $options = ['units' => 'statute'];
 $options = ['units' => 'raw'];
 $options = ['units' => 'metric'];  // explicit but not necessary, same as default
 ```
-####Pace
+#### Pace
 If required by the user, pace can be provided instead of speed. Depending on the units requested, pace will either be in minutes per kilometre (min/km) for metric units; or minutes per mile (min/mi) for statute.
 
 To select pace, use the following option:
@@ -282,7 +282,7 @@ foreach ($pFFA->data_mesgs['record']['speed'] as $key => $value) {
 ```
 Note that if 'raw' units are requested then this parameter has no effect on the speed data, as it is left untouched from what was read-in from the file.
 
-####Timestamps
+#### Timestamps
 Unix time is the number of seconds since **UTC 00:00:00 Jan 01 1970**, however the FIT standard specifies that timestamps (i.e. fields of type date_time and local_date_time) represent seconds since **UTC 00:00:00 Dec 31 1989**.
 
 The difference (in seconds) between FIT and Unix timestamps is 631,065,600:
@@ -294,7 +294,7 @@ echo 'The difference (in seconds) between FIT and Unix timestamps is '. number_f
 ```
 By default, fields of type date_time and local_date_time read from FIT files will have this delta added to them so that they can be treated as Unix time. If the FIT timestamp is required, the 'garmin_timestamps' option can be set to true.
 
-##Analysis
+## Analysis
 The following functions return arrays of data that could be used to create tables/charts:
 ```php
 array $pFFA->hrPartionedHRmaximum(int $hr_maximum);
@@ -313,7 +313,7 @@ array $pFFA->hrZonesMax(int $hr_maximum, array $percentages_array=[0.60, 0.75, 0
 array $pFFA->hrZonesReserve(int $hr_resting, int $hr_maximum, array $percentages_array=[0.60, 0.65, 0.75, 0.82, 0.89, 0.94 ]) {
 array $pFFA->powerZones(int $functional_threshold_power, array $percentages_array=[0.55, 0.75, 0.90, 1.05, 1.20, 1.50]);
 ```
-###Heart Rate
+### Heart Rate
 A function exists for analysing heart rate data:
 ```php
 // hr_FT is heart rate at Functional Threshold, or Lactate Threshold Heart Rate
@@ -324,7 +324,7 @@ array $pFFA->hrMetrics(int $hr_resting, int $hr_maximum, string $hr_FT, $gender)
  * TRIMP (TRaining IMPulse)
  * Intensity Factor
 
-###Power
+### Power
 Three functions exist for analysing power data:
 ```php
 array $pFFA->powerMetrics(int $functional_threshold_power);
@@ -347,7 +347,7 @@ Note that ```$pFFA->criticalPower``` and some power metrics (Normalised Power, V
 
 A demo of power analysis is available [here](http://adriangibbons.com/php-fit-file-analysis/demo/power-analysis.php).
 
-##Other methods
+## Other methods
 Returns array of booleans using timestamp as key. true == timer paused (e.g. autopause):
 ```php
 array isPaused()
@@ -366,7 +366,7 @@ Returns array of gear change information (if present, e.g. using Shimano D-Fly W
 array gearChanges($bIgnoreTimerPaused = true)
 ```
 
-##Acknowledgement
+## Acknowledgement
 This class has been created using information available in a Software Development Kit (SDK) made available by ANT ([thisisant.com](http://www.thisisant.com/resources/fit)).
 
 As a minimum, I'd recommend reading the three PDFs included in the SDK:
