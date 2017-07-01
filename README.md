@@ -296,7 +296,7 @@ echo 'The difference (in seconds) between FIT and Unix timestamps is '. number_f
 ```
 By default, fields of type date_time and local_date_time read from FIT files will have this delta added to them so that they can be treated as Unix time. If the FIT timestamp is required, the 'garmin_timestamps' option can be set to true.
 
-### Overwrite with Developer Data
+#### Overwrite with Developer Data
 The FIT standard allows developers to define the meaning of data without requiring changes to the FIT profile being used. They may define data that is already incorporated in the standard - e.g. HR, cadence, power, etc. By default, if developers do this, the data will overwrite anything in the regular ```$pFFA->data_mesgs['record']``` array. If you do not want this occur, set the 'overwrite_with_dev_data' option to false. The data will still be available in ```$pFFA->data_mesgs['developer_data']```.
 
 ## Analysis
