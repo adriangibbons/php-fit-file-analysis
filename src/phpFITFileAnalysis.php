@@ -38,6 +38,8 @@ if (!defined('FIT_UNIX_TS_DIFF')) {
 class phpFITFileAnalysis
 {
     public $data_mesgs = [];  // Used to store the data read from the file in associative arrays.
+    private $dev_field_descriptions = [];
+    private $field_descriptions = [];
     
     private $options = null;                 // Options provided to __construct().
     private $file_contents = '';             // FIT file is read-in to memory as a string, split into an array, and reversed. See __construct().
@@ -855,7 +857,7 @@ class phpFITFileAnalysis
             ]
         ],
         
-       20 => [
+        20 => [
             'mesg_name' => 'record', 'field_defns' => [
                 0 => ['field_name' => 'position_lat',                      'scale' => 1,         'offset' => 0,   'units' => 'semicircles'],
                 1 => ['field_name' => 'position_long',                     'scale' => 1,         'offset' => 0,   'units' => 'semicircles'],
@@ -1103,6 +1105,11 @@ class phpFITFileAnalysis
         if (isset($options['garmin_timestamps']) && $options['garmin_timestamps'] == true) {
             $this->garmin_timestamps = true;
         }
+        if (!isset($this->options['overwrite_with_dev_data']) || $this->options['overwrite_with_dev_data'] == true) {
+            $this->options['overwrite_with_dev_data'] = true;
+        } else {
+            $this->options['overwrite_with_dev_data'] = false;
+        }
         $this->php_trader_ext_loaded = extension_loaded('trader');
         
         /**
@@ -1187,8 +1194,7 @@ class phpFITFileAnalysis
                 $local_mesg_type = ($record_header_byte >> 5) & 3;  // bindec('0011') == 3
                 $tsOffset = $record_header_byte & 31;
                 $compressedTimestamp = true;
-            } 
-            else {
+            } else {
                 //Normal header
                 $message_type = ($record_header_byte >> 6) & 1;  // 1: DEFINITION_MESSAGE; 0: DATA_MESSAGE
                 $developer_data_flag = ($record_header_byte >> 5) & 1;  // 1: DEFINITION_MESSAGE; 0: DATA_MESSAGE
@@ -1284,6 +1290,8 @@ class phpFITFileAnalysis
                                     // If it's a Record data message, store all the pieces in the temporary array as the timestamp may not be first...
                                     if ($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20) {
                                         $tmp_record_array[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']] = $tmp_value / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale'] - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
+                                    } elseif ($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 206) {
+                                        $tmp_record_array[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']] = $tmp_value;
                                     } else {
                                         if ($field_defn['base_type'] === 7) {  // Handle strings appropriately
                                             $this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][] = filter_var($tmp_value, FILTER_SANITIZE_STRING);
@@ -1296,8 +1304,28 @@ class phpFITFileAnalysis
                             $this->file_pointer += $field_defn['size'];
                         }
                         
-                        // TODO: process Developer Data correctly - just skipping over it at the moment
+                        // Handle Developer Data
+                        if ($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 206) {
+                            $developer_data_index = $tmp_record_array['developer_data_index'];
+                            $field_definition_number = $tmp_record_array['field_definition_number'];
+                            unset($tmp_record_array['developer_data_index']);
+                            unset($tmp_record_array['field_definition_number']);
+                            if (isset($tmp_record_array['field_name'])) {  // Get rid of special/invalid characters after the null terminated string
+                                $tmp_record_array['field_name'] = strtolower(implode('', explode("\0", $tmp_record_array['field_name'])));
+                            }
+                            if (isset($tmp_record_array['units'])) {
+                                $tmp_record_array['units'] = strtolower(implode('', explode("\0", $tmp_record_array['units'])));
+                            }
+                            $this->dev_field_descriptions[$developer_data_index][$field_definition_number] = $tmp_record_array;
+                            unset($tmp_record_array);
+                        }
                         foreach ($this->defn_mesgs[$local_mesg_type]['dev_field_definitions'] as $field_defn) {
+                            // Units
+                            $this->data_mesgs['developer_data'][$this->dev_field_descriptions[$field_defn['developer_data_index']][$field_defn['field_definition_number']]['field_name']]['units'] = $this->dev_field_descriptions[$field_defn['developer_data_index']][$field_defn['field_definition_number']]['units'];
+                            
+                            // Data
+                            $this->data_mesgs['developer_data'][$this->dev_field_descriptions[$field_defn['developer_data_index']][$field_defn['field_definition_number']]['field_name']]['data'][] = unpack($this->types[$this->dev_field_descriptions[$field_defn['developer_data_index']][$field_defn['field_definition_number']]['fit_base_type_id']], substr($this->file_contents, $this->file_pointer, $field_defn['size']))['tmp'];
+                            
                             $this->file_pointer += $field_defn['size'];
                         }
                         
@@ -1313,7 +1341,7 @@ class phpFITFileAnalysis
                                     if ($tsOffset >= $fiveLsb) {
                                         // No rollover
                                         $timestamp = $previousTS - $fiveLsb + $tsOffset;
-                                    }  else {
+                                    } else {
                                         // Rollover
                                         $timestamp = $previousTS - $fiveLsb  + $tsOffset + 32;
                                     }
@@ -1341,6 +1369,16 @@ class phpFITFileAnalysis
                     } else {
                         $this->file_pointer += $this->defn_mesgs[$local_mesg_type]['total_size'];
                     }
+            }
+        }
+        // Overwrite native FIT fields (e.g. Power, HR, Cadence, etc) with developer data by default
+        if ($this->options['overwrite_with_dev_data'] && !empty($this->dev_field_descriptions)) {
+            foreach ($this->dev_field_descriptions as $developer_data_index) {
+                foreach ($developer_data_index as $field_definition_number) {
+                    if (isset($field_definition_number['native_field_num'])) {
+                        $this->data_mesgs['record'][$field_definition_number['field_name']] = $this->data_mesgs['developer_data'][$field_definition_number['field_name']]['data'];
+                    }
+                }
             }
         }
     }
@@ -1656,6 +1694,9 @@ class phpFITFileAnalysis
     private function oneElementArrays()
     {
         foreach ($this->data_mesgs as $mesg_key => $mesg) {
+            if ($mesg_key === 'developer_data') {
+                continue;
+            }
             foreach ($mesg as $field_key => $field) {
                 if (count($field) === 1) {
                     $first_key = key($field);
@@ -1926,7 +1967,6 @@ class phpFITFileAnalysis
     {
         if (array_walk($percentages_array, function (&$value, $key, $hr_maximum) {
             $value = round($value * $hr_maximum);
-
         }, $hr_maximum)) {
             return $percentages_array;
         } else {
@@ -1941,7 +1981,6 @@ class phpFITFileAnalysis
     {
         if (array_walk($percentages_array, function (&$value, $key, $params) {
             $value = round($params[0] + ($value * $params[1]));
-
         }, [$hr_resting, $hr_maximum - $hr_resting])) {
             return $percentages_array;
         } else {
@@ -1956,7 +1995,6 @@ class phpFITFileAnalysis
     {
         if (array_walk($percentages_array, function (&$value, $key, $functional_threshold_power) {
             $value = round($value * $functional_threshold_power) + 1;
-
         }, $functional_threshold_power)) {
             return $percentages_array;
         } else {
@@ -2016,7 +2054,6 @@ class phpFITFileAnalysis
             $total = array_sum($result);
             array_walk($result, function (&$value, $key, $total) {
                 $value = round($value / $total * 100, 1);
-
             }, $total);
         }
         
@@ -2396,8 +2433,7 @@ class phpFITFileAnalysis
         if (isset($fgc[0]['timestamp'])) {
             if ($first_ts == $fgc[0]['timestamp']) {
                 $fg = $fgc[0]['front_gear'];
-            }
-            else {
+            } else {
                 $fg = $fgc[0]['front_gear_num'] == 1 ? $front_gears[2] : $front_gears[1];
             }
         }
@@ -2405,8 +2441,7 @@ class phpFITFileAnalysis
         if (isset($rgc[0]['timestamp'])) {
             if ($first_ts == $rgc[0]['timestamp']) {
                 $rg = $rgc[0]['rear_gear'];
-            }
-            else {
+            } else {
                 $rg = $rgc[0]['rear_gear_num'] == min($rear_gears) ? $rear_gears[$rgc[0]['rear_gear_num'] + 1] : $rear_gears[$rgc[0]['rear_gear_num'] - 1];
             }
         }
@@ -2416,14 +2451,14 @@ class phpFITFileAnalysis
         $combined = [];
         $gears_array = [];
         
-        if($bIgnoreTimerPaused === true) {
+        if ($bIgnoreTimerPaused === true) {
             $is_paused = $this->isPaused();
         }
         
         reset($fgc);
         reset($rgc);
         for ($i = $first_ts; $i < $last_ts; ++$i) {
-            if($bIgnoreTimerPaused === true && $is_paused[$i] === true) {
+            if ($bIgnoreTimerPaused === true && $is_paused[$i] === true) {
                 continue;
             }
             
