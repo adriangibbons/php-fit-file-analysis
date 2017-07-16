@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/adriangibbons/php-fit-file-analysis.svg?branch=master)](https://travis-ci.org/adriangibbons/php-fit-file-analysis) [![Packagist](https://img.shields.io/packagist/v/adriangibbons/php-fit-file-analysis.svg)](https://packagist.org/packages/adriangibbons/php-fit-file-analysis) [![Packagist](https://img.shields.io/packagist/dt/adriangibbons/php-fit-file-analysis.svg)](https://packagist.org/packages/adriangibbons/php-fit-file-analysis) [![Coverage Status](https://coveralls.io/repos/adriangibbons/php-fit-file-analysis/badge.svg?branch=master&service=github)](https://coveralls.io/github/adriangibbons/php-fit-file-analysis?branch=master)
 # phpFITFileAnalysis
 
-A PHP class for analysing FIT files created by Garmin GPS devices.
+A PHP (>= v5.4) class for analysing FIT files created by Garmin GPS devices.
 
 [Live demonstration](http://adriangibbons.com/php-fit-file-analysis/demo/) (Right-click and Open in new tab)
 
