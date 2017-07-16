@@ -5,7 +5,7 @@ A PHP (>= v5.4) class for analysing FIT files created by Garmin GPS devices.
 
 [Live demonstration](http://adriangibbons.com/php-fit-file-analysis/demo/) (Right-click and Open in new tab)
 
-##Demo Screenshots
+## Demo Screenshots
 ![Mountain Biking](demo/img/mountain-biking.jpg)
 ![Power Analysis](demo/img/power-analysis.jpg)
 ![Quadrant Analysis](demo/img/quadrant-analysis.jpg)
