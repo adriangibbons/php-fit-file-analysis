@@ -39,7 +39,6 @@ class phpFITFileAnalysis
 {
     public $data_mesgs = [];  // Used to store the data read from the file in associative arrays.
     private $dev_field_descriptions = [];
-    private $field_descriptions = [];
     
     private $options = null;                 // Options provided to __construct().
     private $file_contents = '';             // FIT file is read-in to memory as a string, split into an array, and reversed. See __construct().
@@ -2508,16 +2507,16 @@ class phpFITFileAnalysis
         $all = in_array('all', $data_required);
         $timestamp         = ($all || in_array('timestamp', $data_required));
         $paused            = ($all || in_array('paused', $data_required));
-        $temperature       = ($all || in_array('temperature', $data_required));
+        //$temperature       = ($all || in_array('temperature', $data_required));
         $lap               = ($all || in_array('lap', $data_required));
-        $position_lat      = ($all || in_array('position_lat', $data_required));
-        $position_long     = ($all || in_array('position_long', $data_required));
-        $distance          = ($all || in_array('distance', $data_required));
-        $altitude          = ($all || in_array('altitude', $data_required));
-        $speed             = ($all || in_array('speed', $data_required));
-        $heart_rate        = ($all || in_array('heart_rate', $data_required));
-        $cadence           = ($all || in_array('cadence', $data_required));
-        $power             = ($all || in_array('power', $data_required));
+        //$position_lat      = ($all || in_array('position_lat', $data_required));
+        //$position_long     = ($all || in_array('position_long', $data_required));
+        //$distance          = ($all || in_array('distance', $data_required));
+        //$altitude          = ($all || in_array('altitude', $data_required));
+        //$speed             = ($all || in_array('speed', $data_required));
+        //$heart_rate        = ($all || in_array('heart_rate', $data_required));
+        //$cadence           = ($all || in_array('cadence', $data_required));
+        //$power             = ($all || in_array('power', $data_required));
         $quadrant_analysis = ($all || in_array('quadrant-analysis', $data_required));
         
         $for_json = [];
