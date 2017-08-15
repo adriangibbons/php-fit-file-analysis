@@ -2030,8 +2030,7 @@ class phpFITFileAnalysis
             $count = count($thresholds);
             for ($key; $key<$count; ++$key) {
                 if ($value < $thresholds[$key]) {
-                    $result[$key]++;
-                    continue;
+                    break;
                 }
             }
             $result[$key]++;
