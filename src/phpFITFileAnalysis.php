@@ -2031,11 +2031,10 @@ class phpFITFileAnalysis
             for ($key; $key<$count; ++$key) {
                 if ($value < $thresholds[$key]) {
                     $result[$key]++;
-                    goto loop_end;
+                    continue;
                 }
             }
             $result[$key]++;
-            loop_end:
         }
         
         array_unshift($thresholds, 0);
