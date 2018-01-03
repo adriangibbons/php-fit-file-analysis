@@ -994,6 +994,19 @@ class phpFITFileAnalysis
             ]
         ],
         
+        // 'event_timestamp' and 'event_timestamp_12' should have scale of 1024 but due to floating point rounding errors.
+        // These are manually divided by 1024 later in the processHrMessages() function.
+        132 => [
+            'mesg_name' => 'hr', 'field_defns' => [
+                0 => ['field_name' => 'fractional_timestamp', 'scale' => 32768, 'offset' => 0, 'units' => 's'],
+                1 => ['field_name' => 'time256',              'scale' => 256,   'offset' => 0, 'units' => 's'],
+                6 => ['field_name' => 'filtered_bpm',         'scale' => 1,     'offset' => 0, 'units' => 'bpm'],
+                9 => ['field_name' => 'event_timestamp',      'scale' => 1,     'offset' => 0, 'units' => 's'],
+                10 => ['field_name' => 'event_timestamp_12',  'scale' => 1,     'offset' => 0, 'units' => 's'],
+                253 => ['field_name' => 'timestamp',          'scale' => 1,     'offset' => 0, 'units' => 's']
+            ]
+        ],
+        
         142 => [
             'mesg_name' => 'segment_lap', 'field_defns' => [
                 0 => ['field_name' => 'event',                           'scale' => 1,         'offset' => 0, 'units' => ''],
@@ -1121,6 +1134,9 @@ class phpFITFileAnalysis
         $this->readHeader();
         $this->readDataRecords();
         $this->oneElementArrays();
+        
+        // Process HR messages
+        $this->processHrMessages();
         
         // Handle options.
         $this->fixData($this->options);
@@ -1280,7 +1296,8 @@ class phpFITFileAnalysis
                             if (isset($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]) && isset($this->types[$field_defn['base_type']])) {
                                 // Check if it's an invalid value for the type
                                 $tmp_value = unpack($this->types[$field_defn['base_type']]['format'], substr($this->file_contents, $this->file_pointer, $field_defn['size']))['tmp'];
-                                if ($tmp_value !== $this->invalid_values[$field_defn['base_type']]) {
+                                if ($tmp_value !== $this->invalid_values[$field_defn['base_type']] ||
+                                   $this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 132) {
                                     // If it's a timestamp, compensate between different in FIT and Unix timestamp epochs
                                     if ($field_defn['field_definition_number'] === 253 && !$this->garmin_timestamps) {
                                         $tmp_value += FIT_UNIX_TS_DIFF;
@@ -2651,6 +2668,88 @@ class phpFITFileAnalysis
                 echo '<tr><td>'.$field_key.'</td><td>'.count($field).'</td></tr>';
             }
             echo '</tbody></table><br><br>';
+        }
+    }
+    
+    /*
+     * Process HR messages
+     * 
+     * Based heavily on logic in commit:
+     * https://github.com/GoldenCheetah/GoldenCheetah/commit/957ae470999b9a57b5b8ec57e75512d4baede1ec
+     * Particularly the decodeHr() method
+     */
+    private function processHrMessages()
+    {
+        // Check that we have received HR messages
+        if (empty($this->data_mesgs['hr'])) {
+            return;
+        }
+        
+        $hr = [];
+        $timestamps = [];
+        
+        // Load all filtered_bpm values into the $hr array
+        foreach ($this->data_mesgs['hr']['filtered_bpm'] as $hr_val) {
+            if (is_array($hr_val)) {
+                foreach ($hr_val as $sub_hr_val) {
+                    $hr[] = $sub_hr_val;
+                }
+            } else {
+                $hr[] = $hr_val;
+            }
+        }
+        
+        // Manually scale timestamps (i.e. divide by 1024)
+        $last_event_timestamp = $this->data_mesgs['hr']['event_timestamp'];
+        $start_timestamp = $this->data_mesgs['hr']['timestamp'] - $last_event_timestamp / 1024.0;
+        $timestamps[] = $last_event_timestamp / 1024.0;
+        
+        // Determine timestamps (similar to compressed timestamps)
+        foreach ($this->data_mesgs['hr']['event_timestamp_12'] as $event_timestamp_12_val) {
+            $j=0;
+            for ($i=0; $i<11; $i++) {
+                $last_event_timestamp12 = $last_event_timestamp & 0xFFF;
+                $next_event_timestamp12;
+                
+                if ($j % 2 === 0) {
+                    $next_event_timestamp12 = $event_timestamp_12_val[$i] + (($event_timestamp_12_val[$i+1] & 0xF) << 8);
+                    $last_event_timestamp = ($last_event_timestamp & 0xFFFFF000) + $next_event_timestamp12;
+                } else {
+                    $next_event_timestamp12 = 16 * $event_timestamp_12_val[$i+1] + (($event_timestamp_12_val[$i] & 0xF0) >> 4);
+                    $last_event_timestamp = ($last_event_timestamp & 0xFFFFF000) + $next_event_timestamp12;
+                    $i++;
+                }
+                if ($next_event_timestamp12 < $last_event_timestamp12) {
+                    $last_event_timestamp += 0x1000;
+                }
+                
+                $timestamps[] = $last_event_timestamp / 1024.0;
+                $j++;
+            }
+        }
+        
+        // Map HR values to timestamps
+        $filtered_bpm_arr = [];
+        $secs = 0;
+        $min_record_ts = min($this->data_mesgs['record']['timestamp']);
+        $max_record_ts = max($this->data_mesgs['record']['timestamp']);
+        foreach ($timestamps as $idx => $timestamp) {
+            $ts_secs = round($timestamp + $start_timestamp);
+            
+            // Skip timestamps outside of the range we're interested in
+            if ($ts_secs >= $min_record_ts && $ts_secs <= $max_record_ts) {
+                if (isset($filtered_bpm_arr[$ts_secs])) {
+                    $filtered_bpm_arr[$ts_secs][0] += $hr[$idx];
+                    $filtered_bpm_arr[$ts_secs][1]++;
+                } else {
+                    $filtered_bpm_arr[$ts_secs] = [$hr[$idx], 1];
+                }
+            }
+        }
+        
+        // Populate the heart_rate fields for record messages
+        foreach ($filtered_bpm_arr as $idx => $arr) {
+            $this->data_mesgs['record']['heart_rate'][$idx] = (int)round($arr[0] / $arr[1]);
         }
     }
 }
