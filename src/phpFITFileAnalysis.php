@@ -606,20 +606,20 @@ class phpFITFileAnalysis
             0   => ['format' => 'Ctmp', 'bytes' => 1],  // enum
             1   => ['format' => 'ctmp', 'bytes' => 1],  // sint8
             2   => ['format' => 'Ctmp', 'bytes' => 1],  // uint8
-            131 => ['format' => 'ntmp', 'bytes' => 1],  // sint16 - manually convert uint16 to sint16 in fixData()
-            132 => ['format' => 'ntmp', 'bytes' => 1],  // uint16
-            133 => ['format' => 'Ntmp', 'bytes' => 1],  // sint32 - manually convert uint32 to sint32 in fixData()
-            134 => ['format' => 'Ntmp', 'bytes' => 1],  // uint32
+            131 => ['format' => 'ntmp', 'bytes' => 2],  // sint16 - manually convert uint16 to sint16 in fixData()
+            132 => ['format' => 'ntmp', 'bytes' => 2],  // uint16
+            133 => ['format' => 'Ntmp', 'bytes' => 4],  // sint32 - manually convert uint32 to sint32 in fixData()
+            134 => ['format' => 'Ntmp', 'bytes' => 4],  // uint32
             7   => ['format' => 'a*tmp', 'bytes' => 1], // string
-            136 => ['format' => 'ftmp', 'bytes' => 1],  // float32
-            137 => ['format' => 'dtmp', 'bytes' => 1],  // float64
+            136 => ['format' => 'ftmp', 'bytes' => 4],  // float32
+            137 => ['format' => 'dtmp', 'bytes' => 8],  // float64
             10  => ['format' => 'Ctmp', 'bytes' => 1],  // uint8z
-            139 => ['format' => 'ntmp', 'bytes' => 1],  // uint16z
-            140 => ['format' => 'Ntmp', 'bytes' => 1],  // uint32z
+            139 => ['format' => 'ntmp', 'bytes' => 2],  // uint16z
+            140 => ['format' => 'Ntmp', 'bytes' => 4],  // uint32z
             13  => ['format' => 'Ctmp', 'bytes' => 1],  // byte
-            142 => ['format' => 'Jtmp', 'bytes' => 1],  // sint64 - manually convert uint64 to sint64 in fixData()
-            143 => ['format' => 'Jtmp', 'bytes' => 1],  // uint64
-            144 => ['format' => 'Jtmp', 'bytes' => 1]   // uint64z
+            142 => ['format' => 'Jtmp', 'bytes' => 8],  // sint64 - manually convert uint64 to sint64 in fixData()
+            143 => ['format' => 'Jtmp', 'bytes' => 8],  // uint64
+            144 => ['format' => 'Jtmp', 'bytes' => 8]   // uint64z
         ]
     ];
     
