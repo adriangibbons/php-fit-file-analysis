@@ -2703,6 +2703,9 @@ class phpFITFileAnalysis
         
         // Manually scale timestamps (i.e. divide by 1024)
         $last_event_timestamp = $this->data_mesgs['hr']['event_timestamp'];
+        if (is_array($last_event_timestamp)) {
+            $last_event_timestamp = $last_event_timestamp[0];
+        }
         $start_timestamp = $this->data_mesgs['hr']['timestamp'] - $last_event_timestamp / 1024.0;
         $timestamps[] = $last_event_timestamp / 1024.0;
         
