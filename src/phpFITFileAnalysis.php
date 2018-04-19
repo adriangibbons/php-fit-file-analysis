@@ -1116,10 +1116,9 @@ class phpFITFileAnalysis
         if (isset($options['garmin_timestamps']) && $options['garmin_timestamps'] == true) {
             $this->garmin_timestamps = true;
         }
-        if (!isset($this->options['overwrite_with_dev_data']) || $this->options['overwrite_with_dev_data'] == true) {
+        $this->options['overwrite_with_dev_data'] = false;
+        if (isset($this->options['overwrite_with_dev_data']) && $this->options['overwrite_with_dev_data'] == true) {
             $this->options['overwrite_with_dev_data'] = true;
-        } else {
-            $this->options['overwrite_with_dev_data'] = false;
         }
         $this->php_trader_ext_loaded = extension_loaded('trader');
         
@@ -1398,10 +1397,13 @@ class phpFITFileAnalysis
             }
         }
         // Overwrite native FIT fields (e.g. Power, HR, Cadence, etc) with developer data by default
-        if ($this->options['overwrite_with_dev_data'] && !empty($this->dev_field_descriptions)) {
+        if (!empty($this->dev_field_descriptions)) {
             foreach ($this->dev_field_descriptions as $developer_data_index) {
                 foreach ($developer_data_index as $field_definition_number) {
                     if (isset($field_definition_number['native_field_num'])) {
+                        if (isset($this->data_mesgs['record'][$field_definition_number['field_name']]) && !$this->options['overwrite_with_dev_data']) {
+                            continue;
+                        }
                         $this->data_mesgs['record'][$field_definition_number['field_name']] = $this->data_mesgs['developer_data'][$field_definition_number['field_name']]['data'];
                     }
                 }
