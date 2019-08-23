@@ -1195,7 +1195,6 @@ class phpFITFileAnalysis
         $local_mesg_type = 0;
         $previousTS = 0;
         
-        
         while ($this->file_header['header_size'] + $this->file_header['data_size'] > $this->file_pointer) {
             $record_header_byte = ord(substr($this->file_contents, $this->file_pointer, 1));
             $this->file_pointer++;
