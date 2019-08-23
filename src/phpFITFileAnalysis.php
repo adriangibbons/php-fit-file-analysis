@@ -1104,14 +1104,26 @@ class phpFITFileAnalysis
     ];
 
     // PHP Constructor - called when an object of the class is instantiated.
-    public function __construct($file_path, $options = null)
+    public function __construct($file_path_or_data, $options = null)
     {
-        if (empty($file_path)) {
-            throw new \Exception('phpFITFileAnalysis->__construct(): file_path is empty!');
+        if( isset( $options['input_is_data'] ) ){
+            $this->file_contents = $file_path_or_data;
+        }else{
+            if (empty($file_path_or_data)) {
+                throw new \Exception('phpFITFileAnalysis->__construct(): file_path is empty!');
+            }
+            if (!file_exists($file_path_or_data)) {
+                throw new \Exception('phpFITFileAnalysis->__construct(): file \''.$file_path_or_data.'\' does not exist!');
+            }
+            /**
+             * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
+             * 3.3 FIT File Structure
+             * Header . Data Records . CRC
+             */
+            $this->file_contents = file_get_contents($file_path_or_data);  // Read the entire file into a string
+
         }
-        if (!file_exists($file_path)) {
-            throw new \Exception('phpFITFileAnalysis->__construct(): file \''.$file_path.'\' does not exist!');
-        }
+
         $this->options = $options;
         if (isset($options['garmin_timestamps']) && $options['garmin_timestamps'] == true) {
             $this->garmin_timestamps = true;
@@ -1121,13 +1133,6 @@ class phpFITFileAnalysis
             $this->options['overwrite_with_dev_data'] = true;
         }
         $this->php_trader_ext_loaded = extension_loaded('trader');
-        
-        /**
-          * D00001275 Flexible & Interoperable Data Transfer (FIT) Protocol Rev 1.7.pdf
-          * 3.3 FIT File Structure
-          * Header . Data Records . CRC
-          */
-        $this->file_contents = file_get_contents($file_path);  // Read the entire file into a string
         
         // Process the file contents.
         $this->readHeader();
@@ -1189,7 +1194,6 @@ class phpFITFileAnalysis
         $developer_data_flag = 0;
         $local_mesg_type = 0;
         $previousTS = 0;
-        
         
         while ($this->file_header['header_size'] + $this->file_header['data_size'] > $this->file_pointer) {
             $record_header_byte = ord(substr($this->file_contents, $this->file_pointer, 1));
@@ -1464,6 +1468,7 @@ class phpFITFileAnalysis
             if (isset($this->data_mesg_info[$mesg['global_mesg_num']])) {
                 $mesg_name = $this->data_mesg_info[$mesg['global_mesg_num']]['mesg_name'];
                 
+
                 foreach ($mesg['field_defns'] as $field) {
                     // Convert uint16 to sint16
                     if ($field['base_type'] === 131 && isset($this->data_mesg_info[$mesg['global_mesg_num']]['field_defns'][$field['field_definition_number']]['field_name'])) {
@@ -1501,8 +1506,11 @@ class phpFITFileAnalysis
                             } elseif ($this->data_mesgs[$mesg_name][$field_name] > 0x7FFFFFFF) {
                                 if (PHP_INT_SIZE === 8) {
                                     $this->data_mesgs[$mesg_name][$field_name] -= 0x100000000;
+
                                 }
-                                $this->data_mesgs[$mesg_name][$field_name] = -1 * ($this->data_mesgs[$mesg_name][$field_name] - 0x7FFFFFFF);
+                                if( $this->data_mesgs[$mesg_name][$field_name] > 0x7FFFFFFF ){
+                                    $this->data_mesgs[$mesg_name][$field_name] = -1 * ($this->data_mesgs[$mesg_name][$field_name] - 0x7FFFFFFF);
+                                }
                             }
                         }
                     } // Convert uint64 to sint64
