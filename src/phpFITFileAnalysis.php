@@ -1966,7 +1966,10 @@ class phpFITFileAnalysis
                                     }
                                 }
                             } else {
-                                if ($bPace) {
+                                if(! $this->data_mesgs[$message][$field]) {
+                                    $this->data_mesgs[$message][$field] = 0;
+                                }
+                                elseif ($bPace) {
                                     $this->data_mesgs[$message][$field] = round(60 / 3.6 / $this->data_mesgs[$message][$field], 3);
                                 } else {
                                     $this->data_mesgs[$message][$field] = round($this->data_mesgs[$message][$field] * 3.6, 3);
