@@ -1967,8 +1967,8 @@ class phpFITFileAnalysis
                                 }
                             } else {
                                 if ($this->data_mesgs[$message][$field] === 0) {  // Prevent divide by zero error
-                                    continue;  
-                                }                                
+                                    continue;
+                                }
                                 if ($bPace) {
                                     $this->data_mesgs[$message][$field] = round(60 / 3.6 / $this->data_mesgs[$message][$field], 3);
                                 } else {
