@@ -2616,6 +2616,30 @@ class phpFITFileAnalysis
     }
     
     /**
+     * Create a JSON object that contains available lap message information.
+     */
+    public function getJSONLap()
+    {
+        $for_json = [];
+        $for_json['fix_data'] = isset($this->options['fix_data']) ? $this->options['fix_data'] : null;
+        $for_json['units'] = isset($this->options['units']) ? $this->options['units'] : null;
+        $for_json['pace'] = isset($this->options['pace']) ? $this->options['pace'] : null;
+        $for_json['num_laps'] = count($this->data_mesgs['lap']['timestamp']);
+        $data = [];
+        
+        for ($i=0; $i<$for_json['num_laps']; $i++) {
+            $data[$i]['lap'] = $i;
+            foreach ($this->data_mesgs['lap'] as $key => $value) {
+                $data[$i][$key] = $value[$i];
+            }
+        }
+        
+        $for_json['data'] = $data;
+        
+        return json_encode($for_json);
+    }
+    
+    /**
      * Outputs tables of information being listened for and found within the processed FIT file.
      */
     public function showDebugInfo()
