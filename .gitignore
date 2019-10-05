@@ -1,4 +1,5 @@
 vendor
+issues
 composer.phar
 composer.lock
 
