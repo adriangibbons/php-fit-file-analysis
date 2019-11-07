@@ -572,7 +572,12 @@ class phpFITFileAnalysis
             4 => 'wifi',  //External device connected with Wifi
             5 => 'local',  //Onboard device
         ],
-        'swim_stroke' => [0 => 'Freestyle', 1 => 'Backstroke', 2 => 'Breaststroke', 3 => 'Butterfly', 4 => 'Drill', 5 => 'Mixed', 6 => 'IM']  // Have capitalised.
+        'swim_stroke' => [0 => 'Freestyle', 1 => 'Backstroke', 2 => 'Breaststroke', 3 => 'Butterfly', 4 => 'Drill', 5 => 'Mixed', 6 => 'IM'],  // Have capitalised.
+        'water_type' => [0 => 'fresh', 1 => 'salt', 2 => 'en13319', 3 => 'custom'],
+        'tissue_model_type' => [0 => 'zhl_16c'],
+        'dive_gas_status' => [0 => 'disabled', 1 => 'enabled', 2 => 'backup_only'],
+        'dive_alarm_type' => [0 => 'depth', 1 => 'time'],
+        'dive_backlight_mode' => [0 => 'at_depth', 1 => 'always_on'],
     ];
     
     /**
@@ -1100,7 +1105,72 @@ class phpFITFileAnalysis
                 3 => ['field_name' => 'developer_data_index', 'scale' => 1, 'offset' => 0, 'units' => ''],
                 4 => ['field_name' => 'application_version',  'scale' => 1, 'offset' => 0, 'units' => '']
             ]
-        ]
+        ],
+        
+        258 => [
+            'mesg_name' => 'dive_settings', 'field_defns' => [
+                0 => ['field_name' => 'name',                     'scale' => 1,   'offset' => 0, 'units' => ''],
+                1 => ['field_name' => 'model',                    'scale' => 1,   'offset' => 0, 'units' => ''],
+                2 => ['field_name' => 'gf_low',                   'scale' => 1,   'offset' => 0, 'units' => 'percent'],
+                3 => ['field_name' => 'gf_high',                  'scale' => 1,   'offset' => 0, 'units' => 'percent'],
+                4 => ['field_name' => 'water_type',               'scale' => 1,   'offset' => 0, 'units' => ''],
+                5 => ['field_name' => 'water_density',            'scale' => 1,   'offset' => 0, 'units' => 'kg/m^3'],
+                6 => ['field_name' => 'po2_warn',                 'scale' => 100, 'offset' => 0, 'units' => 'percent'],
+                7 => ['field_name' => 'po2_critical',             'scale' => 100, 'offset' => 0, 'units' => 'percent'],
+                8 => ['field_name' => 'po2_deco',                 'scale' => 100, 'offset' => 0, 'units' => 'percent'],
+                9 => ['field_name' => 'safety_stop_enabled',      'scale' => 1,   'offset' => 0, 'units' => ''],
+                10 => ['field_name' => 'bottom_depth',            'scale' => 1,   'offset' => 0, 'units' => ''],
+                11 => ['field_name' => 'bottom_time',             'scale' => 1,   'offset' => 0, 'units' => ''],
+                12 => ['field_name' => 'apnea_countdown_enabled', 'scale' => 1,   'offset' => 0, 'units' => ''],
+                13 => ['field_name' => 'apnea_countdown_time',    'scale' => 1,   'offset' => 0, 'units' => ''],
+                14 => ['field_name' => 'backlight_mode',          'scale' => 1,   'offset' => 0, 'units' => ''],
+                15 => ['field_name' => 'backlight_brightness',    'scale' => 1,   'offset' => 0, 'units' => ''],
+                16 => ['field_name' => 'backlight_timeout',       'scale' => 1,   'offset' => 0, 'units' => ''],
+                17 => ['field_name' => 'repeat_dive_interval',    'scale' => 1,   'offset' => 0, 'units' => 's'],
+                18 => ['field_name' => 'safety_stop_time',        'scale' => 1,   'offset' => 0, 'units' => 's'],
+                19 => ['field_name' => 'heart_rate_source_type',  'scale' => 1,   'offset' => 0, 'units' => ''],
+                20 => ['field_name' => 'heart_rate_source',       'scale' => 1,   'offset' => 0, 'units' => ''],
+                254 => ['field_name' => 'message_index',          'scale' => 1,   'offset' => 0, 'units' => '']
+              ]
+          ],
+        
+        259 => [
+            'mesg_name' => 'dive_gas', 'field_defns' => [
+                0 => ['field_name' => 'helium_content',  'scale' => 1, 'offset' => 0, 'units' => 'percent'],
+                1 => ['field_name' => 'oxygen_content',  'scale' => 1, 'offset' => 0, 'units' => 'percent'],
+                2 => ['field_name' => 'status',          'scale' => 1, 'offset' => 0, 'units' => ''],
+                254 => ['field_name' => 'message_index', 'scale' => 1, 'offset' => 0, 'units' => '']
+              ]
+          ],
+        
+        262 => [
+            'mesg_name' => 'dive_alarm', 'field_defns' => [
+                0 => ['field_name' => 'depth',           'scale' => 1000, 'offset' => 0, 'units' => 'm'],
+                1 => ['field_name' => 'time',            'scale' => 1,    'offset' => 0, 'units' => 's'],
+                2 => ['field_name' => 'enabled',         'scale' => 1,    'offset' => 0, 'units' => ''],
+                3 => ['field_name' => 'alarm_type',      'scale' => 1,    'offset' => 0, 'units' => ''],
+                4 => ['field_name' => 'sound',           'scale' => 1,    'offset' => 0, 'units' => ''],
+                254 => ['field_name' => 'message_index', 'scale' => 1,    'offset' => 0, 'units' => '']
+              ]
+          ],
+        
+        268 => [
+            'mesg_name' => 'dive_summary', 'field_defns' => [
+                0 => ['field_name' => 'reference_mesg',   'scale' => 1,    'offset' => 0, 'units' => ''],
+                1 => ['field_name' => 'reference_index',  'scale' => 1,    'offset' => 0, 'units' => ''],
+                2 => ['field_name' => 'avg_depth',        'scale' => 1000, 'offset' => 0, 'units' => 'm'],
+                3 => ['field_name' => 'max_depth',        'scale' => 1000, 'offset' => 0, 'units' => 'm'],
+                4 => ['field_name' => 'surface_interval', 'scale' => 1,    'offset' => 0, 'units' => 's'],
+                5 => ['field_name' => 'start_cns',        'scale' => 1,    'offset' => 0, 'units' => 'percent'],
+                6 => ['field_name' => 'end_cns',          'scale' => 1,    'offset' => 0, 'units' => 'percent'],
+                7 => ['field_name' => 'start_n2',         'scale' => 1,    'offset' => 0, 'units' => 'percent'],
+                8 => ['field_name' => 'end_n2',           'scale' => 1,    'offset' => 0, 'units' => 'percent'],
+                9 => ['field_name' => 'o2_toxicity',      'scale' => 1,    'offset' => 0, 'units' => 'OTUs'],
+                10 => ['field_name' => 'dive_number',     'scale' => 1,    'offset' => 0, 'units' => ''],
+                11 => ['field_name' => 'bottom_time',     'scale' => 1000, 'offset' => 0, 'units' => 's'],
+                253 => ['field_name' => 'timestamp',      'scale' => 1,    'offset' => 0, 'units' => 's']
+              ]
+          ]
     ];
 
     // PHP Constructor - called when an object of the class is instantiated.
