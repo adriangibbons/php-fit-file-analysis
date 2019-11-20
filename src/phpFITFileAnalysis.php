@@ -2001,6 +2001,7 @@ class phpFITFileAnalysis
                 'avg_speed',
                 'enhanced_avg_speed',
                 'enhanced_max_speed',
+                'enhanced_speed',
                 'max_neg_vertical_speed',
                 'max_pos_vertical_speed',
                 'max_speed',
