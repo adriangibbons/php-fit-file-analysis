@@ -27,6 +27,16 @@
   <div class="col-md-4">
     <div class="panel panel-default">
       <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-file-code-o"></i> Mountain Biking (Leaflet maps)</h3>
+      </div>
+      <div class="panel-body text-center">
+        <a href="mountain-biking-leaflet.php"><img src="img/mountain-biking.jpg" alt="Mountain Biking"></a>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">
         <h3 class="panel-title"><i class="fa fa-file-code-o"></i> Power Analysis <small>(cycling)</small></h3>
       </div>
       <div class="panel-body text-center">
