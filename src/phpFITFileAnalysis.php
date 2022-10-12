@@ -2675,40 +2675,31 @@ class phpFITFileAnalysis {
      * 4	 80–90%
      * 5 90–100+%
      * @param int/flot $hr_maximum - max heart rate
-     * @param array percentages_zone - list of percentages for each zone (requires 5 zones)
+     * @param array percentages_zone - list of percentages for each upper bound of the zone
      * @return type array with time in each zone 0-5.
      */
     public function timeInZones($hr_maximum, $percentages_zones = [0.60, 0.70, 0.80, 0.90, 1]) {
         if (!isset($this->data_mesgs['record']['heart_rate'])) {
             throw new \Exception('phpFITFileAnalysis->timeInZones(): heart rate data not present in FIT file!');
         }
-        if (count($percentages_zones) != 5) {
-            throw new \Exception('phpFITFileAnalysis->timeInZones(): requires 5 zones to be set.');
+        if (count($percentages_zones) < 2) {
+            throw new \Exception('phpFITFileAnalysis->timeInZones(): requires at least 2 zones to be set.');
         }
         $hr_metrics = [];
         foreach ($percentages_zones as $key => $value) {
             $hr_metrics[$key + 1] = 0.0;
         }
+
         $prev_time = key(array_slice($this->data_mesgs['record']['heart_rate'], 0, 1, true));
         foreach ($this->data_mesgs['record']['heart_rate'] as $sec => $hr) {
             $elapsed = round(($sec - $prev_time) / 60, 2);
-            switch ($hr):
-                case $hr > $hr_maximum * $percentages_zones[4]:
-                    $hr_metrics[5] += $elapsed;
+
+            foreach ($percentages_zones as $zone => $upperBounds) {
+                if ($hr < ($hr_maximum * $upperBounds)) {
+                    $hr_metrics[$zone + 1] += $elapsed;
                     break;
-                case $hr > $hr_maximum * $percentages_zones[3]:
-                    $hr_metrics[4] += $elapsed;
-                    break;
-                case $hr > $hr_maximum * $percentages_zones[2]:
-                    $hr_metrics[3] += $elapsed;
-                    break;
-                case $hr > $hr_maximum * $percentages_zones[1]:
-                    $hr_metrics[2] += $elapsed;
-                    break;
-                case $hr > $hr_maximum * $percentages_zones[0]:
-                    $hr_metrics[1] += $elapsed;
-                    break;
-            endswitch;
+                }
+            }
             $prev_time = $sec;
         }
         return $hr_metrics;
