@@ -381,3 +381,7 @@ As a minimum, I'd recommend reading the three PDFs included in the SDK:
  3. Flexible & Interoperable Data Transfer (FIT) Protocol
 
 Following these, the 'Profile.xls' spreadsheet and then the Java/C/C++ examples.
+
+## Changes from main branch
+Added some enumeration support up to FIT SDK Version: 21.84. However there are several newer FIT features that have not been addressed yet. It does fix some of the reported issues on the main branch.
+Added a timeInZones heart rate calculation and some meta data to the hrMetrics method
