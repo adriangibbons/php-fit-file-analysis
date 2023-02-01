@@ -3,6 +3,10 @@
 
 A PHP (>= v5.4) class for analysing FIT files created by Garmin GPS devices.
 
+## Changes from main branch in this repository
+Added some enumeration support up to FIT SDK Version: 21.84. However there are several newer FIT features that have not been addressed yet. It does fix some of the reported issues on the main branch.
+Added a timeInZones heart rate calculations and some meta data to the hrMetrics method
+
 [Live demonstration](http://adriangibbons.com/php-fit-file-analysis/demo/) (Right-click and Open in new tab)
 
 ## Demo Screenshots
@@ -381,7 +385,3 @@ As a minimum, I'd recommend reading the three PDFs included in the SDK:
  3. Flexible & Interoperable Data Transfer (FIT) Protocol
 
 Following these, the 'Profile.xls' spreadsheet and then the Java/C/C++ examples.
-
-## Changes from main branch
-Added some enumeration support up to FIT SDK Version: 21.84. However there are several newer FIT features that have not been addressed yet. It does fix some of the reported issues on the main branch.
-Added a timeInZones heart rate calculation and some meta data to the hrMetrics method
