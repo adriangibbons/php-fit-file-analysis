@@ -7,16 +7,16 @@ A PHP (>= v5.4) class for analysing FIT files created by Garmin GPS devices.
 Added some enumeration support up to FIT SDK Version: 21.101 including addition of dynamic fields. However there are several newer FIT features that have not been addressed yet. It does fix some of the reported issues on the main branch.
 Added a timeInZones heart rate calculations and some meta data to the hrMetrics method
 Added using CDN for bootstrap so the showDebugInfo() routine displays with proper formatting with no extra work.
-Still a work in progress as I add dynamic messages but should be backwards compatible and handle more FIT files.
+Still a work in progress as I add dynamic messages but should be backwards compatible and handle more FIT files. 
+
+Note, one behavorial change is if there are no records or recorded data found in the fit file, it will report no records found instead of failing silently.
 
 ## New Utilities
-Created a utility (readProfileCSV.php) to parse the FIT Profile.xlsx sheets directly into usable arrays for the class. The spread sheet found in the garmin SDK https://developer.garmin.com/fit/download/ should be saved as 2 files "Profile-mesg.csv" for the message tab and "Profile-types.csv" for the type tab. Then in the same directory run
-
-php readProfileCSV.php to extract type-enum.php and type-message.php.  These can then be copied into the main phpFitFileAnalsis.php class. Don't forget to declare them private when imported to the class.
-
-[Live demonstration](http://adriangibbons.com/php-fit-file-analysis/demo/) (Right-click and Open in new tab)
+Created a utility (readProfileCSV.php) to parse the FIT Profile.xlsx sheets directly into usable arrays for the class. The spread sheet found in the garmin SDK https://developer.garmin.com/fit/download/ should be saved as 2 files "Profile-mesg.csv" for the message tab and "Profile-types.csv" for the type tab. Then in the same directory run ```php readProfileCSV.php``` to extract type-enum.php and type-message.php.  These can then be copied into the main phpFitFileAnalsis.php class. Don't forget to declare them private when imported to the class.
 
 ## Demo Screenshots
+[Live demonstration](http://adriangibbons.com/php-fit-file-analysis/demo/) (Right-click and Open in new tab)
+
 ![Mountain Biking](demo/img/mountain-biking.jpg)
 ![Power Analysis](demo/img/power-analysis.jpg)
 ![Quadrant Analysis](demo/img/quadrant-analysis.jpg)
