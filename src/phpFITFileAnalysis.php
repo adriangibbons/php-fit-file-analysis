@@ -24,6 +24,8 @@ namespace adriangibbons;
  * Added dynamic field information, but not implemented yet
  * Added code for timeInZones calculation
  * Added meta data for TRIMPexp/hrIF code
+ * Added dynamic field output to showDebug
+ * Added checks for cases where no recorded data is found for calculations (can now run on FIT files with no data)
  *
  * https://github.com/adriangibbons/phpFITFileAnalysis
  * https://developer.garmin.com/fit/download/
@@ -4422,8 +4424,8 @@ class phpFITFileAnalysis {
                 ],
                 11 => ['field_name' => 'total_calories', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => 'kcal', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 13 => ['field_name' => 'total_fat_calories', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => 'kcal', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                14 => ['field_name' => 'avg_speed', 'field_type' => 'uint16', 'scale' => 1000, 'offset' => 0, 'units' => 'm/s', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // total_distance / total_timer_time (e.g. 1)
-                15 => ['field_name' => 'max_speed', 'field_type' => 'uint16', 'scale' => 1000, 'offset' => 0, 'units' => 'm/s', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                14 => ['field_name' => 'avg_speed', 'field_type' => 'uint16', 'scale' => 1000, 'offset' => 0, 'units' => 'm/s', 'bits' => '16', 'accumulate' => '', 'component' => 'enhanced_avg_speed', 'ref_field_type' => '', 'ref_field_name' => ''], // total_distance / total_timer_time (e.g. 1)
+                15 => ['field_name' => 'max_speed', 'field_type' => 'uint16', 'scale' => 1000, 'offset' => 0, 'units' => 'm/s', 'bits' => '16', 'accumulate' => '', 'component' => 'enhanced_max_speed', 'ref_field_type' => '', 'ref_field_name' => ''],
                 16 => ['field_name' => 'avg_heart_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'bpm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // average heart rate (excludes pause time) (e.g. 1)
                 17 => ['field_name' => 'max_heart_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'bpm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 18 => ['field_name' => 'avg_cadence', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'rpm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => '', // total_cycles / total_timer_time if non_zero_avg_cadence otherwise total_cycles / total_elapsed_time (e.g. 1)
@@ -4458,8 +4460,8 @@ class phpFITFileAnalysis {
                 46 => ['field_name' => 'pool_length_unit', 'field_type' => 'display_measure', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 47 => ['field_name' => 'num_active_lengths', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => 'lengths', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // # of active lengths of swim pool (e.g. 1)
                 48 => ['field_name' => 'total_work', 'field_type' => 'uint32', 'scale' => 1, 'offset' => 0, 'units' => 'J', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                49 => ['field_name' => 'avg_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                50 => ['field_name' => 'max_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                49 => ['field_name' => 'avg_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'component' => 'enhanced_avg_altitude', 'ref_field_type' => '', 'ref_field_name' => ''],
+                50 => ['field_name' => 'max_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'component' => 'enhanced_max_altitude', 'ref_field_type' => '', 'ref_field_name' => ''],
                 51 => ['field_name' => 'gps_accuracy', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 52 => ['field_name' => 'avg_grade', 'field_type' => 'sint16', 'scale' => 100, 'offset' => 0, 'units' => '%', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 53 => ['field_name' => 'avg_pos_grade', 'field_type' => 'sint16', 'scale' => 100, 'offset' => 0, 'units' => '%', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
@@ -4480,7 +4482,7 @@ class phpFITFileAnalysis {
                 68 => ['field_name' => 'time_in_power_zone', 'field_type' => 'uint32', 'scale' => 1000, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 69 => ['field_name' => 'avg_lap_time', 'field_type' => 'uint32', 'scale' => 1000, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 70 => ['field_name' => 'best_lap_index', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                71 => ['field_name' => 'min_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                71 => ['field_name' => 'min_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'component' => 'enhanced_min_altitude', 'ref_field_type' => '', 'ref_field_name' => ''],
                 82 => ['field_name' => 'player_score', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 83 => ['field_name' => 'opponent_score', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 84 => ['field_name' => 'opponent_name', 'field_type' => 'string', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
@@ -4531,9 +4533,9 @@ class phpFITFileAnalysis {
                 134 => ['field_name' => 'avg_step_length', 'field_type' => 'uint16', 'scale' => 10, 'offset' => 0, 'units' => 'mm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 137 => ['field_name' => 'total_anaerobic_training_effect', 'field_type' => 'uint8', 'scale' => 10, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 139 => ['field_name' => 'avg_vam', 'field_type' => 'uint16', 'scale' => 1000, 'offset' => 0, 'units' => 'm/s', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                147 => ['field_name' => 'avg_respiration_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                148 => ['field_name' => 'max_respiration_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                149 => ['field_name' => 'min_respiration_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                147 => ['field_name' => 'avg_respiration_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8', 'accumulate' => '', 'component' => 'enhanced_avg_respiration_rate', 'ref_field_type' => '', 'ref_field_name' => ''],
+                148 => ['field_name' => 'max_respiration_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8', 'accumulate' => '', 'component' => 'enhanced_max_respiration_rate', 'ref_field_type' => '', 'ref_field_name' => ''],
+                149 => ['field_name' => 'min_respiration_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8', 'accumulate' => '', 'component' => 'enhanced_min_respiration_rate', 'ref_field_type' => '', 'ref_field_name' => ''],
                 168 => ['field_name' => 'training_load_peak', 'field_type' => 'sint32', 'scale' => 65536, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 169 => ['field_name' => 'enhanced_avg_respiration_rate', 'field_type' => 'uint16', 'scale' => 100, 'offset' => 0, 'units' => 'Breaths/min', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 170 => ['field_name' => 'enhanced_max_respiration_rate', 'field_type' => 'uint16', 'scale' => 100, 'offset' => 0, 'units' => 'Breaths/min', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
@@ -4568,8 +4570,8 @@ class phpFITFileAnalysis {
                 ],
                 11 => ['field_name' => 'total_calories', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => 'kcal', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 12 => ['field_name' => 'total_fat_calories', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => 'kcal', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // If New Leaf (e.g. 1)
-                13 => ['field_name' => 'avg_speed', 'field_type' => 'uint16', 'scale' => 1000, 'offset' => 0, 'units' => 'm/s', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                14 => ['field_name' => 'max_speed', 'field_type' => 'uint16', 'scale' => 1000, 'offset' => 0, 'units' => 'm/s', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                13 => ['field_name' => 'avg_speed', 'field_type' => 'uint16', 'scale' => 1000, 'offset' => 0, 'units' => 'm/s', 'bits' => '16', 'accumulate' => '', 'component' => 'enhanced_avg_speed', 'ref_field_type' => '', 'ref_field_name' => ''],
+                14 => ['field_name' => 'max_speed', 'field_type' => 'uint16', 'scale' => 1000, 'offset' => 0, 'units' => 'm/s', 'bits' => '16', 'accumulate' => '', 'component' => 'enhanced_max_speed', 'ref_field_type' => '', 'ref_field_name' => ''],
                 15 => ['field_name' => 'avg_heart_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'bpm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 16 => ['field_name' => 'max_heart_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'bpm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 17 => ['field_name' => 'avg_cadence', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'rpm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => '', // total_cycles / total_timer_time if non_zero_avg_cadence otherwise total_cycles / total_elapsed_time (e.g. 1)
@@ -4595,8 +4597,8 @@ class phpFITFileAnalysis {
                 39 => ['field_name' => 'sub_sport', 'field_type' => 'sub_sport', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 40 => ['field_name' => 'num_active_lengths', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => 'lengths', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // # of active lengths of swim pool (e.g. 1)
                 41 => ['field_name' => 'total_work', 'field_type' => 'uint32', 'scale' => 1, 'offset' => 0, 'units' => 'J', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                42 => ['field_name' => 'avg_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                43 => ['field_name' => 'max_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                42 => ['field_name' => 'avg_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'component' => 'enhanced_avg_altitude', 'ref_field_type' => '', 'ref_field_name' => ''],
+                43 => ['field_name' => 'max_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'component' => 'enhanced_max_altitude', 'ref_field_type' => '', 'ref_field_name' => ''],
                 44 => ['field_name' => 'gps_accuracy', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 45 => ['field_name' => 'avg_grade', 'field_type' => 'sint16', 'scale' => 100, 'offset' => 0, 'units' => '%', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 46 => ['field_name' => 'avg_pos_grade', 'field_type' => 'sint16', 'scale' => 100, 'offset' => 0, 'units' => '%', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
@@ -4615,7 +4617,7 @@ class phpFITFileAnalysis {
                 59 => ['field_name' => 'time_in_cadence_zone', 'field_type' => 'uint32', 'scale' => 1000, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 60 => ['field_name' => 'time_in_power_zone', 'field_type' => 'uint32', 'scale' => 1000, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 61 => ['field_name' => 'repetition_num', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                62 => ['field_name' => 'min_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                62 => ['field_name' => 'min_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'component' => 'enhanced_min_altitude', 'ref_field_type' => '', 'ref_field_name' => ''],
                 63 => ['field_name' => 'min_heart_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'bpm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 71 => ['field_name' => 'wkt_step_index', 'field_type' => 'message_index', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 74 => ['field_name' => 'opponent_score', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
@@ -4665,8 +4667,8 @@ class phpFITFileAnalysis {
                 121 => ['field_name' => 'avg_vam', 'field_type' => 'uint16', 'scale' => 1000, 'offset' => 0, 'units' => 'm/s', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 136 => ['field_name' => 'enhanced_avg_respiration_rate', 'field_type' => 'uint16', 'scale' => 100, 'offset' => 0, 'units' => 'Breaths/min', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 137 => ['field_name' => 'enhanced_max_respiration_rate', 'field_type' => 'uint16', 'scale' => 100, 'offset' => 0, 'units' => 'Breaths/min', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                147 => ['field_name' => 'avg_respiration_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                148 => ['field_name' => 'max_respiration_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                147 => ['field_name' => 'avg_respiration_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8', 'accumulate' => '', 'component' => 'enhanced_avg_respiration_rate', 'ref_field_type' => '', 'ref_field_name' => ''],
+                148 => ['field_name' => 'max_respiration_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8', 'accumulate' => '', 'component' => 'enhanced_max_respiration_rate', 'ref_field_type' => '', 'ref_field_name' => ''],
                 149 => ['field_name' => 'total_grit', 'field_type' => 'float32', 'scale' => 1, 'offset' => 0, 'units' => 'kGrit', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // The grit score estimates how challenging a route could be for a cyclist in terms of time spent going over sharp turns or large grade slopes. (e.g. )
                 150 => ['field_name' => 'total_flow', 'field_type' => 'float32', 'scale' => 1, 'offset' => 0, 'units' => 'Flow', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // The flow score estimates how long distance wise a cyclist deaccelerates over intervals where deacceleration is unnecessary such as smooth turns or small grade angle intervals. (e.g. )
                 151 => ['field_name' => 'jump_count', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
@@ -4699,29 +4701,29 @@ class phpFITFileAnalysis {
                 21 => ['field_name' => 'zone_count', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => 'counts', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // zone number used as the index (e.g. 1)
                 22 => ['field_name' => 'enhanced_avg_respiration_rate', 'field_type' => 'uint16', 'scale' => 100, 'offset' => 0, 'units' => 'Breaths/min', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 23 => ['field_name' => 'enhanced_max_respiration_rate', 'field_type' => 'uint16', 'scale' => 100, 'offset' => 0, 'units' => 'Breaths/min', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                24 => ['field_name' => 'avg_respiration_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                25 => ['field_name' => 'max_respiration_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                24 => ['field_name' => 'avg_respiration_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8', 'accumulate' => '', 'component' => 'enhanced_avg_respiration_rate', 'ref_field_type' => '', 'ref_field_name' => ''],
+                25 => ['field_name' => 'max_respiration_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8', 'accumulate' => '', 'component' => 'enhanced_max_respiration_rate', 'ref_field_type' => '', 'ref_field_name' => ''],
             ]],
         20 => ['mesg_name' => 'record', 'field_defns' => [
                 253 => ['field_name' => 'timestamp', 'field_type' => 'date_time', 'scale' => 1, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 0 => ['field_name' => 'position_lat', 'field_type' => 'sint32', 'scale' => 1, 'offset' => 0, 'units' => 'semicircles', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 1 => ['field_name' => 'position_long', 'field_type' => 'sint32', 'scale' => 1, 'offset' => 0, 'units' => 'semicircles', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                2 => ['field_name' => 'altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                2 => ['field_name' => 'altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'component' => 'enhanced_altitude', 'ref_field_type' => '', 'ref_field_name' => ''],
                 3 => ['field_name' => 'heart_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'bpm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 4 => ['field_name' => 'cadence', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'rpm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 5 => ['field_name' => 'distance', 'field_type' => 'uint32', 'scale' => 100, 'offset' => 0, 'units' => 'm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                6 => ['field_name' => 'speed', 'field_type' => 'uint16', 'scale' => 1000, 'offset' => 0, 'units' => 'm/s', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                6 => ['field_name' => 'speed', 'field_type' => 'uint16', 'scale' => 1000, 'offset' => 0, 'units' => 'm/s', 'bits' => '16', 'accumulate' => '', 'component' => 'enhanced_speed', 'ref_field_type' => '', 'ref_field_name' => ''],
                 7 => ['field_name' => 'power', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => 'watts', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                8 => ['field_name' => 'compressed_speed_distance', 'field_type' => 'byte', 'scale' => 100, 16, 'offset' => 0, 'units' => 'm/s,m', 'bits' => '12,12', 'accumulate' => '0,1', 'ref_field_type' => '', 'ref_field_name' => ''],
+                8 => ['field_name' => 'compressed_speed_distance', 'field_type' => 'byte', 'scale' => '100,16', 'offset' => 0, 'units' => 'm/s,m', 'bits' => '12,12', 'accumulate' => '0,1', 'component' => 'speed,distance', 'ref_field_type' => '', 'ref_field_name' => ''],
                 9 => ['field_name' => 'grade', 'field_type' => 'sint16', 'scale' => 100, 'offset' => 0, 'units' => '%', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 10 => ['field_name' => 'resistance', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // Relative. 0 is none 254 is Max. (e.g. 1)
                 11 => ['field_name' => 'time_from_course', 'field_type' => 'sint32', 'scale' => 1000, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 12 => ['field_name' => 'cycle_length', 'field_type' => 'uint8', 'scale' => 100, 'offset' => 0, 'units' => 'm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 13 => ['field_name' => 'temperature', 'field_type' => 'sint8', 'scale' => 1, 'offset' => 0, 'units' => 'C', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 17 => ['field_name' => 'speed_1s', 'field_type' => 'uint8', 'scale' => 16, 'offset' => 0, 'units' => 'm/s', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // Speed at 1s intervals. Timestamp field indicates time of last array element. (e.g. 5)
-                18 => ['field_name' => 'cycles', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'cycles', 'bits' => '8', 'accumulate' => '1', 'ref_field_type' => '', 'ref_field_name' => ''],
+                18 => ['field_name' => 'cycles', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'cycles', 'bits' => '8', 'accumulate' => '1', 'component' => 'total_cycles', 'ref_field_type' => '', 'ref_field_name' => ''],
                 19 => ['field_name' => 'total_cycles', 'field_type' => 'uint32', 'scale' => 1, 'offset' => 0, 'units' => 'cycles', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                28 => ['field_name' => 'compressed_accumulated_power', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => 'watts', 'bits' => '16', 'accumulate' => '1', 'ref_field_type' => '', 'ref_field_name' => ''],
+                28 => ['field_name' => 'compressed_accumulated_power', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => 'watts', 'bits' => '16', 'accumulate' => '1', 'component' => 'accumulated_power', 'ref_field_type' => '', 'ref_field_name' => ''],
                 29 => ['field_name' => 'accumulated_power', 'field_type' => 'uint32', 'scale' => 1, 'offset' => 0, 'units' => 'watts', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 30 => ['field_name' => 'left_right_balance', 'field_type' => 'left_right_balance', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 31 => ['field_name' => 'gps_accuracy', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
@@ -4770,7 +4772,7 @@ class phpFITFileAnalysis {
                 96 => ['field_name' => 'ndl_time', 'field_type' => 'uint32', 'scale' => 1, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 97 => ['field_name' => 'cns_load', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'percent', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 98 => ['field_name' => 'n2_load', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => 'percent', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                99 => ['field_name' => 'respiration_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 's', 'bits' => '8', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                99 => ['field_name' => 'respiration_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 's', 'bits' => '8', 'accumulate' => '', 'component' => 'enhanced_respiration_rate', 'ref_field_type' => '', 'ref_field_name' => ''],
                 108 => ['field_name' => 'enhanced_respiration_rate', 'field_type' => 'uint16', 'scale' => 100, 'offset' => 0, 'units' => 'Breaths/min', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 114 => ['field_name' => 'grit', 'field_type' => 'float32', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // The grit score estimates how challenging a route could be for a cyclist in terms of time spent going over sharp turns or large grade slopes. (e.g. )
                 115 => ['field_name' => 'flow', 'field_type' => 'float32', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // The flow score estimates how long distance wise a cyclist deaccelerates over intervals where deacceleration is unnecessary such as smooth turns or small grade angle intervals. (e.g. )
@@ -4784,7 +4786,7 @@ class phpFITFileAnalysis {
                 253 => ['field_name' => 'timestamp', 'field_type' => 'date_time', 'scale' => 1, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 0 => ['field_name' => 'event', 'field_type' => 'event', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 1 => ['field_name' => 'event_type', 'field_type' => 'event_type', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                2 => ['field_name' => 'data16', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                2 => ['field_name' => 'data16', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '16', 'accumulate' => '', 'component' => 'data', 'ref_field_type' => '', 'ref_field_name' => ''],
                 3 => ['field_name' => 'data', 'field_type' => 'uint32', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => '',
                     0 => ['field_name' => 'timer_trigger', 'field_type' => 'timer_trigger', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => 'timer', 'ref_field_name' => 'event'],
                     1 => ['field_name' => 'course_point_index', 'field_type' => 'message_index', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => 'course_point', 'ref_field_name' => 'event'],
@@ -4802,11 +4804,11 @@ class phpFITFileAnalysis {
                     13 => ['field_name' => 'distance_duration_alert', 'field_type' => 'uint32', 'scale' => 100, 'offset' => 0, 'units' => 'm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => 'distance_duration_alert', 'ref_field_name' => 'event'],
                     14 => ['field_name' => 'calorie_duration_alert', 'field_type' => 'uint32', 'scale' => 1, 'offset' => 0, 'units' => 'calories', 'bits' => '', 'accumulate' => '', 'ref_field_type' => 'calorie_duration_alert', 'ref_field_name' => 'event'],
                     15 => ['field_name' => 'fitness_equipment_state', 'field_type' => 'fitness_equipment_state', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => 'fitness_equipment', 'ref_field_name' => 'event'],
-                    16 => ['field_name' => 'sport_point', 'field_type' => 'uint32', 'scale' => 1, 1, 'offset' => 0, 'units' => '', 'bits' => '16,16', 'accumulate' => '', 'ref_field_type' => 'sport_point', 'ref_field_name' => 'event'],
-                    17 => ['field_name' => 'gear_change_data', 'field_type' => 'uint32', 'scale' => 1, 1, 1, 1, 'offset' => 0, 'units' => '', 'bits' => '8,8,8,8', 'accumulate' => '', 'ref_field_type' => 'front_gear_change,rear_gear_change', 'ref_field_name' => 'event,event'],
+                    16 => ['field_name' => 'sport_point', 'field_type' => 'uint32', 'scale' => '1,1', 'offset' => 0, 'units' => '', 'bits' => '16,16', 'accumulate' => '', 'component' => 'score,opponent_score', 'ref_field_type' => 'sport_point', 'ref_field_name' => 'event'],
+                    17 => ['field_name' => 'gear_change_data', 'field_type' => 'uint32', 'scale' => '1,1,1,1', 'offset' => 0, 'units' => '', 'bits' => '8,8,8,8', 'accumulate' => '', 'component' => 'rear_gear_num,rear_gear,front_gear_num,front_gear', 'ref_field_type' => 'front_gear_change,rear_gear_change', 'ref_field_name' => 'event,event'],
                     18 => ['field_name' => 'rider_position', 'field_type' => 'rider_position_type', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => 'rider_position_change', 'ref_field_name' => 'event'], // Indicates the rider position value. (e.g. )
                     19 => ['field_name' => 'comm_timeout', 'field_type' => 'comm_timeout_type', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => 'comm_timeout', 'ref_field_name' => 'event'],
-                    20 => ['field_name' => 'radar_threat_alert', 'field_type' => 'uint32', 'scale' => 1, 1, 10, 10, 'offset' => 0, 'units' => '', 'bits' => '8,8,8,8', 'accumulate' => '', 'ref_field_type' => 'radar_threat_alert', 'ref_field_name' => 'event'], // The first byte is the radar_threat_level_max, the second byte is the radar_threat_count, third bytes is the average approach speed, and the 4th byte is the max approach speed (e.g. )
+                    20 => ['field_name' => 'radar_threat_alert', 'field_type' => 'uint32', 'scale' => '1,1,10,10', 'offset' => 0, 'units' => '', 'bits' => '8,8,8,8', 'accumulate' => '', 'component' => 'radar_threat_level_max,radar_threat_count,radar_threat_avg_approach_speed,radar_threat_max_approach_speed', 'ref_field_type' => 'radar_threat_alert', 'ref_field_name' => 'event'], // The first byte is the radar_threat_level_max, the second byte is the radar_threat_count, third bytes is the average approach speed, and the 4th byte is the max approach speed (e.g. )
                 ],
                 4 => ['field_name' => 'event_group', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 7 => ['field_name' => 'score', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // Do not populate directly. Autogenerated by decoder for sport_point subfield components (e.g. 1)
@@ -5057,7 +5059,7 @@ class phpFITFileAnalysis {
                 4 => ['field_name' => 'score', 'field_type' => 'float32', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // A score for a jump calculated based on hang time, rotations, and distance. (e.g. )
                 5 => ['field_name' => 'position_lat', 'field_type' => 'sint32', 'scale' => 1, 'offset' => 0, 'units' => 'semicircles', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 6 => ['field_name' => 'position_long', 'field_type' => 'sint32', 'scale' => 1, 'offset' => 0, 'units' => 'semicircles', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                7 => ['field_name' => 'speed', 'field_type' => 'uint16', 'scale' => 1000, 'offset' => 0, 'units' => 'm/s', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                7 => ['field_name' => 'speed', 'field_type' => 'uint16', 'scale' => 1000, 'offset' => 0, 'units' => 'm/s', 'bits' => '16', 'accumulate' => '', 'component' => 'enhanced_speed', 'ref_field_type' => '', 'ref_field_name' => ''],
                 8 => ['field_name' => 'enhanced_speed', 'field_type' => 'uint32', 'scale' => 1000, 'offset' => 0, 'units' => 'm/s', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
             ]],
         312 => ['mesg_name' => 'split', 'field_defns' => [
@@ -5140,7 +5142,7 @@ class phpFITFileAnalysis {
                 1 => ['field_name' => 'position_lat', 'field_type' => 'sint32', 'scale' => 1, 'offset' => 0, 'units' => 'semicircles', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 2 => ['field_name' => 'position_long', 'field_type' => 'sint32', 'scale' => 1, 'offset' => 0, 'units' => 'semicircles', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 3 => ['field_name' => 'distance', 'field_type' => 'uint32', 'scale' => 100, 'offset' => 0, 'units' => 'm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // Accumulated distance along the segment at the described point (e.g. 1)
-                4 => ['field_name' => 'altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // Accumulated altitude along the segment at the described point (e.g. 1)
+                4 => ['field_name' => 'altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'component' => 'enhanced_altitude', 'ref_field_type' => '', 'ref_field_name' => ''], // Accumulated altitude along the segment at the described point (e.g. 1)
                 5 => ['field_name' => 'leader_time', 'field_type' => 'uint32', 'scale' => 1000, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // Accumualted time each leader board member required to reach the described point. This value is zero for all leader board members at the starting point of the segment. (e.g. 1)
                 6 => ['field_name' => 'enhanced_altitude', 'field_type' => 'uint32', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // Accumulated altitude along the segment at the described point (e.g. )
             ]],
@@ -5183,8 +5185,8 @@ class phpFITFileAnalysis {
                 31 => ['field_name' => 'left_right_balance', 'field_type' => 'left_right_balance_100', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 32 => ['field_name' => 'sub_sport', 'field_type' => 'sub_sport', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 33 => ['field_name' => 'total_work', 'field_type' => 'uint32', 'scale' => 1, 'offset' => 0, 'units' => 'J', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                34 => ['field_name' => 'avg_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                35 => ['field_name' => 'max_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                34 => ['field_name' => 'avg_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'component' => 'enhanced_avg_altitude', 'ref_field_type' => '', 'ref_field_name' => ''],
+                35 => ['field_name' => 'max_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'component' => 'enhanced_max_altitude', 'ref_field_type' => '', 'ref_field_name' => ''],
                 36 => ['field_name' => 'gps_accuracy', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 37 => ['field_name' => 'avg_grade', 'field_type' => 'sint16', 'scale' => 100, 'offset' => 0, 'units' => '%', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 38 => ['field_name' => 'avg_pos_grade', 'field_type' => 'sint16', 'scale' => 100, 'offset' => 0, 'units' => '%', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
@@ -5203,7 +5205,7 @@ class phpFITFileAnalysis {
                 51 => ['field_name' => 'time_in_cadence_zone', 'field_type' => 'uint32', 'scale' => 1000, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 52 => ['field_name' => 'time_in_power_zone', 'field_type' => 'uint32', 'scale' => 1000, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 53 => ['field_name' => 'repetition_num', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                54 => ['field_name' => 'min_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                54 => ['field_name' => 'min_altitude', 'field_type' => 'uint16', 'scale' => 5, 'offset' => 500, 'units' => 'm', 'bits' => '16', 'accumulate' => '', 'component' => 'enhanced_min_altitude', 'ref_field_type' => '', 'ref_field_name' => ''],
                 55 => ['field_name' => 'min_heart_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'bpm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 56 => ['field_name' => 'active_time', 'field_type' => 'uint32', 'scale' => 1000, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 57 => ['field_name' => 'wkt_step_index', 'field_type' => 'message_index', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
@@ -5427,7 +5429,7 @@ class phpFITFileAnalysis {
                 15 => ['field_name' => 'temperature_max', 'field_type' => 'sint16', 'scale' => 100, 'offset' => 0, 'units' => 'C', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // Max temperature during the logging interval ended at timestamp (e.g. )
                 16 => ['field_name' => 'activity_time', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => 'minutes', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // Indexed using minute_activity_level enum (e.g. )
                 19 => ['field_name' => 'active_calories', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => 'kcal', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                24 => ['field_name' => 'current_activity_type_intensity', 'field_type' => 'byte', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '5,3', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''], // Indicates single type / intensity for duration since last monitoring message. (e.g. )
+                24 => ['field_name' => 'current_activity_type_intensity', 'field_type' => 'byte', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '5,3', 'accumulate' => '', 'component' => 'activity_type,intensity', 'ref_field_type' => '', 'ref_field_name' => ''], // Indicates single type / intensity for duration since last monitoring message. (e.g. )
                 25 => ['field_name' => 'timestamp_min_8', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'min', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 26 => ['field_name' => 'timestamp_16', 'field_type' => 'uint16', 'scale' => 1, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 27 => ['field_name' => 'heart_rate', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'bpm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
@@ -5442,10 +5444,10 @@ class phpFITFileAnalysis {
         132 => ['mesg_name' => 'hr', 'field_defns' => [
                 253 => ['field_name' => 'timestamp', 'field_type' => 'date_time', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 0 => ['field_name' => 'fractional_timestamp', 'field_type' => 'uint16', 'scale' => 32768, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                1 => ['field_name' => 'time256', 'field_type' => 'uint8', 'scale' => 256, 'offset' => 0, 'units' => 's', 'bits' => '8', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                1 => ['field_name' => 'time256', 'field_type' => 'uint8', 'scale' => 256, 'offset' => 0, 'units' => 's', 'bits' => '8', 'accumulate' => '', 'component' => 'fractional_timestamp', 'ref_field_type' => '', 'ref_field_name' => ''],
                 6 => ['field_name' => 'filtered_bpm', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => 'bpm', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 9 => ['field_name' => 'event_timestamp', 'field_type' => 'uint32', 'scale' => 1024, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                10 => ['field_name' => 'event_timestamp_12', 'field_type' => 'byte', 'scale' => 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024, 'offset' => 0, 'units' => 's', 'bits' => '12,12,12,12,12,12,12,12,12,12', 'accumulate' => '1,1,1,1,1,1,1,1,1,1', 'ref_field_type' => '', 'ref_field_name' => ''],
+                10 => ['field_name' => 'event_timestamp_12', 'field_type' => 'byte', 'scale' => '1024,1024,1024,1024,1024,1024,1024,1024,1024,1024', 'offset' => 0, 'units' => 's', 'bits' => '12,12,12,12,12,12,12,12,12,12', 'accumulate' => '1,1,1,1,1,1,1,1,1,1', 'component' => 'event_timestamp,event_timestamp,event_timestamp,event_timestamp,event_timestamp,event_timestamp,event_timestamp,event_timestamp,event_timestamp,event_timestamp', 'ref_field_type' => '', 'ref_field_name' => ''],
             ]],
         227 => ['mesg_name' => 'stress_level', 'field_defns' => [
                 0 => ['field_name' => 'stress_level_value', 'field_type' => 'sint16', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
@@ -5470,7 +5472,7 @@ class phpFITFileAnalysis {
                 253 => ['field_name' => 'timestamp', 'field_type' => 'date_time', 'scale' => 1, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 0 => ['field_name' => 'fractional_timestamp', 'field_type' => 'uint16', 'scale' => 32768, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 1 => ['field_name' => 'mesg_id', 'field_type' => 'byte', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                2 => ['field_name' => 'mesg_data', 'field_type' => 'byte', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8,8,8,8,8,8,8,8,8', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                2 => ['field_name' => 'mesg_data', 'field_type' => 'byte', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8,8,8,8,8,8,8,8,8', 'accumulate' => '', 'component' => 'channel_number,data,data,data,data,data,data,data,data', 'ref_field_type' => '', 'ref_field_name' => ''],
                 3 => ['field_name' => 'channel_number', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 4 => ['field_name' => 'data', 'field_type' => 'byte', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
             ]],
@@ -5478,7 +5480,7 @@ class phpFITFileAnalysis {
                 253 => ['field_name' => 'timestamp', 'field_type' => 'date_time', 'scale' => 1, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 0 => ['field_name' => 'fractional_timestamp', 'field_type' => 'uint16', 'scale' => 32768, 'offset' => 0, 'units' => 's', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 1 => ['field_name' => 'mesg_id', 'field_type' => 'byte', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                2 => ['field_name' => 'mesg_data', 'field_type' => 'byte', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8,8,8,8,8,8,8,8,8', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                2 => ['field_name' => 'mesg_data', 'field_type' => 'byte', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '8,8,8,8,8,8,8,8,8', 'accumulate' => '', 'component' => 'channel_number,data,data,data,data,data,data,data,data', 'ref_field_type' => '', 'ref_field_name' => ''],
                 3 => ['field_name' => 'channel_number', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 4 => ['field_name' => 'data', 'field_type' => 'byte', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
             ]],
@@ -5490,7 +5492,7 @@ class phpFITFileAnalysis {
             ]],
         201 => ['mesg_name' => 'exd_data_field_configuration', 'field_defns' => [
                 0 => ['field_name' => 'screen_index', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                1 => ['field_name' => 'concept_field', 'field_type' => 'byte', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '4,4', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                1 => ['field_name' => 'concept_field', 'field_type' => 'byte', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '4,4', 'accumulate' => '', 'component' => 'field_id,concept_count', 'ref_field_type' => '', 'ref_field_name' => ''],
                 2 => ['field_name' => 'field_id', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 3 => ['field_name' => 'concept_count', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 4 => ['field_name' => 'display_type', 'field_type' => 'exd_display_type', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
@@ -5498,7 +5500,7 @@ class phpFITFileAnalysis {
             ]],
         202 => ['mesg_name' => 'exd_data_concept_configuration', 'field_defns' => [
                 0 => ['field_name' => 'screen_index', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
-                1 => ['field_name' => 'concept_field', 'field_type' => 'byte', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '4,4', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
+                1 => ['field_name' => 'concept_field', 'field_type' => 'byte', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '4,4', 'accumulate' => '', 'component' => 'field_id,concept_index', 'ref_field_type' => '', 'ref_field_name' => ''],
                 2 => ['field_name' => 'field_id', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 3 => ['field_name' => 'concept_index', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
                 4 => ['field_name' => 'data_page', 'field_type' => 'uint8', 'scale' => 1, 'offset' => 0, 'units' => '', 'bits' => '', 'accumulate' => '', 'ref_field_type' => '', 'ref_field_name' => ''],
@@ -5581,8 +5583,8 @@ class phpFITFileAnalysis {
      * Table 3-1. Byte Description of File Header
      */
     private function readHeader() {
-        $header_size = unpack('C1header_size', substr($this->file_contents, $this->file_pointer, 1))['header_size'];
-        $this->writeDebug("HEADER\n[{$this->file_pointer}-{$this->file_pointer}]: header size: $header_size\n");
+        $header_size = unpack('C1header_size', $this->getString($this->file_pointer, 1))['header_size'];
+        $this->writeDebug("\nHEADER\n[{$this->file_pointer}-" . ($this->file_pointer + 13) . "]: header size: $header_size\n");
         $this->file_pointer++;
 
         if ($header_size != 12 && $header_size != 14) {
@@ -5596,9 +5598,11 @@ class phpFITFileAnalysis {
         if ($header_size > 12) {
             $header_fields .= '/v1crc';
         }
-        $this->file_header = unpack($header_fields, substr($this->file_contents, $this->file_pointer, $header_size - 1));
+        $this->file_header = unpack($header_fields, $this->getString($this->file_pointer, $header_size - 1));
         $this->file_header['header_size'] = $header_size;
-        $this->writeDebug("[{$this->file_pointer}-" . ($header_size - 1) . "]: header: " . print_r($this->file_header, true) . "\n");
+
+        //$this->writeDebug($this->hex_dump($this->getString($this->file_pointer, $header_size - 1)));
+        $this->writeDebug("[0-" . ($header_size - 1) . "]: header: " . print_r($this->file_header, true) . "\n");
 
         $this->file_pointer += $this->file_header['header_size'] - 1;
 
@@ -5624,10 +5628,10 @@ class phpFITFileAnalysis {
         $local_mesg_type = 0;
         $previousTS = 0;
 
-        $this->writeDebug("DATA RECORDS\n");
+        $this->writeDebug("\nDATA RECORDS\n");
         while ($this->file_header['header_size'] + $this->file_header['data_size'] > $this->file_pointer) {
-            $record_header_byte = ord(substr($this->file_contents, $this->file_pointer, 1));
-            $this->writeDebug("[" . $this->file_pointer . "-" . $this->file_pointer . "]: Header Byte: $record_header_byte\n");
+            $record_header_byte = $this->getByteValue();
+            $this->writeDebug("[" . $this->file_pointer . "]: Header Byte: $record_header_byte\n");
             $this->file_pointer++;
 
             $compressedTimestamp = false;
@@ -5638,18 +5642,19 @@ class phpFITFileAnalysis {
              */
             if (($record_header_byte >> 7) & 1) {  // Check that it's a normal header
                 // Header with compressed timestamp
-                $this->writeDebug("Header with compressed timestamp\n");
                 $message_type = 0;  //always 0: DATA_MESSAGE
                 $developer_data_flag = 0;  // always 0: DATA_MESSAGE
                 $local_mesg_type = ($record_header_byte >> 5) & 3;  // bindec('0011') == 3
                 $tsOffset = $record_header_byte & 31;
                 $compressedTimestamp = true;
+                $this->writeDebug("Header with compressed timestamp\n");
+                $this->writeDebug("$message_type, $developer_data_flag, $tsOffset, Message Type, Developer Data Flag, TS Offset\n");
             } else {
                 //Normal header
-                $this->writeDebug("Normal Header\n");
                 $message_type = ($record_header_byte >> 6) & 1;  // 1: DEFINITION_MESSAGE; 0: DATA_MESSAGE
                 $developer_data_flag = ($record_header_byte >> 5) & 1;  // 1: DEFINITION_MESSAGE; 0: DATA_MESSAGE
                 $local_mesg_type = $record_header_byte & 15;  // bindec('1111') == 15
+                $this->writeDebug("Normal Header $message_type, $developer_data_flag, $local_mesg_type Message Type, Developer Data Flag, Local Message Type\n");
             }
 
             switch ($message_type) {
@@ -5662,18 +5667,33 @@ class phpFITFileAnalysis {
                      * define a local message type and associate it to a specific FIT message, and then designate
                      * the byte alignment and field contents of the upcoming data message.
                      */
-                    $this->writeDebug("DEFINITION MESSAGE\n");
+                    if ($this->debug) {
+                        $this->writeDebug("DEFINITION MESSAGE\n");
+                        $block_start = $this->file_pointer - 1; // get header too
+                        $block_end = $block_start + 6 + $this->getBytesValues($this->file_pointer + 6, 1) * 3;
+                        if ($developer_data_flag) {
+                            $block_end = $block_end + $this->getBytesValues($block_end + 1, 1) * 3;
+                        }
+                        ob_start();
+                        echo sprintf("[%04d-%04d]:\n", $block_start, $block_end);
+                        $this->hex_dump($this->getString($block_start, ($block_end - $block_start)));
+                        $contents = ob_get_clean();
+                        echo $contents;
+                    }
+                    $this->writeDebug("[" . $this->file_pointer . "]: Reserved-Ignored\n");
                     $this->file_pointer++;  // Reserved - IGNORED
-                    $architecture = ord(substr($this->file_contents, $this->file_pointer, 1));  // Architecture
-                    $this->writeDebug("Architecture: $architecture\n");
+                    $architecture = $this->getByteValue();  // Architecture
+                    $this->writeDebug("[$this->file_pointer]:$architecture Architecture\n");
                     $this->file_pointer++;
 
                     $this->types = $this->endianness[$architecture];
 
-                    $global_mesg_num = ($architecture === 0) ? unpack('v1tmp', substr($this->file_contents, $this->file_pointer, 2))['tmp'] : unpack('n1tmp', substr($this->file_contents, $this->file_pointer, 2))['tmp'];
+                    $global_mesg_num = ($architecture === 0) ? unpack('v1tmp', $this->getString($this->file_pointer, 2))['tmp'] : unpack('n1tmp', $this->getString($this->file_pointer, 2))['tmp'];
+                    $this->writeDebug("[$this->file_pointer-" . ($this->file_pointer + 1) . "]:$global_mesg_num Global Message Number\n");
                     $this->file_pointer += 2;
 
-                    $num_fields = ord(substr($this->file_contents, $this->file_pointer, 1));
+                    $num_fields = $this->getByteValue();
+                    $this->writeDebug("[$this->file_pointer]:$num_fields Number of Fields\n");
                     $this->file_pointer++;
 
                     $field_definitions = [];
@@ -5681,34 +5701,51 @@ class phpFITFileAnalysis {
                     for ($i = 0;
                             $i < $num_fields;
                             ++$i) {
-                        $field_definition_number = ord(substr($this->file_contents, $this->file_pointer, 1));
+                        $field_definition_number = $this->getByteValue();
                         $this->file_pointer++;
-                        $size = ord(substr($this->file_contents, $this->file_pointer, 1));
+                        $size = $this->getByteValue();
                         $this->file_pointer++;
-                        $base_type = ord(substr($this->file_contents, $this->file_pointer, 1));
+                        $base_type = $this->getByteValue();
                         $this->file_pointer++;
-
-                        $field_definitions[] = ['field_definition_number' => $field_definition_number, 'size' => $size, 'base_type' => $base_type];
+                        $this->writeDebug("[" . ($this->file_pointer - 2) . "-$this->file_pointer]:$field_definition_number, $size, $base_type Field Def., Size, Base Type\n");
+                        //
+                        // FIND SUBFIELD
+                        //
+                        $name = '';
+                        if (isset($this->data_mesg_info[$global_mesg_num]['field_defns'][$field_definition_number]['field_name'])) {
+                            $name = $this->data_mesg_info[$global_mesg_num]['field_defns'][$field_definition_number]['field_name'];
+                        } else {
+                            $name = "unknown";
+                        }
+                        $field_definitions[] = ['field_name' => $name, 'field_definition_number' => $field_definition_number, 'size' => $size, 'base_type' => $base_type,];
                         $total_size += $size;
                     }
 
                     $num_dev_fields = 0;
                     $dev_field_definitions = [];
                     if ($developer_data_flag === 1) {
-                        $num_dev_fields = ord(substr($this->file_contents, $this->file_pointer, 1));
+                        $num_dev_fields = $this->getByteValue();
+                        $this->writeDebug("[$this->file_pointer]:$num_dev_fields Number of Dev Fields\n");
                         $this->file_pointer++;
 
                         for ($i = 0;
                                 $i < $num_dev_fields;
                                 ++$i) {
-                            $field_definition_number = ord(substr($this->file_contents, $this->file_pointer, 1));
+                            $field_definition_number = $this->getByteValue();
                             $this->file_pointer++;
-                            $size = ord(substr($this->file_contents, $this->file_pointer, 1));
+                            $size = $this->getByteValue();
                             $this->file_pointer++;
-                            $developer_data_index = ord(substr($this->file_contents, $this->file_pointer, 1));
+                            $developer_data_index = $this->getByteValue();
                             $this->file_pointer++;
+                            $this->writeDebug("[" . ($this->file_pointer - 2) . "-$this->file_pointer]:$field_definition_number, $size, $developer_data_index Field Def., Size, Developer Index\n");
 
-                            $dev_field_definitions[] = ['field_definition_number' => $field_definition_number, 'size' => $size, 'developer_data_index' => $developer_data_index];
+                            $name = '';
+                            if (isset($this->data_mesg_info[$global_mesg_num]['field_defns'][$field_definition_number]['field_name'])) {
+                                $name = $this->data_mesg_info[$global_mesg_num]['field_defns'][$field_definition_number]['field_name'];
+                            } else {
+                                $name = "Unknown";
+                            }
+                            $dev_field_definitions[] = ['field_name' => $name, 'field_definition_number' => $field_definition_number, 'size' => $size, 'developer_data_index' => $developer_data_index];
                             $total_size += $size;
                         }
                     }
@@ -5729,6 +5766,7 @@ class phpFITFileAnalysis {
                         'dev_field_definitions' => $dev_field_definitions,
                         'total_size' => $total_size
                     ];
+                    $this->writeDebug("DEFINITION MESSAGE TYPE: $local_mesg_type: " . print_r($this->defn_mesgs[$local_mesg_type], true));
                     break;
 
                 case DATA_MESSAGE:
@@ -5741,7 +5779,24 @@ class phpFITFileAnalysis {
                      *
                      * Check that we have information on the Data Message.
                      */
-                    $this->writeDebug("DATA MESSAGE\n");
+                    if ($this->debug) {
+                        // trying to map out data messages
+                        // not working so far - count is wrong for ending of block
+                        $this->writeDebug("DATA MESSAGE\n");
+                        $size = 0;
+                        foreach ($this->defn_mesgs[$local_mesg_type]['field_defns'] as $key => $value) {
+                            if (isset($value['size'])) {
+                                $size = $size + $value['size'] + 1;
+                            }
+                        }
+                        $block_start = $this->file_pointer - 1; // get header too
+                        $block_size = $size;
+                        ob_start();
+                        echo sprintf("[%04d-%04d]:\n", $block_start, $block_start + $block_size);
+                        $this->hex_dump($this->getString($block_start, $block_size));
+                        $contents = ob_get_clean();
+                        echo $contents;
+                    }
 
                     if (isset($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']])) {
                         $tmp_record_array = [];  // Temporary array to store Record data message pieces
@@ -5751,7 +5806,9 @@ class phpFITFileAnalysis {
                             // Check that we have information on the Field Definition and a valid base type exists.
                             if (isset($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]) && isset($this->types[$field_defn['base_type']])) {
                                 // Check if it's an invalid value for the type
-                                $tmp_value = unpack($this->types[$field_defn['base_type']]['format'], substr($this->file_contents, $this->file_pointer, $field_defn['size']))['tmp'];
+                                $tmp_value = unpack($this->types[$field_defn['base_type']]['format'], $this->getString($this->file_pointer, $field_defn['size']))['tmp'];
+                                $this->writeDebug("[$this->file_pointer-" . ($this->file_pointer + $field_defn['size']) . "]=$tmp_value\n");
+
                                 if ($tmp_value !== $this->invalid_values[$field_defn['base_type']] ||
                                         $this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 132) {
                                     // If it's a timestamp, compensate between different in FIT and Unix timestamp epochs
@@ -5762,11 +5819,15 @@ class phpFITFileAnalysis {
                                     // If it's a Record data message, store all the pieces in the temporary array as the timestamp may not be first...
                                     if ($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 20) {
                                         $tmp_record_array[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']] = $tmp_value / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale'] - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
+                                        $this->writeDebug("Global Mesg 20: " . print_r($tmp_record_array, true));
                                     } elseif ($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 206) {  // Developer Data
                                         $tmp_record_array[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']] = $tmp_value;
+                                        $this->writeDebug("Global Mesg 206: " . print_r($tmp_record_array, true));
                                     } else {
                                         if ($field_defn['base_type'] === 7) {  // Handle strings appropriately
                                             $this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][] = filter_var($tmp_value, FILTER_SANITIZE_STRING);
+                                            $this->writeDebug("RAW String: " . $tmp_value . "\n");
+                                            $this->writeDebug("String: " . filter_var($tmp_value, FILTER_SANITIZE_STRING) . "\n");
                                         } else {
                                             // Handle arrays
                                             if ($field_defn['size'] !== $this->types[$field_defn['base_type']]['bytes']) {
@@ -5775,11 +5836,16 @@ class phpFITFileAnalysis {
                                                 for ($i = 0;
                                                         $i < $num_vals;
                                                         ++$i) {
-                                                    $tmp_array[] = unpack($this->types[$field_defn['base_type']]['format'], substr($this->file_contents, $this->file_pointer + ($i * $this->types[$field_defn['base_type']]['bytes']), $field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale'] - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
+                                                    $tmp_array[] = unpack($this->types[$field_defn['base_type']]['format'], $this->getString($this->file_pointer + ($i * $this->types[$field_defn['base_type']]['bytes']), $field_defn['size']))['tmp'] / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale'] - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
+                                                    $this->writeDebug("[" . ($this->file_pointer + ($i * $this->types[$field_defn['base_type']]['bytes'])) . "-" . (($this->file_pointer + ($i * $this->types[$field_defn['base_type']]['bytes'])) + $field_defn['size']) . "]: " . print_r($tmp_array, true));
                                                 }
                                                 $this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][] = $tmp_array;
+                                                $this->writeDebug($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name'] . " -> " .
+                                                        $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name'] . " -> " . (print_r($tmp_array, true)) . " \n");
                                             } else {
                                                 $this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']][$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name']][] = $tmp_value / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale'] - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset'];
+                                                $this->writeDebug($this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name'] . " -> " .
+                                                        $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['field_name'] . " -> " . ($tmp_value / $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['scale'] - $this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['field_defns'][$field_defn['field_definition_number']]['offset']) . " \n");
                                             }
                                         }
                                     }
@@ -5787,7 +5853,9 @@ class phpFITFileAnalysis {
                             }
                             $this->file_pointer += $field_defn['size'];
                         }
-
+                        if (isset($this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']])) {
+                            $this->writeDebug("DATA MESSAGE: " . print_r($this->data_mesgs[$this->data_mesg_info[$this->defn_mesgs[$local_mesg_type]['global_mesg_num']]['mesg_name']], true));
+                        }
                         // Handle Developer Data
                         if ($this->defn_mesgs[$local_mesg_type]['global_mesg_num'] === 206) {
                             $developer_data_index = $tmp_record_array['developer_data_index'];
@@ -5808,7 +5876,7 @@ class phpFITFileAnalysis {
                             $this->data_mesgs['developer_data'][$this->dev_field_descriptions[$field_defn['developer_data_index']][$field_defn['field_definition_number']]['field_name']]['units'] = $this->dev_field_descriptions[$field_defn['developer_data_index']][$field_defn['field_definition_number']]['units'];
 
                             // Data
-                            $this->data_mesgs['developer_data'][$this->dev_field_descriptions[$field_defn['developer_data_index']][$field_defn['field_definition_number']]['field_name']]['data'][] = unpack($this->types[$this->dev_field_descriptions[$field_defn['developer_data_index']][$field_defn['field_definition_number']]['fit_base_type_id']]['format'], substr($this->file_contents, $this->file_pointer, $field_defn['size']))['tmp'];
+                            $this->data_mesgs['developer_data'][$this->dev_field_descriptions[$field_defn['developer_data_index']][$field_defn['field_definition_number']]['field_name']]['data'][] = unpack($this->types[$this->dev_field_descriptions[$field_defn['developer_data_index']][$field_defn['field_definition_number']]['fit_base_type_id']]['format'], $this->getString($this->file_pointer, $field_defn['size']))['tmp'];
 
                             $this->file_pointer += $field_defn['size'];
                         }
@@ -5847,6 +5915,7 @@ class phpFITFileAnalysis {
                             foreach ($tmp_record_array as $key => $value) {
                                 if ($value !== null) {
                                     $this->data_mesgs['record'][$key][$timestamp] = $value;
+                                    $this->writeDebug("$key | $timestamp => $value\n");
                                 }
                             }
                         }
@@ -5855,6 +5924,8 @@ class phpFITFileAnalysis {
                     }
             }
         }
+//        print_r($this->data_mesgs);
+//        exit;
         // Overwrite native FIT fields (e.g. Power, HR, Cadence, etc) with developer data by default
         if (!empty($this->dev_field_descriptions)) {
             foreach ($this->dev_field_descriptions as $developer_data_index) {
@@ -6065,8 +6136,8 @@ class phpFITFileAnalysis {
         $missing_power_keys = [];
 
         if (!isset($this->data_mesgs['record'])) {
-            $this->writeDebug("No recorded data. Problem with fit file fields\n");
-            exit;
+            $this->writeDebug("No recorded data.\n");
+            return;
         }
 
         foreach ($this->data_mesgs['record']['timestamp'] as $timestamp) {
@@ -6231,16 +6302,25 @@ class phpFITFileAnalysis {
      * Short-hand access to commonly used enumerated data.
      */
     public function manufacturer() {
+        if (!isset($this->data_mesgs['device_info'])) {
+            return; // no recorded device information
+        }
         $tmp = $this->enumData('manufacturer', $this->data_mesgs['device_info']['manufacturer']);
         return is_array($tmp) ? $tmp[0] : $tmp;
     }
 
     public function product() {
+        if (!isset($this->data_mesgs['device_info'])) {
+            return; // no recorded device information
+        }
         $tmp = $this->enumData('product', $this->data_mesgs['device_info']['product']);
         return is_array($tmp) ? $tmp[0] : $tmp;
     }
 
     public function sport() {
+        if (!isset($this->data_mesgs['session'])) {
+            return; // no data records
+        }
         $tmp = $this->enumData('sport', $this->data_mesgs['session']['sport']);
         return is_array($tmp) ? $tmp[0] : $tmp;
     }
@@ -6463,6 +6543,10 @@ class phpFITFileAnalysis {
 
     /**
      * Calculate HR zones using HRmax formula: zone = HRmax * percentage.
+     * @param type $hr_maximum - max heart rate
+     * @param type $percentages_array - upper percentage limit lists
+     * @return type - array with heart rates for each zone based on HR max provided
+     * @throws \Exception
      */
     public function hrZonesMax($hr_maximum, $percentages_array = [0.60, 0.75, 0.85, 0.95]) {
         if (array_walk($percentages_array, function (&$value, $key, $hr_maximum) {
@@ -6476,6 +6560,11 @@ class phpFITFileAnalysis {
 
     /**
      * Calculate HR zones using HRreserve formula: zone = HRresting + ((HRmax - HRresting) * percentage).
+     * @param type $hr_resting - resting heart rate
+     * @param type $hr_maximum - maximum heart rate
+     * @param type $percentages_array - upper percentage limit lists
+     * @return type - array with HRR for each zone
+     * @throws \Exception
      */
     public function hrZonesReserve($hr_resting, $hr_maximum, $percentages_array = [0.60, 0.65, 0.75, 0.82, 0.89, 0.94]) {
         if (array_walk($percentages_array, function (&$value, $key, $params) {
@@ -6560,11 +6649,14 @@ class phpFITFileAnalysis {
     }
 
     /**
-     * Split data into buckets/bins using a Counting Sort algorithm (http://en.wikipedia.org/wiki/Counting_sort) to generate data for a histogram plot.
+     * Split data into buckets/bins using a Counting Sort algorithm
+     * (http://en.wikipedia.org/wiki/Counting_sort) to generate data for a histogram plot.
      */
     public function histogram($bucket_width = 25, $record_field = '') {
         if (!isset($this->data_mesgs['record'][$record_field])) {
-            throw new \Exception('phpFITFileAnalysis->histogram(): ' . $record_field . ' data not present in FIT file!');
+            trigger_error("->histogram: '$record_field' data not present in FIT file.", E_USER_NOTICE);
+            return;
+            //throw new \Exception('phpFITFileAnalysis->histogram(): ' . $record_field . ' data not present in FIT file!');
         }
         if (!is_numeric($bucket_width) || $bucket_width <= 0) {
             throw new \Exception('phpFITFileAnalysis->histogram(): bucket width is not valid!');
@@ -6636,7 +6728,9 @@ class phpFITFileAnalysis {
      */
     public function hrMetrics($hr_resting, $hr_maximum, $hr_FT, $gender) {
         if (!isset($this->data_mesgs['record']['heart_rate'])) {
-            throw new \Exception('phpFITFileAnalysis->powerMetrics(): heart rate data not present in FIT file!');
+            trigger_error("->hrMetrics: 'heart_rate' data not present in FIT file.", E_USER_NOTICE);
+            return;
+            //throw new \Exception('phpFITFileAnalysis->hrMetrics(): heart rate data not present in FIT file!');
         }
         $meta = [
             'Recovery Pace' => 0.75,
@@ -6687,7 +6781,9 @@ class phpFITFileAnalysis {
      */
     public function timeInZones($hr_maximum, $percentages_zones = [0.60, 0.70, 0.80, 0.90, 1]) {
         if (!isset($this->data_mesgs['record']['heart_rate'])) {
-            throw new \Exception('phpFITFileAnalysis->timeInZones(): heart rate data not present in FIT file!');
+            trigger_error("->timeInZones: 'heart_rate' data not present in FIT file.", E_USER_NOTICE);
+            return;
+            //throw new \Exception('phpFITFileAnalysis->timeInZones(): heart rate data not present in FIT file!');
         }
         if (count($percentages_zones) < 2) {
             throw new \Exception('phpFITFileAnalysis->timeInZones(): requires at least 2 zones to be set.');
@@ -6720,7 +6816,9 @@ class phpFITFileAnalysis {
      */
     public function powerMetrics($functional_threshold_power) {
         if (!isset($this->data_mesgs['record']['power'])) {
-            throw new \Exception('phpFITFileAnalysis->powerMetrics(): power data not present in FIT file!');
+            trigger_error("->powerMetrics: power data not present in FIT file.", E_USER_NOTICE);
+            return;
+            //throw new \Exception('phpFITFileAnalysis->powerMetrics(): power data not present in FIT file!');
         }
 
         $power_metrics['Average Power'] = array_sum($this->data_mesgs['record']['power']) / count($this->data_mesgs['record']['power']);
@@ -6756,7 +6854,9 @@ class phpFITFileAnalysis {
      */
     public function criticalPower($time_periods) {
         if (!isset($this->data_mesgs['record']['power'])) {
-            throw new \Exception('phpFITFileAnalysis->criticalPower(): power data not present in FIT file!');
+            trigger_error("->criticalPower: power data not present in FIT file.", E_USER_NOTICE);
+            return;
+            //throw new \Exception('phpFITFileAnalysis->criticalPower(): power data not present in FIT file!');
         }
 
         if (is_array($time_periods)) {
@@ -7196,6 +7296,15 @@ class phpFITFileAnalysis {
             echo '<thead><th>ID</th><th>Name</th><th>Scale</th><th>Offset</th><th>Units</th></thead><tbody>';
             foreach ($val['field_defns'] as $key2 => $val2) {
                 echo '<tr><td>' . $key2 . '</td><td>' . $val2['field_name'] . '</td><td>' . $val2['scale'] . '</td><td>' . $val2['offset'] . '</td><td>' . $val2['units'] . '</td></tr>';
+                if (isset($val2[0])) {
+                    // dynamic fields found
+                    foreach ($val2 as $key3 => $val3) {
+                        if (!is_array($val3)) {
+                            continue; // skip non array elements
+                        }
+                        echo '<tr><td><i>' . $val3['field_name'] . '</i></td><td>' . $val3['field_type'] . '</td><td>' . $val3['scale'] . '</td><td>' . $val3['offset'] . '</td><td>' . $val2['units'] . '</td></tr>';
+                    }
+                }
             }
             echo '</tbody></table><br><br>';
         }
@@ -7330,8 +7439,69 @@ class phpFITFileAnalysis {
         if (!$this->debug) {
             return;
         }
-
         echo $message;
+    }
+
+    /**
+     * Get single byte value at current file pointer from file buffer
+     * @return type INT
+     */
+    private function getByteValue() {
+        return ord(substr($this->file_contents, $this->file_pointer, 1));
+    }
+
+    /**
+     * Get $length byte values at $start from file buffer
+     * @param type $start int
+     * @param type $length int
+     * @return type int
+     */
+    private function getBytesValues($start, $length) {
+        return ord(substr($this->file_contents, $start, $length));
+    }
+
+    /**
+     * Get a string from the file buffer
+     * @param type $start int
+     * @param type $length int
+     * @return type string
+     */
+    private function getString($start, $length) {
+        return substr($this->file_contents, $start, $length);
+    }
+
+    /**
+     * Converts binary data to a hex dump with ascii values
+     *
+     * @staticvar string $from
+     * @staticvar string $to
+     * @staticvar int $width
+     * @staticvar string $pad
+     * @param type $data binary data
+     * @param type $newline ending character
+     */
+    private function hex_dump($data, $newline = "\n") {
+        static $from = '';
+        static $to = '';
+        static $width = 16; # number of bytes per line
+        static $pad = '.'; # for non-visible characters
+
+        if ($from === '') {
+            for ($i = 0; $i <= 0xFF; $i++) {
+                $from .= chr($i);
+                $to .= ($i >= 0x20 && $i <= 0x7E) ? chr($i) : $pad;
+            }
+        }
+
+        $hex = str_split(bin2hex($data), $width * 2);
+        $chars = str_split(strtr($data, $from, $to), $width);
+
+        $offset = 0;
+        echo "         x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 xa xb xc xd xe xf\n";
+        foreach ($hex as $i => $line) {
+            echo sprintf('%6X', $offset) . ' : ' . implode(' ', str_split($line, 2)) . ' [' . $chars[$i] . ']' . $newline;
+            $offset += $width;
+        }
     }
 
 }
