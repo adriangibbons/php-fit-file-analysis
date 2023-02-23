@@ -59,14 +59,15 @@ if (($open = fopen("Profile-mesg.csv", "r")) !== FALSE) {
     $header = fgetcsv($open, 4096, ';', '"');
 
     while (($data = fgetcsv($open, 2000, ",")) !== FALSE) {
+        if (str_contains($data[6], ',')) {
+            $data[6] = "'$data[6]'"; // string of scale values
+        }
         if (!empty($data[0])) {
             if ($data_first) {
                 //$data_msg .= "'$data[0]' => [ // $data[13]\n";
                 $data_msg .= array_search($data[0], $enum_data['mesg_num']) . " => ['mesg_name' =>'$data[0]', 'field_defns' => [\n\t";
-
                 $data_first = false;
             } else {
-//                $data_msg .= "],\n\t'$data[0]' => [ " . (!empty($data[13]) ? "// $data[13]\n" : "\n");
                 $data_msg .= "]],\n\t " . array_search($data[0], $enum_data['mesg_num']) . " => ['mesg_name' =>'$data[0]', 'field_defns' => [\n";
             }
         } else {
@@ -79,6 +80,7 @@ if (($open = fopen("Profile-mesg.csv", "r")) !== FALSE) {
                         . "'units' => " . (!empty($data[8]) ? "'$data[8]'" : "''") . ", "
                         . "'bits' => " . (!empty($data[9]) ? "'$data[9]'" : "''") . ", "
                         . "'accumulate' => " . (!empty($data[10]) ? "'$data[10]'" : "''") . ", "
+                        . (!empty($data[5]) ? "'component'=>'$data[5]', " : "")
                         . "'ref_field_type' => " . (!empty($data[12]) ? "'$data[12]'" : "''") . ", "
                         . "'ref_field_name' => '$data[11]'], " . (!empty($data[13]) ? "// $data[13] (e.g. $data[15])\n" : "\n");
             }
@@ -110,13 +112,21 @@ function addDynamic($fp, $data, $data_msg) {
     $lastClose = strrpos($data_msg, "]");
     $data_msg[$lastClose] = ' ';
     $dynamicIdx = 0;
-
+    //
     // Build Dynamic
-    $data_msg .= "\t\t$dynamicIdx => ['field_name' => '$data[2]', 'field_type' => '$data[3]', 'scale' => " . (!empty($data[6]) ? "$data[6]" : "1") . ", "
+    //  Where some fields have multiple scales, switch to string format "1,1,1,1" etc.
+    //  Also multiple components and ref_field_values will be comma seperated strings
+    if (str_contains($data[6], ',')) {
+        $data[6] = "'$data[6]'"; // string of scale values
+    }
+
+    $data_msg .= "\t\t$dynamicIdx => ['field_name' => '$data[2]', 'field_type' => '$data[3]', "
+            . "'scale' => " . (!empty($data[6]) ? "$data[6]" : "1") . ", "
             . "'offset' => " . (!empty($data[7]) ? "$data[7]" : "0") . ", "
             . "'units' => " . (!empty($data[8]) ? "'$data[8]'" : "''") . ", "
             . "'bits' => " . (!empty($data[9]) ? "'$data[9]'" : "''") . ", "
             . "'accumulate' => " . (!empty($data[10]) ? "'$data[10]'" : "''") . ", "
+            . (!empty($data[5]) ? "'component'=>'$data[5]', " : "")
             . "'ref_field_type' => " . (!empty($data[12]) ? "'$data[12]'" : "''") . ", "
             . "'ref_field_name' => '$data[11]'], " . (!empty($data[13]) ? "// $data[13] (e.g. $data[15])\n" : "\n");
 
@@ -124,11 +134,16 @@ function addDynamic($fp, $data, $data_msg) {
         $dynamicIdx++;
         if (!is_numeric($data[1]) && empty($data[0])) {
             // still a dynamic field and not a new field
-            $data_msg .= "\t\t$dynamicIdx => ['field_name' => '$data[2]', 'field_type' => '$data[3]', 'scale' => " . (!empty($data[6]) ? "$data[6]" : "1") . ", "
+            if (str_contains($data[6], ',')) {
+                $data[6] = "'$data[6]'"; // string of scale values
+            }
+            $data_msg .= "\t\t$dynamicIdx => ['field_name' => '$data[2]', 'field_type' => '$data[3]', "
+                    . "'scale' => " . (!empty($data[6]) ? "$data[6]" : "1") . ", "
                     . "'offset' => " . (!empty($data[7]) ? "$data[7]" : "0") . ", "
                     . "'units' => " . (!empty($data[8]) ? "'$data[8]'" : "''") . ", "
                     . "'bits' => " . (!empty($data[9]) ? "'$data[9]'" : "''") . ", "
                     . "'accumulate' => " . (!empty($data[10]) ? "'$data[10]'" : "''") . ", "
+                    . (!empty($data[5]) ? "'component'=>'$data[5]', " : "")
                     . "'ref_field_type' => " . (!empty($data[12]) ? "'$data[12]'" : "''") . ", "
                     . "'ref_field_name' => '$data[11]'], " . (!empty($data[13]) ? "// $data[13] (e.g. $data[15])\n" : "\n");
         } else {
@@ -147,6 +162,7 @@ function addDynamic($fp, $data, $data_msg) {
                     . "'units' => " . (!empty($data[8]) ? "'$data[8]'" : "''") . ", "
                     . "'bits' => " . (!empty($data[9]) ? "'$data[9]'" : "''") . ", "
                     . "'accumulate' => " . (!empty($data[10]) ? "'$data[10]'" : "''") . ", "
+                    . (!empty($data[5]) ? "'component'=>'$data[5]', " : "")
                     . "'ref_field_type' => " . (!empty($data[12]) ? "'$data[12]'" : "''") . ", "
                     . "'ref_field_name' => '$data[11]'], " . (!empty($data[13]) ? "// $data[13] (e.g. $data[15])\n" : "\n");
             return $data_msg;
